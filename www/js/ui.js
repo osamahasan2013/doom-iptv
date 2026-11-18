@@ -134,6 +134,14 @@ const App = {
 
   async start() {
     Recorder.init();
+    const CapApp = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
+    if (CapApp && CapApp.addListener) {
+      let lastBack = 0;
+      CapApp.addListener('backButton', () => {
+        if (this.handleBack()) return;
+        if (Date.now() - lastBack < 2000) CapApp.exitApp(); else { lastBack = Date.now(); UI.toast(t('exitHint')); }
+      });
+    }
     this.applyLang(); this.applyTheme();
     Player.init();
     const vol = LS.get('volume', 1); Player.v.volume = vol;
@@ -245,7 +253,8 @@ const App = {
       <div class="scrim"></div>
       <main class="main">
         <header class="topbar">
-          <button class="icon-btn side-toggle" aria-label="menu">${ic('menu')}</button>
+          <button class="icon-btn back-btn hidden" data-act="back" aria-label="${t('back')}" title="${t('back')}">${ic('chevLeft')}</button>
+          <button class="icon-btn side-toggle" aria-label="menu"><span class="desk-ic">${ic('menu')}</span><span class="mob-ic">${ic('burger')}</span></button>
           <h2 class="top-title"></h2>
           <div class="top-tools">
             <span class="upd hidden"><span class="spinner sm"></span></span>
@@ -253,6 +262,7 @@ const App = {
             <button class="icon-btn" data-act="refresh" title="${t('refresh')}">${ic('refresh')}</button>
             <label class="pill-select" title="Sort">${ic('sort')}<select class="sort-sel">
               <option value="default">${t('sortDefault')}</option><option value="added">${t('sortAdded')}</option><option value="az">${t('sortAZ')}</option><option value="za">${t('sortZA')}</option><option value="rating">${t('sortRating')}</option><option value="year">${t('sortYear')}</option></select></label>
+            <button class="pill-select add-sub-btn hidden" data-act="addSub">${ic('plus')}<span>${t('addSub').replace('+ ', '')}</span></button>
             <label class="pill-select sub-pill" title="${t('subscriptions')}">${ic('user')}<select class="sub-sel"></select>${ic('chevUpDown')}</label>
             <div class="search">${ic('search')}<input type="search" class="search-in" placeholder="${t('search')}" autocomplete="off"></div>
           </div>
@@ -264,7 +274,12 @@ const App = {
     shell.addEventListener('click', e => {
       const s = e.target.closest('[data-sec]'); if (s) { this.go(s.dataset.sec); return; }
       const a = e.target.closest('[data-act]'); if (!a) return;
-      if (a.dataset.act === 'refresh') { if (this.section === 'free') FreeCat.load(true).then(() => this.render()); else this.loadCatalog(true); }
+      if (a.dataset.act === 'refresh') {
+        if (this.section === 'free') { const u = $('.upd', this.el); u.classList.remove('hidden'); FreeCat.load(true).then(() => { u.classList.add('hidden'); this.render(); UI.toast(t('updatedOk')); }); }
+        else this.loadCatalog(true).then(() => UI.toast(t('updatedOk')));
+      }
+      if (a.dataset.act === 'back') this.goBack();
+      if (a.dataset.act === 'addSub') this.addSubscription();
       if (a.dataset.act === 'theme') { Settings.set('theme', document.body.classList.contains('light') ? 'dark' : 'light'); this.applyTheme(); }
       if (a.dataset.act === 'closeSide') document.body.classList.remove('side-open');
     });
@@ -288,6 +303,8 @@ const App = {
   },
   updateSubSelect() {
     const sel = $('.sub-sel', this.el); if (!sel) return; const all = Playlists.all();
+    // no subscription yet: a plain button (a list with a single choice can't be "changed")
+    $('.sub-pill', this.el).classList.toggle('hidden', !all.length); $('.add-sub-btn', this.el).classList.toggle('hidden', !!all.length);
     sel.innerHTML = all.map(p => { const d = Accounts.daysLeft(p.id); return `<option value="${esc(p.id)}">${esc(p.name || p.username || p.type)}${d != null ? ' · ' + (d < 0 ? t('expired') : d + 'd') : ''}</option>`; }).join('')
       + (all.length > 1 ? `<option value="__merged">${t('allSubs')}</option>` : '') + `<option value="__add">${t('addSub')}</option>`;
     sel.value = !all.length ? '__add' : Playlists.mode() === 'merged' ? '__merged' : Playlists.activeId();
@@ -352,6 +369,27 @@ const App = {
   },
 
   /* ---------- navigation ---------- */
+  isRoot() { return LS.get('freeOnly', false) ? false : ['movies', 'series', 'live'].includes(this.section); },
+  updateBackBtn() { const b = this.el && $('.back-btn', this.el); if (b) b.classList.toggle('hidden', this.isRoot()); },
+  /* one step back: other page -> main browse page; free-only mode -> back to the start screen. Returns false at the top level. */
+  goBack() {
+    if (this.q) { this.q = ''; const si = $('.search-in', this.el); if (si) si.value = ''; this.render(); return true; }
+    if (LS.get('freeOnly', false) && !Playlists.all().length) {
+      if (this.section !== 'free') { this.go('free'); return true; }
+      LS.del('freeOnly'); document.body.classList.remove('free-only'); this.welcome(); return true;
+    }
+    if (this.isRoot()) return false;
+    this.go(Settings.get('lastSection') || 'movies'); return true;
+  },
+  /* Android back button / remote Back / Esc */
+  handleBack() {
+    const ctx = $('.ctx'); if (ctx) { ctx.remove(); return true; }
+    const m = UI.top(); if (m) { m.close(); return true; }
+    if (Player.open_) { Player.onKey({ key: 'Escape', keyCode: 27, target: document.body, preventDefault() {} }); return true; }
+    if (document.body.classList.contains('side-open')) { document.body.classList.remove('side-open'); return true; }
+    if (!this.el || !document.body.contains(this.el)) return false; // start screen
+    return this.goBack();
+  },
   go(sec) {
     if (this.section === 'multiview' && sec !== 'multiview') MultiView.stopAll();
     if (['movies', 'series', 'live'].includes(sec)) { if (sec !== this.section) this.cat = 'all'; Settings.set('lastSection', sec); }
@@ -382,6 +420,7 @@ const App = {
   setTitle(s) { $('.top-title', this.el).textContent = s; document.title = s + ' — DOOM'; },
 
   render() {
+    this.updateBackBtn && this.updateBackBtn();
     if (!this.el || (!this.data && this.section !== 'free')) return;
     if (this.section === 'free') { this.el.dataset.section = 'free'; return FreePage.render(this); }
     if (this.q && this.q.length >= 2) return this.renderSearch();
@@ -842,6 +881,7 @@ const App = {
         const ctx = $('.ctx'); if (ctx) { ctx.remove(); e.preventDefault(); return; }
         const m = UI.top(); if (m) { m.close(); e.preventDefault(); return; }
         if (document.body.classList.contains('side-open')) { document.body.classList.remove('side-open'); e.preventDefault(); return; }
+        if (!(e.target.matches && e.target.matches('input,textarea,select')) && this.el && document.body.contains(this.el) && this.goBack()) e.preventDefault();
         return;
       }
       const dirs = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' };

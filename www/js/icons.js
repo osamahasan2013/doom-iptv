@@ -2,6 +2,7 @@
 'use strict';
 const ICON_PATHS = {
   menu: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/>',
+  burger: '<path d="M4 7h16M4 12h16M4 17h16"/>', home: '<path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/>',
   history: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/>',
   star: '<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/>',
   grid: '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/>',

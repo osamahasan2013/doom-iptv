@@ -12,7 +12,7 @@ Object.assign(I18N.en, {
   freeNotReady: 'The daily-checked list isn’t published yet, so channels come straight from iptv-org (not checked yet).',
   freeBase: 'Checked list address', freeHint: 'Only open, maintained sources of free live channels. Links that stop working are removed automatically.',
   geo: 'May be region-locked', deadHidden: 'This link stopped working — hidden for 24 hours',
-  freeNoSub: 'Watch Free IPTV without a subscription', addSub: '+ Add subscription',
+  freeNoSub: 'Watch Free IPTV without a subscription', addSub: '+ Add subscription', back: 'Back', updatedOk: 'Updated ✓', exitHint: 'Press back again to exit',
   themeMode: 'Day / Night', day: 'Day', night: 'Night'
 });
 Object.assign(I18N.ar, {
@@ -21,7 +21,7 @@ Object.assign(I18N.ar, {
   freeNotReady: 'القائمة المفحوصة يومياً لم تُنشر بعد، لذلك القنوات معروضة مباشرة من iptv-org (بدون فحص).',
   freeBase: 'عنوان القائمة المفحوصة', freeHint: 'مصادر مفتوحة ومُحدَّثة لقنوات مباشرة مجانية فقط. أي رابط يتوقف يُحذف تلقائياً.',
   geo: 'قد يكون مقيداً جغرافياً', deadHidden: 'الرابط توقف عن العمل — تم إخفاؤه لمدة 24 ساعة',
-  freeNoSub: 'شاهد IPTV المجاني بدون اشتراك', addSub: '+ إضافة اشتراك',
+  freeNoSub: 'شاهد IPTV المجاني بدون اشتراك', addSub: '+ إضافة اشتراك', back: 'رجوع', updatedOk: 'تم التحديث ✓', exitHint: 'اضغط رجوع مرة أخرى للخروج',
   themeMode: 'نهاري / ليلي', day: 'نهاري', night: 'ليلي'
 });
 

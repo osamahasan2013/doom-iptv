@@ -348,3 +348,10 @@ body.free-only .sidebar .nav { margin-top: 4px; }
 .ps-msg:empty { display: none; }
 .player[data-sub="s"] video::cue { font-size: .85em; } .player[data-sub="l"] video::cue { font-size: 1.45em; } .player[data-sub="xl"] video::cue { font-size: 1.8em; }
 .about-name { margin-bottom: 2px !important; } .about-ver { margin-top: 0 !important; font-size: 13px; color: var(--muted); letter-spacing: .5px; }
+
+/* top bar: back arrow, hamburger on phones, add-subscription button */
+.mob-ic { display: none; } .side-toggle .ic { display: block; }
+@media (max-width: 900px) { .desk-ic { display: none; } .mob-ic { display: inline; } }
+.add-sub-btn { gap: 6px; font-weight: 600; color: var(--text); background: rgba(91,140,255,.18); border-color: rgba(91,140,255,.45); white-space: nowrap; }
+.add-sub-btn .ic { width: 18px; height: 18px; }
+.back-btn { margin-inline-end: -6px; } [dir=rtl] .back-btn .ic { transform: scaleX(-1); }
