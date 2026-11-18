@@ -411,8 +411,11 @@ const Player = {
     v.style.objectFit = 'fill';
   },
   toggleFS() {
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-    else { const p = this.el.requestFullscreen ? this.el.requestFullscreen() : null; p && p.then(() => { try { screen.orientation.lock('landscape').catch(() => {}); } catch {} }).catch(() => {}); }
+    const d = document;
+    if (d.fullscreenElement || d.webkitFullscreenElement) { (d.exitFullscreen || d.webkitExitFullscreen).call(d); return; }
+    const el = this.el, req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (req) { const p = req.call(el); p && p.then && p.then(() => { try { screen.orientation.lock('landscape').catch(() => {}); } catch {} }).catch(() => {}); return; }
+    if (this.v.webkitEnterFullscreen) { try { this.v.webkitEnterFullscreen(); } catch {} } // iPhone: native full-screen player
   },
 
   /* ---------- UI state ---------- */
