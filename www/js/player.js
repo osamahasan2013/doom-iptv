@@ -175,7 +175,7 @@ const Player = {
     $('.p-subfile', el).addEventListener('change', e => this.loadSubFile(e.target.files[0]));
     ['playing', 'pause', 'waiting', 'canplay', 'loadedmetadata', 'seeked'].forEach(ev => v.addEventListener(ev, () => this.onMediaEvent(ev)));
     v.addEventListener('ended', () => this.onEnded());
-    el.addEventListener('mousemove', () => this.showUI());
+    el.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && !this._touch) this.showUI(); });
     this.bindGestures();
     document.addEventListener('fullscreenchange', () => { $('[data-a=fs]', el).innerHTML = document.fullscreenElement ? ic('fsExit') : ic('fs'); this.applyAspect(); });
     window.addEventListener('resize', () => this.open_ && this.applyAspect());
@@ -184,32 +184,44 @@ const Player = {
   bindGestures() {
     const g = $('.p-gest', this.el); let s = null, lastTap = 0, tapT = 0;
     g.addEventListener('click', e => {
-      if (e.pointerType === 'touch' || this._touch) return;
+      if (this._touch) return; // touch taps are handled below
       clearTimeout(tapT); tapT = setTimeout(() => { this.togglePlay(); this.showUI(); }, 220);
     });
-    g.addEventListener('dblclick', () => { clearTimeout(tapT); this.toggleFS(); });
+    g.addEventListener('dblclick', () => { if (this._touch) return; clearTimeout(tapT); this.toggleFS(); });
     g.addEventListener('touchstart', e => {
-      this._touch = true; const tt = e.touches[0]; const r = g.getBoundingClientRect();
+      this._touch = true; clearTimeout(this._touchT);
+      const tt = e.touches[0]; const r = g.getBoundingClientRect();
       s = { x: tt.clientX, y: tt.clientY, rx: (tt.clientX - r.left) / r.width, w: r.width, hgt: r.height, mode: null, t0: this.time(), b0: this.brightness, v0: this.v.volume, moved: false };
     }, { passive: true });
     g.addEventListener('touchmove', e => {
       if (!s) return; const tt = e.touches[0]; const dx = tt.clientX - s.x, dy = tt.clientY - s.y;
-      if (!s.mode && Math.hypot(dx, dy) > 14) s.mode = Math.abs(dx) > Math.abs(dy) ? 'seek' : (s.rx < .5 ? 'bright' : 'vol');
-      if (!s.mode) return; s.moved = true; e.preventDefault && e.cancelable && e.preventDefault();
+      if (!s.mode && Math.hypot(dx, dy) > 14) s.mode = Math.abs(dx) > Math.abs(dy) ? (this.isLive() && this.ctx ? 'zap' : 'seek') : (s.rx < .5 ? 'bright' : 'vol');
+      if (!s.mode) return; s.moved = true; if (e.cancelable) e.preventDefault();
+      s.dx = dx;
+      if (s.mode === 'zap') { // live TV: swipe left = next channel, swipe right = previous channel
+        const dir = dx < 0 ? 1 : -1; const i = this.ctx.index + dir;
+        if (Math.abs(dx) > 50 && i >= 0 && i < this.ctx.list.length) this.osd((dir > 0 ? '⟵ ' : '') + (this.ctx.list[i].num ? this.ctx.list[i].num + '. ' : '') + this.ctx.list[i].name + (dir < 0 ? ' ⟶' : ''));
+      }
       if (s.mode === 'seek' && !this.isLive()) { const d = this.dur(); s.target = clamp(s.t0 + dx / s.w * Math.min(d, 600), 0, d); this.osd(`${fmtTime(s.target)} / ${fmtTime(d)}`); }
-      if (s.mode === 'bright') { this.setBrightness(clamp(s.b0 - dy / s.hgt * 1.6, .2, 2)); }
-      if (s.mode === 'vol') { this.setVolume(clamp(s.v0 - dy / s.hgt * 1.4, 0, 1)); }
+      if (s.mode === 'bright') this.setBrightness(clamp(s.b0 - dy / s.hgt * 1.6, .2, 2));
+      if (s.mode === 'vol') this.setVolume(clamp(s.v0 - dy / s.hgt * 1.4, 0, 1));
     }, { passive: false });
-    g.addEventListener('touchend', () => {
+    g.addEventListener('touchend', e => {
+      if (e.cancelable) e.preventDefault(); // stop the browser's extra "click" from hitting the controls that just appeared
       if (!s) return;
+      if (s.mode === 'zap' && Math.abs(s.dx || 0) > 70) this.step(s.dx < 0 ? 1 : -1);
       if (s.mode === 'seek' && s.target != null) this.seekTo(s.target);
       if (!s.moved) {
         const now = Date.now();
-        if (now - lastTap < 300) { clearTimeout(tapT); if (s.rx < .35) this.skip(-1); else if (s.rx > .65) this.skip(1); else this.togglePlay(); lastTap = 0; }
-        else { lastTap = now; tapT = setTimeout(() => this.toggleUI(), 280); }
+        if (now - lastTap < 300) { // double tap: sides seek, middle play/pause
+          if (s.rx < .35) this.skip(-1); else if (s.rx > .65) this.skip(1); else this.togglePlay();
+          lastTap = 0; this.showUI();
+        } else { lastTap = now; this.toggleUI(); } // single tap: show / hide controls right away
       }
-      s = null; setTimeout(() => { this._touch = false; }, 500);
+      s = null; this._touchT = setTimeout(() => { this._touch = false; }, 800);
     });
+    // any touch on the controls themselves keeps them on screen
+    ['.p-top', '.p-bottom', '.p-center', '.p-menu', '.p-side'].forEach(sel => $(sel, this.el).addEventListener('touchstart', () => this.showUI(), { passive: true }));
   },
 
   /* ---------- open / close ---------- */
@@ -368,7 +380,7 @@ const Player = {
       if (this.paused() || !$('.p-menu', this.el).classList.contains('hidden') || !$('.p-side', this.el).classList.contains('hidden')) return;
       if (this.el.contains(document.activeElement) && document.activeElement.matches('input[type=range]')) return;
       this.el.classList.remove('ui');
-    }, 3500);
+    }, this._touch || matchMedia('(pointer: coarse)').matches ? 6000 : 3500);
   },
   toggleUI() { if (this.el.classList.contains('ui')) { this.el.classList.remove('ui'); clearTimeout(this.uiTimer); } else this.showUI(); },
   osd(html, isHtml) {
