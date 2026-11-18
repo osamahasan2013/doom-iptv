@@ -793,7 +793,8 @@ const App = {
       h('p', { class: 'muted small' }, t('backupHint')));
 
     section(t('about'), h('div', { class: 'about' }, h('div', { class: 'logo big' }, h('span', { html: ic('play') }), 'DOOM IPTV'),
-      h('p', { class: 'muted' }, t('version') + ' ' + (window.DOOM_VERSION || 'dev')), h('p', {}, t('designedBy') + ': ', h('b', {}, LANG === 'ar' ? 'أسامة حسن دسوقي' : 'OSAMA HASAN DESOUKY'))));
+      h('p', { class: 'about-name' }, t('designedBy') + ': ', h('b', {}, LANG === 'ar' ? 'أسامة حسن دسوقي' : 'OSAMA HASAN DESOUKY')),
+      h('p', { class: 'about-ver' }, t('version') + ' ', h('bdi', {}, window.DOOM_VERSION || 'dev'))));
   },
   subCard(p) {
     const a = Accounts.get(p.id) || {}; const d = Accounts.daysLeft(p.id);

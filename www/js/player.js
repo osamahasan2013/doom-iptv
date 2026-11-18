@@ -155,10 +155,13 @@ const Player = {
       <div class="p-side hidden"></div>
       <div class="p-stats hidden"></div>
       <div class="p-next hidden"></div>
+      <div class="p-sync hidden"></div>
       <div class="p-err hidden"></div>
       <input type="file" class="p-subfile hidden" accept=".srt,.vtt">`;
     document.body.appendChild(this.el);
     this.v = $('video', this.el);
+    this.el.dataset.sub = Settings.get('subSize') || 'm';
+    this.el.dataset.sub = Settings.get('subSize') || 'm';
     this.bind();
   },
 
@@ -173,12 +176,56 @@ const Player = {
     seek.addEventListener('change', () => { const d = this.dur(); this.seekTo(seek.value / 1000 * d); this.seeking = false; });
     $('.p-vol', el).addEventListener('input', e => this.setVolume(e.target.value / 100));
     $('.p-subfile', el).addEventListener('change', e => this.loadSubFile(e.target.files[0]));
-    ['playing', 'pause', 'waiting', 'canplay', 'loadedmetadata', 'seeked'].forEach(ev => v.addEventListener(ev, () => this.onMediaEvent(ev)));
-    v.addEventListener('ended', () => this.onEnded());
+    this.bindVideo(v);
     el.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && !this._touch) this.showUI(); });
     this.bindGestures();
     document.addEventListener('fullscreenchange', () => { $('[data-a=fs]', el).innerHTML = document.fullscreenElement ? ic('fsExit') : ic('fs'); this.applyAspect(); });
     window.addEventListener('resize', () => this.open_ && this.applyAspect());
+  },
+
+  bindVideo(v) {
+    ['playing', 'pause', 'waiting', 'canplay', 'loadedmetadata', 'seeked'].forEach(ev => v.addEventListener(ev, () => this.onMediaEvent(ev)));
+    v.addEventListener('ended', () => this.onEnded());
+    v.textTracks && v.textTracks.addEventListener && v.textTracks.addEventListener('change', () => setTimeout(() => SubSync.apply(this.v), 50));
+  },
+  /* After auto-sync the element's sound goes through Web Audio; give each new video a fresh element. */
+  freshVideo() {
+    const old = this.v; const nv = document.createElement('video');
+    ['playsinline', 'webkit-playsinline'].forEach(a => nv.setAttribute(a, '')); nv.preload = 'auto';
+    nv.volume = old.volume; nv.muted = old.muted; nv.style.cssText = old.style.cssText;
+    old.replaceWith(nv); this.v = nv; this.bindVideo(nv);
+    try { this.actx && this.actx.close(); } catch {} this.actx = null; this.analyser = null; this._audioHooked = false;
+  },
+  /* Web Audio analyser on the playing video, without ever silencing it. */
+  async audioAnalyser() {
+    if (this.analyser && this._audioHooked) { try { await this.actx.resume(); } catch {} return this.analyser; }
+    const v = this.v; const src = v.currentSrc || '';
+    const sameOrigin = src.startsWith('blob:') || src.startsWith(location.origin) || src.startsWith('capacitor:') || src.startsWith('http://localhost');
+    const safe = isElectron() || sameOrigin || (this.engine && /hls|mpegts/.test(this.engine.name));
+    if (!safe && !(await this.corsReload())) return null; // a cross-origin stream without permission would go silent: never hook it
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext; this.actx = new Ctx();
+      const node = this.actx.createMediaElementSource(v); node.connect(this.actx.destination);
+      const an = this.actx.createAnalyser(); an.fftSize = 2048; an.smoothingTimeConstant = 0; node.connect(an);
+      await this.actx.resume(); this.analyser = an; this._audioHooked = true; return an;
+    } catch (e) { console.warn('audio analyser', e); return null; }
+  },
+  /* ask the server for permission (CORS) to read the audio; restore playback exactly as it was if refused */
+  corsReload() {
+    const v = this.v; const src = v.currentSrc; if (!src || v.srcObject) return Promise.resolve(false);
+    const t = v.currentTime, wasPaused = v.paused; this._probing = true;
+    const reload = cors => new Promise(res => {
+      const done = ok => { clearTimeout(to); v.removeEventListener('canplay', okH); v.removeEventListener('error', errH); res(ok); };
+      const okH = () => done(true), errH = () => done(false); const to = setTimeout(() => done(false), 12000);
+      v.addEventListener('canplay', okH); v.addEventListener('error', errH);
+      if (cors) v.crossOrigin = 'anonymous'; else v.removeAttribute('crossorigin');
+      v.src = src; v.load(); try { v.currentTime = t; } catch {} if (!wasPaused) v.play().catch(() => {});
+    });
+    return reload(true).then(async ok => {
+      if (!ok) await reload(false);
+      $$('track', v).forEach(tr => { tr.track.mode = 'showing'; });
+      this._probing = false; return ok;
+    });
   },
 
   bindGestures() {
@@ -231,6 +278,8 @@ const Player = {
     if (reason) Parental.overrideUntil = Date.now() + 3600000;
     if (!this.el) this.init();
     clearInterval(this._nextIv); this.stopEngine();
+    if (this._audioHooked) this.freshVideo();
+    SubSync.cancelled = true; SubSync.load(item); $('.p-sync', this.el) && $('.p-sync', this.el).classList.add('hidden');
     this.item = item; this.ctx = ctx; this.epg = []; this.opts = opts;
     this.open_ = true; this.el.classList.remove('hidden'); document.body.classList.add('playing');
     this.hidePanels(); $('.p-err', this.el).classList.add('hidden'); $('.p-next', this.el).classList.add('hidden');
@@ -280,6 +329,7 @@ const Player = {
   },
 
   fail(detail) {
+    if (this._probing) return;
     console.warn('stream failed', detail);
     this.stopEngine(true);
     if (this.attemptIdx < this.attempts.length - 1) { this.attemptIdx++; this.startAt = this.lastTime || this.startAt; this.startAttempt(); }
@@ -379,7 +429,7 @@ const Player = {
     // touch screens: after the user taps, the controls stay until the next tap (only the first appearance hides by itself)
     if (this.isTouch() && this.userTapped && !auto) return;
     this.uiTimer = setTimeout(() => {
-      if (this.paused() || !$('.p-menu', this.el).classList.contains('hidden') || !$('.p-side', this.el).classList.contains('hidden')) return;
+      if (this.paused() || !$('.p-menu', this.el).classList.contains('hidden') || !$('.p-side', this.el).classList.contains('hidden') || !$('.p-sync', this.el).classList.contains('hidden')) return;
       if (this.el.contains(document.activeElement) && document.activeElement.matches('input[type=range]')) return;
       this.el.classList.remove('ui');
     }, this._touch || matchMedia('(pointer: coarse)').matches ? 6000 : 3500);
@@ -422,6 +472,7 @@ const Player = {
       if (Parental.blockReason() && !this._locking) this.parentalLock();
     }
     if (!live && Date.now() - this.lastSave > 5000) this.saveProgress();
+    if ((SubSync.offset || SubSync.scale !== 1) && (this._subT = (this._subT || 0) + 1) % 8 === 0) SubSync.apply(this.v);
     if (!$('.p-stats', el).classList.contains('hidden') && (force || Math.random() < .1)) this.renderStats();
   },
   async parentalLock() {
@@ -508,7 +559,7 @@ const Player = {
     }
     m.classList.remove('hidden'); ($('.pm-item.active', m) || $('.pm-item', m)).focus();
   },
-  hidePanels() { ['.p-menu', '.p-side', '.p-stats'].forEach(s => $(s, this.el).classList.add('hidden')); },
+  hidePanels() { ['.p-menu', '.p-side', '.p-stats', '.p-sync'].forEach(s => $(s, this.el).classList.add('hidden')); },
 
   tracksMenu() {
     const opts = []; const hls = this.engine && this.engine.hls;
@@ -519,7 +570,48 @@ const Player = {
     if (hls && hls.subtitleTracks && hls.subtitleTracks.length) hls.subtitleTracks.forEach((tr, i) => opts.push({ label: '💬 ' + (tr.name || tr.lang), active: hls.subtitleTrack === i, run: () => { hls.subtitleTrack = i; hls.subtitleDisplay = true; } }));
     else tts.forEach(tr => opts.push({ label: '💬 ' + (tr.label || tr.language || 'Track'), active: tr.mode === 'showing', run: () => { tts.forEach(x => { x.mode = x === tr ? 'showing' : 'disabled'; }); } }));
     opts.push({ label: '📄 ' + t('loadSub'), run: () => $('.p-subfile', this.el).click() });
+    opts.push({ label: '⏱ ' + t('subSync') + ' (' + SubSync.fmt(SubSync.offset) + ')', run: () => this.syncPanel() });
+    const sz = Settings.get('subSize') || 'm';
+    opts.push({ label: '🔠 ' + t('subSize') + ': ' + t({ s: 'subSmall', m: 'subMedium', l: 'subLarge', xl: 'subXL' }[sz]), run: () => this.menu(t('subSize'), [['s', 'subSmall'], ['m', 'subMedium'], ['l', 'subLarge'], ['xl', 'subXL']].map(([k, l]) => ({ label: t(l), active: sz === k, run: () => { Settings.set('subSize', k); this.el.dataset.sub = k; } }))) });
     this.menu(t('audio') + ' / ' + t('subtitles'), opts);
+  },
+  nudgeSub(d) {
+    if (!SubSync.track(this.v)) { this.osd(t('subNoSubs')); return; }
+    SubSync.offset = Math.round((SubSync.offset + d) * 10) / 10; SubSync.apply(this.v); SubSync.save(this.item);
+    this.osd('💬 ' + SubSync.fmt(SubSync.offset)); this.drawSync();
+  },
+  syncPanel() {
+    const p = $('.p-sync', this.el); $('.p-menu', this.el).classList.add('hidden');
+    p.classList.remove('hidden'); this.drawSync(); this.showUI();
+    const f = $('.ps-btn', p); f && f.focus();
+  },
+  drawSync(msg) {
+    const p = $('.p-sync', this.el); if (!p || p.classList.contains('hidden')) return;
+    const has = !!SubSync.track(this.v);
+    p.innerHTML = `<div class="ps-row"><b>⏱ ${t('subSync')}</b><button class="pbtn sm" data-s="x">${ic('close')}</button></div>
+      <div class="ps-row ctrl"><button class="ps-btn" data-s="-1">−1s</button><button class="ps-btn" data-s="-0.1">−0.1</button>
+      <div class="ps-val"><small>${t('subDelay')}</small><b>${SubSync.fmt(SubSync.offset)}</b>${SubSync.scale !== 1 ? `<small>${t('subFps')}</small>` : ''}</div>
+      <button class="ps-btn" data-s="0.1">+0.1</button><button class="ps-btn" data-s="1">+1s</button></div>
+      <div class="ps-row"><button class="btn sm" data-s="0">${t('subReset')}</button><button class="btn sm primary" data-s="auto" ${SubSync.busy ? 'disabled' : ''}>✨ ${t('subAuto')}</button>${SubSync.busy ? `<button class="btn sm" data-s="stop">${t('subCancel')}</button>` : ''}</div>
+      <div class="ps-msg muted small">${esc(msg || (has ? '' : t('subNoSubs')))}</div>`;
+    p.onclick = async e => {
+      e.stopPropagation(); this.showUI(); const b = e.target.closest('[data-s]'); if (!b) return; const a = b.dataset.s;
+      if (a === 'x') { p.classList.add('hidden'); return; }
+      if (a === 'stop') { SubSync.cancelled = true; return; }
+      if (a === '0') { SubSync.offset = 0; SubSync.scale = 1; SubSync.apply(this.v); SubSync.save(this.item); return this.drawSync(); }
+      if (a === 'auto') return this.autoSync();
+      this.nudgeSub(parseFloat(a));
+    };
+  },
+  async autoSync() {
+    if (!SubSync.track(this.v)) return this.drawSync(t('subNoSubs'));
+    if (this.paused()) this.togglePlay();
+    this.drawSync(t('subListening', { n: 0 }));
+    const r = await SubSync.auto(this, n => { const m = $('.p-sync .ps-msg', this.el); if (m) m.textContent = t('subListening', { n }); });
+    if (r.ok) {
+      SubSync.offset = Math.round(r.offset * 10) / 10; SubSync.scale = r.scale; SubSync.apply(this.v); SubSync.save(this.item);
+      this.drawSync('✅ ' + t('subDone', { d: SubSync.fmt(SubSync.offset) }) + (r.scale !== 1 ? ' · ' + t('subFps') : ''));
+    } else this.drawSync(r.why === 'cancel' ? '' : r.why === 'blocked' ? t('subBlocked') : r.why === 'nosubs' ? t('subNoSubs') : t('subFail'));
   },
   refreshTrackBtn() {},
   async loadSubFile(f) {
@@ -527,7 +619,7 @@ const Player = {
     const url = URL.createObjectURL(new Blob([txt], { type: 'text/vtt' }));
     $$('track', this.v).forEach(x => x.remove());
     const tr = h('track', { kind: 'subtitles', label: f.name, srclang: 'xx', src: url, default: true }); this.v.appendChild(tr);
-    setTimeout(() => { Array.from(this.v.textTracks).forEach(x => { x.mode = x.label === f.name ? 'showing' : 'disabled'; }); }, 100);
+    setTimeout(() => { Array.from(this.v.textTracks).forEach(x => { x.mode = x.label === f.name ? 'showing' : 'disabled'; }); setTimeout(() => SubSync.apply(this.v), 300); }, 100);
     this.osd('💬 ' + f.name);
   },
 
@@ -607,7 +699,7 @@ const Player = {
   /* ---------- remote / keyboard ---------- */
   onKey(e) {
     const k = e.key, code = e.keyCode; const el = this.el;
-    const menuOpen = !$('.p-menu', el).classList.contains('hidden') || !$('.p-side', el).classList.contains('hidden') || !$('.p-stats', el).classList.contains('hidden');
+    const menuOpen = ['.p-menu', '.p-side', '.p-stats', '.p-sync'].some(x => !$(x, el).classList.contains('hidden'));
     const uiShown = el.classList.contains('ui');
     if (k === 'Escape' || k === 'Backspace' && !(e.target.matches && e.target.matches('input')) || k === 'GoBack' || k === 'BrowserBack' || code === 10009 || code === 461) {
       e.preventDefault();
@@ -635,6 +727,8 @@ const Player = {
       case 'n': this.step(1); return true;
       case 'p': this.step(-1); return true;
       case 'i': this.action('stats'); return true;
+      case 'g': this.nudgeSub(-0.1); return true;
+      case 'h': this.nudgeSub(0.1); return true;
     }
     return false;
   }

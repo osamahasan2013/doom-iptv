@@ -336,3 +336,15 @@ body.free-only .sidebar .nav { margin-top: 4px; }
   .poster { box-shadow: none; } .card:hover, .card:active { transform: none; }
   .content { scroll-behavior: auto; } .modal-back { backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
+
+/* subtitle sync panel + sizes */
+.p-sync { position: absolute; z-index: 8; left: 50%; transform: translateX(-50%); bottom: 110px; width: min(460px, 94vw); background: var(--menu-bg); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.p-sync .ps-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.p-sync .ps-row.ctrl { justify-content: center; flex-wrap: nowrap; }
+.ps-btn { min-width: 58px; height: 44px; border-radius: 12px; background: rgba(255,255,255,.1); font-weight: 700; font-variant-numeric: tabular-nums; }
+.ps-btn:hover, .ps-btn:focus { background: rgba(255,255,255,.2); }
+.ps-val { min-width: 110px; text-align: center; display: flex; flex-direction: column; } .ps-val b { font-size: 22px; font-variant-numeric: tabular-nums; } .ps-val small { font-size: 11px; opacity: .7; }
+.pbtn.sm { width: 34px; height: 34px; } .pbtn.sm .ic { width: 18px; height: 18px; }
+.ps-msg:empty { display: none; }
+.player[data-sub="s"] video::cue { font-size: .85em; } .player[data-sub="l"] video::cue { font-size: 1.45em; } .player[data-sub="xl"] video::cue { font-size: 1.8em; }
+.about-name { margin-bottom: 2px !important; } .about-ver { margin-top: 0 !important; font-size: 13px; color: var(--muted); letter-spacing: .5px; }
