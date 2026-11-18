@@ -1,0 +1,8 @@
+{
+  "appId": "com.osamahasan.doom",
+  "appName": "DOOM IPTV",
+  "webDir": "www",
+  "server": { "androidScheme": "http", "cleartext": true },
+  "android": { "allowMixedContent": true, "captureInput": true },
+  "plugins": { "CapacitorHttp": { "enabled": true } }
+}

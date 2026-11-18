@@ -1,0 +1,78 @@
+{
+  "name": "doom-iptv",
+  "version": "1.0.0",
+  "description": "DOOM IPTV \u2014 player for Xtream Codes and M3U subscriptions (web, Android/Android TV, Windows, macOS, Linux)",
+  "author": {
+    "name": "OSAMA HASAN DESOUKY",
+    "email": "osamahasan2013@users.noreply.github.com"
+  },
+  "license": "UNLICENSED",
+  "main": "electron/main.js",
+  "scripts": {
+    "libs": "node scripts/copy-libs.js",
+    "serve": "npm run libs && npx --yes http-server www -p 8080 -c-1",
+    "electron": "npm run libs && electron .",
+    "android:init": "npm run libs && npx cap add android && node scripts/patch-android.js && npx cap sync android",
+    "android:sync": "npm run libs && npx cap sync android",
+    "android:apk": "cd android && ./gradlew assembleDebug",
+    "dist:win": "npm run libs && electron-builder --win --publish never",
+    "dist:mac": "npm run libs && electron-builder --mac --publish never",
+    "dist:linux": "npm run libs && electron-builder --linux --publish never",
+    "ios:init": "npm run libs && npx cap add ios && node scripts/patch-ios.js && npx cap sync ios",
+    "free:build": "python3 scripts/free_iptv/build.py"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/filesystem": "^7.0.0",
+    "hls.js": "^1.5.0",
+    "mpegts.js": "^1.7.3",
+    "@capacitor/ios": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.0.0",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.0"
+  },
+  "build": {
+    "appId": "com.osamahasan.doom",
+    "productName": "DOOM IPTV",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**",
+      "www/**",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "assets/icon.png"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "assets/icon.png",
+      "category": "public.app-category.entertainment"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "assets/icon.png",
+      "category": "AudioVideo",
+      "maintainer": "OSAMA HASAN DESOUKY <osamahasan2013@users.noreply.github.com>"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "homepage": "https://github.com/osamahasan2013/doom-iptv"
+}

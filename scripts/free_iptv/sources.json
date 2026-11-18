@@ -1,0 +1,59 @@
+{
+  "_note": "Only open, maintained sources that list free / publicly available or public-domain content. Each link is checked daily; a link that fails on 2 checks in a row is removed automatically.",
+  "strikes_to_remove": 2,
+  "check_timeout": 10,
+  "workers": 48,
+  "source_grace_days": 3,
+  "sources": [
+    {
+      "id": "iptv-org",
+      "name": "iptv-org (publicly available channels)",
+      "home": "https://github.com/iptv-org/iptv",
+      "kind": "iptv-org-api",
+      "base": "https://iptv-org.github.io/api/",
+      "enabled": true
+    },
+    {
+      "id": "free-tv",
+      "name": "Free-TV/IPTV (free-to-air channels)",
+      "home": "https://github.com/Free-TV/IPTV",
+      "kind": "m3u",
+      "url": "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8",
+      "enabled": true
+    },
+    {
+      "id": "ia-films",
+      "name": "Internet Archive — Feature Films (public domain)",
+      "home": "https://archive.org/details/feature_films",
+      "kind": "archive",
+      "api": "https://archive.org",
+      "query": "collection:feature_films AND mediatype:movies",
+      "section": "movies",
+      "rows": 400,
+      "enabled": true
+    },
+    {
+      "id": "ia-cartoons",
+      "name": "Internet Archive — Classic Cartoons (public domain)",
+      "home": "https://archive.org/details/classic_cartoons",
+      "kind": "archive",
+      "api": "https://archive.org",
+      "query": "collection:classic_cartoons AND mediatype:movies",
+      "section": "movies",
+      "category": "kids",
+      "rows": 120,
+      "enabled": true
+    },
+    {
+      "id": "ia-tv",
+      "name": "Internet Archive — Classic TV (public domain / Creative Commons only)",
+      "home": "https://archive.org/details/classic_tv",
+      "kind": "archive",
+      "api": "https://archive.org",
+      "query": "collection:classic_tv AND mediatype:movies AND (licenseurl:*publicdomain* OR licenseurl:*creativecommons*)",
+      "section": "series",
+      "rows": 300,
+      "enabled": true
+    }
+  ]
+}
