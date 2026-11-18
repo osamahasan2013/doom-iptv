@@ -101,6 +101,23 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with: { path: out }
+      - name: Reuse the last good file for any platform GitHub could not build this time
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          reuse() { # $1 = folder, $2 = file pattern
+            ls out/$1/$2 >/dev/null 2>&1 && return 0
+            mkdir -p out/$1
+            for tag in $(gh release list --repo "$GITHUB_REPOSITORY" --limit 30 --json tagName -q '.[].tagName'); do
+              if gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern "$2" -D out/$1 2>/dev/null; then echo "reused $2 from $tag"; return 0; fi
+            done
+            echo "no earlier $2 found"
+          }
+          reuse DOOM-IPTV-android '*.apk'
+          reuse DOOM-IPTV-ios '*.ipa'
+          reuse DOOM-IPTV-macOS '*.dmg'
+          reuse DOOM-IPTV-Windows '*.exe'
+          reuse DOOM-IPTV-Linux '*.AppImage'
+          ls -R out | head -40
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
@@ -117,3 +134,4 @@ jobs:
             out/DOOM-IPTV-Windows/*
             out/DOOM-IPTV-macOS/*
             out/DOOM-IPTV-Linux/*
+          fail_on_unmatched_files: false
