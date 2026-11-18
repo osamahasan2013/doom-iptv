@@ -283,8 +283,14 @@ def main():
     os.makedirs(os.path.join(out_dir, 'm3u'), exist_ok=True)
     timeout, workers, strikes_max = cfg.get('check_timeout', 10), cfg.get('workers', 48), cfg.get('strikes_to_remove', 2)
     state_path = os.path.join(out_dir, 'state.json')
-    state = json.load(open(state_path)) if os.path.exists(state_path) else {'links': {}, 'sources': {}, 'snapshots': {}}
-    state.setdefault('snapshots', {})
+    state = json.load(open(state_path)) if os.path.exists(state_path) else {'links': {}, 'sources': {}}
+    state.pop('snapshots', None)
+    prev = {}  # yesterday's published lists: reused for a source that is down today
+    for sec in ('live', 'movies', 'series'):
+        try:
+            prev[sec] = json.load(open(os.path.join(out_dir, sec + '.json'), encoding='utf-8'))['items']
+        except Exception:
+            prev[sec] = []
     t0 = time.time()
 
     # 1) collect
@@ -311,12 +317,11 @@ def main():
             else:
                 continue
             sstate.update(fail_days=0, last_ok=now_iso())
-            state['snapshots'][src['id']] = res
             ok = True
         except Exception as e:  # source unreachable today: reuse its last good list for a few days
             log(f'  !! {src["id"]} failed: {e}')
             sstate['fail_days'] = sstate.get('fail_days', 0) + 1
-            res = state['snapshots'].get(src['id'], {}) if sstate['fail_days'] <= cfg.get('source_grace_days', 3) else {}
+            res = {sec: [x for x in prev[sec] if x.get('s') == src['id']] for sec in prev} if sstate['fail_days'] <= cfg.get('source_grace_days', 3) else {}
             ok = False
         for k in collected:
             collected[k].extend(res.get(k, []))
@@ -363,17 +368,20 @@ def main():
 
     def keep(u):
         r = results.get(u, 'fail')
-        st = links.get(u, {})
+        st = links.get(u)
+        if isinstance(st, dict):  # older format
+            st = [st.get('f', 0), st.get('r', 0)]
         if r in ('ok', 'restricted'):
-            links[u] = {'f': 0, 'ok': today, 'r': 1 if r == 'restricted' else 0}
+            links[u] = [0, 1 if r == 'restricted' else 0]
             return True
-        fails = st.get('f', 0) + 1
-        if st.get('ok'):  # it worked before: give it `strikes_max` chances
-            links[u] = {'f': fails, 'ok': st['ok']}
-            if fails < strikes_max:
-                return True
-            removed.append(u)
-        links.pop(u, None) if fails >= strikes_max or not st.get('ok') else None
+        if st is None:  # never worked: not published
+            return False
+        fails = st[0] + 1  # it worked before: give it `strikes_max` chances
+        if fails < strikes_max:
+            links[u] = [fails, st[1]]
+            return True
+        removed.append(u)
+        links.pop(u, None)
         return False
 
     out_live = []
@@ -381,9 +389,9 @@ def main():
         urls = [u for u in it['u'] if keep(u)]
         if not urls:
             continue
-        urls.sort(key=lambda u: (links.get(u, {}).get('f', 0), links.get(u, {}).get('r', 0)))
+        urls.sort(key=lambda u: tuple(links.get(u, [0, 0])))
         it['u'] = urls
-        if all(links.get(u, {}).get('r') for u in urls):
+        if all(links.get(u, [0, 0])[1] for u in urls):
             it['g'] = 1
         if it.get('cc') in ARAB or 'ara' in (it.get('lg') or []):
             it['ar'] = 1
@@ -420,8 +428,9 @@ def main():
                   removed_today=len(removed), results={k: sum(1 for r in results.values() if r == k) for k in ('ok', 'restricted', 'fail')})
     with open(os.path.join(out_dir, 'status.json'), 'w', encoding='utf-8') as f:
         json.dump(status, f, ensure_ascii=False, indent=1)
+    state['links'] = dict(sorted(links.items()))
     with open(state_path, 'w', encoding='utf-8') as f:
-        json.dump(state, f, ensure_ascii=False, separators=(',', ':'))
+        json.dump(state, f, ensure_ascii=False, separators=(',', ':'), sort_keys=False)
 
     # 3) M3U exports for other players
     def m3u(name, items):
