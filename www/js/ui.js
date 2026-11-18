@@ -140,7 +140,9 @@ const App = {
     this.bindGlobalKeys();
     let framed = false; try { framed = window.self !== window.top; } catch { framed = true; }
     if (!Playlists.all().length && (location.hash === '#demo' || framed)) Playlists.add({ type: 'demo', name: 'Demo' });
+    if (!Playlists.all().length && LS.get('freeOnly', false)) return this.startFreeOnly();
     if (!Playlists.all().length) return this.welcome();
+    LS.del('freeOnly'); document.body.classList.remove('free-only');
     this.renderShell();
     this.section = Settings.get('lastSection') || 'movies'; if (!['movies', 'series', 'live'].includes(this.section)) this.section = 'movies';
     await this.loadCatalog();
@@ -149,6 +151,15 @@ const App = {
     window.addEventListener('online', () => this.renderExpiryBanner()); window.addEventListener('offline', () => this.renderExpiryBanner());
   },
 
+  startFreeOnly() {
+    document.body.classList.add('free-only');
+    this.renderShell();
+    this.setData({ movies: { cats: [], items: [] }, series: { cats: [], items: [] }, live: { cats: [], items: [] } }, Date.now());
+    this.section = 'free'; this.renderCats(); this.render();
+  },
+  addSubscription() {
+    const m = UI.modal(t('addPlaylist'), this.playlistForm(null, () => { m.close(); LS.del('freeOnly'); location.reload(); }));
+  },
   applyLang() {
     const s = Settings.get('lang'); LANG = s === 'auto' ? ((navigator.language || 'en').startsWith('ar') ? 'ar' : 'en') : s;
     document.documentElement.lang = LANG; document.documentElement.dir = LANG === 'ar' ? 'rtl' : 'ltr';
@@ -167,7 +178,9 @@ const App = {
   /* ---------- welcome / add subscription ---------- */
   welcome() {
     document.body.innerHTML = ''; Player.el = null; Player.init();
-    const card = h('div', { class: 'welcome' }, h('div', { class: 'logo big' }, h('span', { html: ic('play') }), 'DOOM'), h('h1', {}, t('welcome')), h('p', { class: 'muted' }, t('welcomeSub')), this.playlistForm());
+    const card = h('div', { class: 'welcome' }, h('div', { class: 'logo big' }, h('span', { html: ic('play') }), 'DOOM'), h('h1', {}, t('welcome')), h('p', { class: 'muted' }, t('welcomeSub')), this.playlistForm(),
+      h('div', { class: 'or' }, h('span', {}, LANG === 'ar' ? 'أو' : 'or')),
+      h('button', { class: 'btn wide free-start', onclick: () => { LS.set('freeOnly', true); this.startFreeOnly(); } }, h('span', { html: ic('globe') }), t('freeNoSub')));
     document.body.appendChild(h('div', { class: 'welcome-wrap' }, card));
   },
   playlistForm(existing, done) {
@@ -263,7 +276,8 @@ const App = {
     const si = $('.search-in', shell);
     si.addEventListener('input', debounce(() => { this.q = si.value.trim().toLowerCase(); this.render(); }, 220));
     $('.sub-sel', shell).addEventListener('change', e => {
-      const v = e.target.value; if (v === '__merged') Playlists.setMerged(); else Playlists.setActive(v);
+      const v = e.target.value; if (v === '__add') { this.updateSubSelect(); return this.addSubscription(); }
+      if (v === '__merged') Playlists.setMerged(); else Playlists.setActive(v);
       this.cat = 'all'; this.loadCatalog();
     });
     Downloads.listeners.add(() => { this.updateBadges(); if (this.section === 'downloads') this.renderDownloads(true); });
@@ -273,8 +287,8 @@ const App = {
   updateSubSelect() {
     const sel = $('.sub-sel', this.el); if (!sel) return; const all = Playlists.all();
     sel.innerHTML = all.map(p => { const d = Accounts.daysLeft(p.id); return `<option value="${esc(p.id)}">${esc(p.name || p.username || p.type)}${d != null ? ' · ' + (d < 0 ? t('expired') : d + 'd') : ''}</option>`; }).join('')
-      + (all.length > 1 ? `<option value="__merged">${t('allSubs')}</option>` : '');
-    sel.value = Playlists.mode() === 'merged' ? '__merged' : Playlists.activeId();
+      + (all.length > 1 ? `<option value="__merged">${t('allSubs')}</option>` : '') + `<option value="__add">${t('addSub')}</option>`;
+    sel.value = !all.length ? '__add' : Playlists.mode() === 'merged' ? '__merged' : Playlists.activeId();
   },
   updateBadges() {
     if (!this.el) return;
@@ -291,7 +305,8 @@ const App = {
 
   /* ---------- catalog ---------- */
   async loadCatalog(force) {
-    const scope = Playlists.inScope(); if (!scope.length) return this.welcome();
+    const scope = Playlists.inScope();
+    if (!scope.length) { if (LS.get('freeOnly', false)) { if (this.section === 'free') this.render(); return; } return this.welcome(); }
     this.updateSubSelect();
     const first = !this.data;
     if (first || force) { $('.upd', this.el).classList.remove('hidden'); if (first) this.content.innerHTML = `<div class="center pad"><div class="spinner"></div><p class="muted">${t('loading')}</p></div>`; }
@@ -707,7 +722,7 @@ const App = {
     const modeBox = Playlists.all().length > 1 ? h('div', { class: 'mode-pick' },
       ...[['single', t('separate'), t('separateDesc')], ['merged', t('merged'), t('mergedDesc')]].map(([k, l, d]) => h('button', { class: 'mode-opt' + (Playlists.mode() === k ? ' on' : ''), onclick: () => { if (k === 'merged') Playlists.setMerged(); else Playlists.setActive(Playlists.activeId()); this.cat = 'all'; this.loadCatalog().then(() => { this.section = 'settings'; this.render(); }); } }, h('b', {}, l), h('small', {}, d)))) : null;
     section(t('subscriptions'), modeBox ? h('div', { class: 'lbl' }, t('viewMode')) : null, modeBox, subs,
-      h('div', { class: 'row gap' }, h('button', { class: 'btn primary', onclick: () => { const m = UI.modal(t('addPlaylist'), this.playlistForm(null, () => { m.close(); this.loadCatalog(); this.renderSettings(); })); } }, '+ ' + t('addPlaylist')),
+      h('div', { class: 'row gap' }, h('button', { class: 'btn primary', onclick: () => { const m = UI.modal(t('addPlaylist'), this.playlistForm(null, () => { m.close(); if (LS.get('freeOnly', false)) { LS.del('freeOnly'); return location.reload(); } this.loadCatalog(); this.renderSettings(); })); } }, '+ ' + t('addPlaylist')),
         h('button', { class: 'btn', onclick: async e => { e.target.disabled = true; await Accounts.refreshAll(); this.renderExpiryBanner(); this.renderSettings(); } }, h('span', { html: ic('refresh') }), t('checkAccounts'))));
 
     section(t('playerSettings'),
