@@ -1,9 +1,9 @@
 {
  "v": 1,
- "updated": "2026-11-18T08:00:21+00:00",
- "checked_links": 19067,
+ "updated": "2026-11-18T09:31:24+00:00",
+ "checked_links": 18332,
  "strikes_to_remove": 2,
- "duration_sec": 756,
+ "duration_sec": 626,
  "sources": [
   {
    "id": "iptv-org",
@@ -24,49 +24,19 @@
    "live": 2014,
    "movies": 0,
    "series": 0
-  },
-  {
-   "id": "ia-films",
-   "name": "Internet Archive — Feature Films (public domain)",
-   "home": "https://archive.org/details/feature_films",
-   "ok": true,
-   "fail_days": 0,
-   "live": 0,
-   "movies": 399,
-   "series": 0
-  },
-  {
-   "id": "ia-cartoons",
-   "name": "Internet Archive — Classic Cartoons (public domain)",
-   "home": "https://archive.org/details/classic_cartoons",
-   "ok": true,
-   "fail_days": 0,
-   "live": 0,
-   "movies": 81,
-   "series": 0
-  },
-  {
-   "id": "ia-tv",
-   "name": "Internet Archive — Classic TV (public domain / Creative Commons only)",
-   "home": "https://archive.org/details/classic_tv",
-   "ok": true,
-   "fail_days": 0,
-   "live": 0,
-   "movies": 0,
-   "series": 255
   }
  ],
  "counts": {
-  "live": 9223,
-  "arabic": 363,
-  "movies": 480,
-  "series": 255,
-  "episodes": 1030
+  "live": 9234,
+  "arabic": 362,
+  "movies": 0,
+  "series": 0,
+  "episodes": 0
  },
- "removed_today": 0,
+ "removed_today": 64,
  "results": {
-  "ok": 11218,
-  "restricted": 1102,
-  "fail": 6747
+  "ok": 10537,
+  "restricted": 1040,
+  "fail": 6755
  }
 }
