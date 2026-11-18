@@ -2,8 +2,11 @@ name: Build DOOM IPTV apps
 
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+    paths-ignore: ['free/**', '**.md', 'scripts/free_iptv/**', '.github/workflows/free-iptv.yml']
   workflow_dispatch:
+
+concurrency: { group: app-build, cancel-in-progress: true }
 
 jobs:
   android:
@@ -87,7 +90,7 @@ jobs:
         with: { name: DOOM-IPTV-web, path: www }
 
   release:
-    if: ${{ always() && startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ always() && github.ref == 'refs/heads/main' }}
     needs: [android, ios, desktop]
     runs-on: ubuntu-latest
     permissions: { contents: write }
@@ -95,4 +98,18 @@ jobs:
       - uses: actions/download-artifact@v4
         with: { path: out }
       - uses: softprops/action-gh-release@v2
-        with: { files: out/**/* }
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: DOOM IPTV 1.0.${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          make_latest: true
+          body: |
+            Android / Android TV: DOOM-IPTV-android.apk
+            iPhone / iPad: DOOM-IPTV-ios-unsigned.ipa (sign & install with Sideloadly)
+            Windows: .exe · macOS: .dmg · Linux: .AppImage / .deb
+          files: |
+            out/DOOM-IPTV-android/*.apk
+            out/DOOM-IPTV-ios/*.ipa
+            out/DOOM-IPTV-Windows/*
+            out/DOOM-IPTV-macOS/*
+            out/DOOM-IPTV-Linux/*
