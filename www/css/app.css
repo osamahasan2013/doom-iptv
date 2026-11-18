@@ -312,7 +312,7 @@ body:not(.light) { color-scheme: dark; }
 
 /* ---------- Free IPTV ---------- */
 .free-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 4px 4px 10px; }
-.free-tabs { min-width: 320px; } .free-tabs .seg-btn small { font-size: 11px; }
+.free-count { font-size: 18px; } .free-count small { font-size: 14px; }
 .free-info { display: flex; align-items: center; gap: 6px; }
 .warn-chip { background: rgba(245,158,11,.18); color: #f59e0b; white-space: normal; }
 .cats-bar { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 6px; scrollbar-width: thin; } .cats-bar .chip-btn { flex: none; }
@@ -320,7 +320,7 @@ body:not(.light) { color-scheme: dark; }
 .chips-bar select.input { width: auto; }
 .free-sources { display: flex; flex-direction: column; gap: 6px; } .src-row { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .src-row a { color: var(--text); } .bad-t { color: var(--bad); }
-@media (max-width: 900px) { .free-tabs { min-width: 0; width: 100%; } .free-head { margin: 0 0 8px; } }
+@media (max-width: 900px) { .free-head { margin: 0 0 8px; } }
 
 /* free-only mode (no subscription yet) */
 body.free-only .main-seg, body.free-only .cats-label, body.free-only .cats, body.free-only .side-foot .switch-row, body.free-only .sort-sel, body.free-only .pill-select:has(.sort-sel) { display: none !important; }

@@ -10,7 +10,7 @@ Object.assign(I18N.en, {
   free: 'Free IPTV', freeLive: 'Live', freeArabic: 'Arabic', freeIntl: 'International', allCountries: 'All countries', allCats: 'All',
   freeChecked: 'Checked daily · updated {d}', freeWorking: '{n} working links', freeSources: 'Sources', freeAdult: 'Show adult category',
   freeNotReady: 'The daily-checked list isn’t published yet, so channels come straight from iptv-org (not checked yet).',
-  freeBase: 'Checked list address', freeHint: 'Only open, maintained sources of free / public-domain content. Links that stop working are removed automatically.',
+  freeBase: 'Checked list address', freeHint: 'Only open, maintained sources of free live channels. Links that stop working are removed automatically.',
   geo: 'May be region-locked', deadHidden: 'This link stopped working — hidden for 24 hours', adult: 'Adult',
   freeNoSub: 'Watch Free IPTV without a subscription', addSub: '+ Add subscription',
   themeMode: 'Day / Night', day: 'Day', night: 'Night', freeEmptyAdult: 'The trusted sources don’t carry adult channels.'
@@ -19,7 +19,7 @@ Object.assign(I18N.ar, {
   free: 'IPTV مجاني', freeLive: 'مباشر', freeArabic: 'عربي', freeIntl: 'عالمي', allCountries: 'كل الدول', allCats: 'الكل',
   freeChecked: 'فحص يومي · آخر تحديث {d}', freeWorking: '{n} رابط شغال', freeSources: 'المصادر', freeAdult: 'إظهار فئة البالغين',
   freeNotReady: 'القائمة المفحوصة يومياً لم تُنشر بعد، لذلك القنوات معروضة مباشرة من iptv-org (بدون فحص).',
-  freeBase: 'عنوان القائمة المفحوصة', freeHint: 'مصادر مفتوحة ومُحدَّثة لمحتوى مجاني أو ملكية عامة فقط. أي رابط يتوقف يُحذف تلقائياً.',
+  freeBase: 'عنوان القائمة المفحوصة', freeHint: 'مصادر مفتوحة ومُحدَّثة لقنوات مباشرة مجانية فقط. أي رابط يتوقف يُحذف تلقائياً.',
   geo: 'قد يكون مقيداً جغرافياً', deadHidden: 'الرابط توقف عن العمل — تم إخفاؤه لمدة 24 ساعة', adult: 'للبالغين',
   freeNoSub: 'شاهد IPTV المجاني بدون اشتراك', addSub: '+ إضافة اشتراك',
   themeMode: 'نهاري / ليلي', day: 'نهاري', night: 'ليلي', freeEmptyAdult: 'المصادر الموثوقة لا تحتوي على قنوات للبالغين.'
@@ -56,13 +56,13 @@ const FreeCat = {
   async load(force) {
     if (this.loading) return this.loading;
     this.loading = (async () => {
-      let cached = null; try { cached = await IDB.get('cache', 'free:all'); } catch {}
+      let cached = null; try { cached = await IDB.get('cache', 'free:live'); } catch {}
       if (cached && !force && Date.now() - cached.ts < 6 * 3600000) { this.apply(cached); return; }
       try {
         const get = async n => { const r = await fetch(this.base() + n + '?t=' + Math.floor(Date.now() / 3600000), { cache: 'no-store' }); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); };
-        const [live, movies, series, status] = await Promise.all([get('live.json'), get('movies.json'), get('series.json'), get('status.json').catch(() => null)]);
+        const [live, status] = await Promise.all([get('live.json'), get('status.json').catch(() => null)]); const movies = { items: [] }, series = { items: [] };
         const d = { ts: Date.now(), live, movies, series, status, fallback: false };
-        try { await IDB.put('cache', 'free:all', d); } catch {}
+        try { await IDB.put('cache', 'free:live', d); } catch {}
         this.apply(d);
       } catch (e) {
         console.warn('free list', e);
@@ -114,8 +114,8 @@ const FreePage = {
     if (!FreeCat.ts && !FreeCat.error) { c.innerHTML = `<div class="center pad"><div class="spinner"></div><p class="muted">${t('loading')}</p></div>`; await FreeCat.load(); if (app.section !== 'free') return; c.innerHTML = ''; }
     const wrap = h('div', { class: 'free-page' }); c.appendChild(wrap);
     // header: tabs + status
-    const tabs = h('div', { class: 'seg free-tabs' }, ...[['live', t('freeLive')], ['movies', t('movies')], ['series', t('series')]].map(([k, l]) =>
-      h('button', { class: 'seg-btn' + (this.tab === k ? ' on' : ''), onclick: () => { this.tab = k; this.cat = 'all'; this.render(app); } }, l, h('small', { class: 'muted' }, ' ' + this.pool(k).length))));
+    this.tab = 'live';
+    const tabs = h('div', { class: 'free-count' }, h('b', {}, t('freeLive')), h('small', { class: 'muted' }, ' ' + this.pool('live').length));
     const st = FreeCat.status;
     const info = h('div', { class: 'free-info muted small' },
       FreeCat.fallback ? h('span', { class: 'chip sm warn-chip' }, t('freeNotReady')) : h('span', {}, '✓ ' + t('freeChecked', { d: FreeCat.updated ? new Date(FreeCat.updated).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '—' }) + (st && st.results ? ' · ' + t('freeWorking', { n: (st.results.ok || 0) + (st.results.restricted || 0) }) : '')),
