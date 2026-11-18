@@ -12,6 +12,9 @@ jobs:
   android:
     name: Android / Android TV APK
     runs-on: ubuntu-latest
+    env:
+      DOOM_BUILD: ${{ github.run_number }}
+      DOOM_KEY_PASSWORD: ${{ secrets.DOOM_KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,11 +25,21 @@ jobs:
       - run: npm run libs
       - run: echo "window.DOOM_VERSION = '1.0.${{ github.run_number }}';" > www/js/version.js
       - run: npx cap add android
+      - name: Unlock the signing key
+        if: env.DOOM_KEY_PASSWORD != ''
+        run: openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in signing/doom-release.jks.enc -out android/app/doom-release.jks -pass env:DOOM_KEY_PASSWORD
       - run: node scripts/patch-android.js
       - run: npx @capacitor/assets generate --android --iconBackgroundColor '#0a0f1e' --splashBackgroundColor '#0a0f1e' || echo "icon generation skipped"
       - run: npx cap sync android
-      - run: cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
-      - run: cp android/app/build/outputs/apk/debug/app-debug.apk DOOM-IPTV-android.apk
+      - name: Build APK
+        run: |
+          cd android && chmod +x gradlew
+          if [ -n "$DOOM_KEY_PASSWORD" ]; then
+            ./gradlew assembleRelease --no-daemon && cp app/build/outputs/apk/release/app-release.apk ../DOOM-IPTV-android.apk
+          else
+            echo "::warning::DOOM_KEY_PASSWORD secret is missing - this APK cannot update an installed copy"
+            ./gradlew assembleDebug --no-daemon && cp app/build/outputs/apk/debug/app-debug.apk ../DOOM-IPTV-android.apk
+          fi
       - uses: actions/upload-artifact@v4
         with: { name: DOOM-IPTV-android, path: DOOM-IPTV-android.apk }
 

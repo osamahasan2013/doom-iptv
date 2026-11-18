@@ -4,3 +4,4 @@ android/
 www/lib/*.js
 __pycache__/
 *.pyc
+android/app/doom-release.jks

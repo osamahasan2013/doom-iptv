@@ -534,8 +534,19 @@ const Lists = {
     const l = this.data.find(x => x.id === listId); if (!l) return false;
     const k = keyOf(it); const i = l.items.findIndex(x => keyOf(x) === k);
     if (i >= 0) { l.items.splice(i, 1); this.save(); return false; }
-    l.items.unshift({ type: it.type, id: it.id, pl: it.pl || Playlists.activeId(), name: it.name, img: it.img || it.seriesImg || '', cat: it.cat, ext: it.ext, url: it.url, seriesId: it.seriesId, season: it.season, episode: it.episode, seriesName: it.seriesName, year: it.year, rating: it.rating, num: it.num, ts: Date.now() });
+    l.items.push({ type: it.type, id: it.id, pl: it.pl || Playlists.activeId(), name: it.name, img: it.img || it.seriesImg || '', cat: it.cat, ext: it.ext, url: it.url, seriesId: it.seriesId, season: it.season, episode: it.episode, seriesName: it.seriesName, year: it.year, rating: it.rating, num: it.num, ts: Date.now() });
     this.save(); return true;
+  },
+  move(listId, from, to) {
+    const l = this.data.find(x => x.id === listId); if (!l) return;
+    to = Math.max(0, Math.min(l.items.length - 1, to)); if (from === to) return;
+    const [x] = l.items.splice(from, 1); l.items.splice(to, 0, x); this.save();
+  },
+  setOrder(listId, keys) {
+    const l = this.data.find(x => x.id === listId); if (!l) return;
+    const map = new Map(l.items.map(x => [keyOf(x), x]));
+    const ordered = keys.map(k => map.get(k)).filter(Boolean);
+    l.items = ordered.concat(l.items.filter(x => !keys.includes(keyOf(x)))); this.save();
   }
 };
 

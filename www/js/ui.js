@@ -658,6 +658,20 @@ const App = {
   onPlayerClosed() { if (['continue', 'movies', 'series', 'favorites', 'live'].includes(this.section) && !this.q) { const st = this.content.scrollTop; this.render(); this.content.scrollTop = st; } },
 
   /* ---------- favorites & custom lists ---------- */
+  /* the playable version of a list entry (fresh data from the catalogue when available) */
+  listPlayable(it) {
+    if (it.type === 'episode') return Object.assign({}, it, { img: it.img || it.seriesImg });
+    return this.findItem(it.type, it.id, it.pl) || (it.pl === FREE_ID ? FreeCat.live.find(x => x.id === it.id) || it : it);
+  },
+  playFromList(list, startIdx, shuffle) {
+    const entries = list.items.filter(it => it.type !== 'series' && this.itemAllowed(it));
+    let queue = entries.map(it => this.listPlayable(it));
+    let index = Math.max(0, startIdx == null ? 0 : entries.findIndex(x => keyOf(x) === keyOf(list.items[startIdx])));
+    if (shuffle) { for (let i = queue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [queue[i], queue[j]] = [queue[j], queue[i]]; } index = 0; }
+    if (!queue.length) return;
+    const it = queue[index]; const pr = it.type !== 'live' ? Progress.get(it) : null;
+    Player.open(it, { list: queue, index, kind: 'list', name: Lists.name(list) }, it.type === 'live' ? {} : { startAt: pr && !pr.done ? pr.pos || 0 : 0 });
+  },
   renderFavorites() {
     this.setTitle(t('favorites')); this.content.innerHTML = '';
     if (!this.favList || !Lists.data.find(l => l.id === this.favList)) this.favList = 'fav';
@@ -669,22 +683,70 @@ const App = {
       h('button', { class: 'icon-btn', title: t('rename'), html: ic('edit'), onclick: async () => { const n = await UI.prompt(t('rename'), t('listName'), list.name); if (n) { Lists.rename(list.id, n); this.renderFavorites(); } } }),
       h('button', { class: 'icon-btn', title: t('delete'), html: ic('trash'), onclick: async () => { if (await UI.confirm(t('delete'), Lists.name(list) + '?')) { Lists.remove(list.id); this.favList = 'fav'; this.renderFavorites(); } } }));
     this.content.appendChild(bar);
-    const items = list.items.filter(it => this.itemAllowed(it));
-    if (!items.length) return this.content.appendChild(this.empty());
-    const groups = [['live', t('live')], ['movie', t('movies')], ['series', t('series')], ['episode', t('episodes')]];
-    for (const [type, label] of groups) {
-      const g = items.filter(i => i.type === type); if (!g.length) continue;
-      this.content.appendChild(h('h3', { class: 'sec-h' }, label, h('small', { class: 'muted' }, ' ' + g.length)));
-      const grid = h('div', { class: type === 'live' ? 'grid live' : 'grid' }); this.content.appendChild(grid);
-      const removeOpt = it => ({ extra: [{ icon: 'trash', danger: true, label: t('remove'), run: () => { Lists.toggle(list.id, it); this.renderFavorites(); } }] });
-      if (type === 'live') {
-        const chans = g.map(it => this.findItem('live', it.id, it.pl) || it);
-        this.fillGrid(grid, chans, it => this.channelCard(it, chans, removeOpt(it)));
-      } else this.fillGrid(grid, g, it => {
-        const full = type === 'episode' ? it : (this.findItem(it.type, it.id, it.pl) || it);
-        return this.posterCard(full, Object.assign(removeOpt(it), type === 'episode' ? { title: it.seriesName || it.name, sub: `${t('sShort')}${it.season} ${t('epShort')}${it.episode}`, onOpen: () => this.playEpisode(it) } : {}));
+    const visible = list.items.map((it, i) => ({ it, i })).filter(x => this.itemAllowed(x.it));
+    if (!visible.length) return this.content.appendChild(this.empty());
+    this.content.appendChild(h('div', { class: 'pl-actions' },
+      h('button', { class: 'btn primary', onclick: () => this.playFromList(list, 0) }, h('span', { html: ic('play') }), t('playAll')),
+      h('button', { class: 'btn', onclick: () => this.playFromList(list, 0, true) }, h('span', { html: ic('shuffle') }), t('shuffle')),
+      h('span', { class: 'muted small' }, t('reorderHint'))));
+    const box = h('div', { class: 'pl-list' }); this.content.appendChild(box);
+    const typeLabel = { movie: t('movies'), series: t('series'), episode: t('episode'), live: t('live') };
+    const renumber = () => $$('.pl-row', box).forEach((r, n) => { $('.pl-num', r).textContent = n + 1; });
+    for (const { it, i } of visible) {
+      const full = this.listPlayable(it); const pr = it.type !== 'live' && it.type !== 'series' ? Progress.get(it) : null;
+      const title = it.type === 'episode' ? (it.seriesName || it.name) : it.name;
+      const sub = it.type === 'episode' ? `${t('sShort')}${it.season} ${t('epShort')}${it.episode} · ${it.name}` : (typeLabel[it.type] || '') + (it.year ? ' · ' + it.year : '');
+      const row = h('div', { class: 'pl-row', tabindex: 0, 'data-k': keyOf(it) },
+        h('span', { class: 'pl-num' }, String(i + 1)),
+        h('div', { class: 'pl-thumb' + (it.type === 'live' ? ' wide' : '') }, this.imgEl(full.img || it.img, title, it.type === 'live' ? 'contain' : ''), pr && pr.dur ? h('div', { class: 'prog' }, h('i', { style: { width: (pr.done ? 100 : pr.pos / pr.dur * 100) + '%' } })) : null),
+        h('div', { class: 'pl-txt' }, h('div', { class: 'pl-title' }, title), h('div', { class: 'muted small' }, sub)),
+        h('button', { class: 'icon-btn pl-more', title: '⋯', html: ic('dots') }),
+        h('button', { class: 'icon-btn pl-grip', title: t('reorderHint'), 'aria-label': t('reorderHint'), html: ic('grip') }));
+      const idxNow = () => list.items.findIndex(x => keyOf(x) === keyOf(it));
+      const open = () => { if (it.type === 'series') return this.openItem(full); this.playFromList(list, idxNow()); };
+      row.addEventListener('click', e => { if (e.target.closest('.pl-grip, .pl-more')) return; open(); });
+      row.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && e.target === row) { e.preventDefault(); open(); }
+        if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) { e.preventDefault(); Lists.move(list.id, idxNow(), idxNow() + (e.key === 'ArrowUp' ? -1 : 1)); this.renderFavorites(); }
       });
+      const menu = () => UI.ctxMenu($('.pl-more', row), [
+        { icon: 'play', label: it.type === 'series' ? t('openDetails') : t('play'), run: open },
+        { icon: 'chevUpDown', label: t('moveTop'), run: () => { Lists.move(list.id, idxNow(), 0); this.renderFavorites(); } },
+        { icon: 'chevUpDown', label: t('moveUp'), run: () => { Lists.move(list.id, idxNow(), idxNow() - 1); this.renderFavorites(); } },
+        { icon: 'chevUpDown', label: t('moveDown'), run: () => { Lists.move(list.id, idxNow(), idxNow() + 1); this.renderFavorites(); } },
+        { icon: 'chevUpDown', label: t('moveBottom'), run: () => { Lists.move(list.id, idxNow(), list.items.length - 1); this.renderFavorites(); } },
+        (it.type === 'movie' || it.type === 'episode') ? { icon: 'download', label: t('download'), run: () => Downloads.add(full) } : null,
+        { icon: 'trash', danger: true, label: t('remove'), run: () => { Lists.toggle(list.id, it); this.renderFavorites(); } }]);
+      $('.pl-more', row).addEventListener('click', e => { e.stopPropagation(); menu(); });
+      row.addEventListener('contextmenu', e => { e.preventDefault(); menu(); });
+      this.dragSort($('.pl-grip', row), row, box, () => { Lists.setOrder(list.id, $$('.pl-row', box).map(r => r.dataset.k)); renumber(); });
+      box.appendChild(row);
     }
+  },
+  /* drag a row by its handle (touch or mouse), like reordering a YouTube playlist */
+  dragSort(handle, row, box, done) {
+    handle.addEventListener('pointerdown', e => {
+      if (e.button > 0) return; e.preventDefault(); e.stopPropagation();
+      row.classList.add('dragging'); box.classList.add('sorting');
+      const sc = this.content; let lastY = e.clientY, raf = 0;
+      const scroll = () => { const r = sc.getBoundingClientRect(); const edge = 70; const v = lastY < r.top + edge ? -12 : lastY > r.bottom - edge ? 12 : 0; if (v) { sc.scrollTop += v; place(lastX, lastY); } raf = requestAnimationFrame(scroll); };
+      let lastX = e.clientX;
+      const place = (x, y) => {
+        const over = document.elementFromPoint(x, y); const target = over && over.closest('.pl-row');
+        if (!target || target === row || target.parentNode !== box) return;
+        const r = target.getBoundingClientRect(); box.insertBefore(row, y < r.top + r.height / 2 ? target : target.nextSibling);
+      };
+      // listen on the whole page: moving the row in the list would otherwise drop the finger's tracking
+      const id = e.pointerId;
+      const move = ev => { if (ev.pointerId !== id) return; ev.preventDefault(); lastX = ev.clientX; lastY = ev.clientY; place(ev.clientX, ev.clientY); };
+      const up = ev => {
+        if (ev.pointerId !== id) return;
+        cancelAnimationFrame(raf); row.classList.remove('dragging'); box.classList.remove('sorting');
+        window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up); done();
+      };
+      window.addEventListener('pointermove', move, { passive: false }); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+      raf = requestAnimationFrame(scroll);
+    });
   },
 
   /* ---------- downloads page ---------- */
@@ -778,7 +840,7 @@ const App = {
       row(t('seekStep'), sel('seekStep', [[5, '5'], [10, '10'], [15, '15'], [30, '30'], [60, '60']])),
       row(t('defaultAspect'), sel('aspect', ASPECTS.map(a => [a, t(a) !== a ? t(a) : a]))),
       row(t('defaultSpeed'), sel('speed', SPEEDS.map(s => [s, s + 'x']))),
-      row(t('autoNext'), sw(Settings.get('autoNext'), v => Settings.set('autoNext', v))));
+      row(t('autoNextAll'), sw(Settings.get('autoNext'), v => Settings.set('autoNext', v))));
 
     /* parental */
     const P = Parental.d;
@@ -828,7 +890,21 @@ const App = {
           const data = { app: 'doom', v: 1, playlists: LS.get('playlists', []), lists: Lists.data, progress: Progress.map, settings: Settings.data, hiddenCats: Hidden.data, recordings: Recorder.list.filter(r => r.status === 'scheduled') };
           const a = h('a', { href: URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' })), download: 'doom-backup.json' }); document.body.appendChild(a); a.click(); a.remove();
         } }, t('export')),
-        h('button', { class: 'btn sm', onclick: () => fileIn.click() }, t('import')), fileIn),
+        h('button', { class: 'btn sm', onclick: () => fileIn.click() }, t('import')), fileIn,
+        h('button', { class: 'btn sm', onclick: async () => {
+          const data = { app: 'doom', v: 1, playlists: LS.get('playlists', []), lists: Lists.data, progress: Progress.map, settings: Settings.data, hiddenCats: Hidden.data, recordings: Recorder.list.filter(r => r.status === 'scheduled') };
+          const txt = JSON.stringify(data);
+          try { await navigator.clipboard.writeText(txt); UI.toast(t('copiedBackup')); }
+          catch { const ta = h('textarea', { class: 'input', rows: 6, readonly: true }); ta.value = txt; UI.modal(t('copyBackup'), h('div', { class: 'stack' }, h('p', { class: 'muted small' }, t('copyManual')), ta)); setTimeout(() => { ta.focus(); ta.select(); }, 50); }
+        } }, '📋 ' + t('copyBackup')),
+        h('button', { class: 'btn sm', onclick: () => {
+          const ta = h('textarea', { class: 'input', rows: 6, placeholder: '{"app":"doom",…}' });
+          const m = UI.modal(t('pasteBackup'), h('div', { class: 'stack' }, h('p', { class: 'muted small' }, t('pasteHint')), ta,
+            h('div', { class: 'row end gap' }, h('button', { class: 'btn', onclick: () => m.close() }, t('cancel')), h('button', { class: 'btn primary', onclick: () => {
+              try { const j = JSON.parse(ta.value.trim()); if (j.app !== 'doom') throw 0; for (const k of ['playlists', 'lists', 'progress', 'settings', 'hiddenCats', 'recordings']) if (j[k] != null) LS.set(k, j[k]); location.reload(); }
+              catch { UI.toast(t('badBackup')); }
+            } }, t('import')))));
+        } }, '📥 ' + t('pasteBackup'))),
       h('p', { class: 'muted small' }, t('backupHint')));
 
     section(t('about'), h('div', { class: 'about' }, h('div', { class: 'logo big' }, h('span', { html: ic('play') }), 'DOOM IPTV'),

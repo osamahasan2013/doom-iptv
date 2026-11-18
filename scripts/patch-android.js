@@ -65,3 +65,32 @@ public class MainActivity extends BridgeActivity {
 `);
   console.log('MainActivity: full screen (system bars hidden)');
 } else console.warn('MainActivity.java not found — full screen not applied');
+
+// Version number from the build, and one fixed signing key so a new APK installs over the old one (keeps your data).
+const gradle = path.join(__dirname, '..', 'android', 'app', 'build.gradle');
+if (fs.existsSync(gradle)) {
+  let g = fs.readFileSync(gradle, 'utf8');
+  const n = parseInt(process.env.DOOM_BUILD || '1', 10) || 1;
+  g = g.replace(/versionCode\s+\d+/, `versionCode ${n}`).replace(/versionName\s+"[^"]*"/, `versionName "1.0.${n}"`);
+  const ks = path.join(__dirname, '..', 'android', 'app', 'doom-release.jks');
+  if (process.env.DOOM_KEY_PASSWORD && fs.existsSync(ks) && !g.includes('signingConfigs.doom')) {
+    g = g.replace(/android\s*\{/, `android {
+    signingConfigs {
+        doom {
+            storeFile file("doom-release.jks")
+            storePassword System.getenv("DOOM_KEY_PASSWORD")
+            keyAlias "doom"
+            keyPassword System.getenv("DOOM_KEY_PASSWORD")
+        }
+    }`);
+    g = g.replace(/buildTypes\s*\{/, `buildTypes {
+        debug {
+            signingConfig signingConfigs.doom
+        }`);
+    g = g.replace(/(release\s*\{)/, `$1
+            signingConfig signingConfigs.doom`);
+    console.log('Signing with the fixed DOOM key');
+  } else console.log('No signing key password: using a temporary debug key');
+  fs.writeFileSync(gradle, g);
+  console.log('Version', n);
+}

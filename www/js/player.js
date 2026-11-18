@@ -423,6 +423,7 @@ const Player = {
     const it = this.item; let title = it.name, sub = '';
     if (it.type === 'episode') { title = it.seriesName || it.name; sub = `${t('sShort')}${it.season} ${t('epShort')}${it.episode} · ${it.name}`; }
     if (it.type === 'live') { title = (it.num ? it.num + '  ' : '') + it.name; sub = this.opts && this.opts.catchup ? t('catchup') + ' · ' + this.opts.catchup : ''; }
+    if (this.ctx && this.ctx.kind === 'list') sub = (sub ? sub + ' · ' : '') + (this.ctx.name ? this.ctx.name + ' ' : '') + (this.ctx.index + 1) + '/' + this.ctx.list.length;
     if (Playlists.mode() === 'merged' && it.pl) sub = (sub ? sub + ' · ' : '') + Playlists.label(it.pl);
     $('.p-title', this.el).textContent = title; $('.p-sub', this.el).textContent = sub;
     const fav = $('[data-a=fav]', this.el); fav.classList.toggle('on', Lists.inAny(it));
@@ -493,10 +494,12 @@ const Player = {
   },
   onEnded() {
     this.saveProgress(true);
-    if (this.item.type === 'episode' && Settings.get('autoNext') && this.ctx && this.ctx.index < this.ctx.list.length - 1) {
+    const listCtx = this.ctx && this.ctx.kind === 'list';
+    if ((this.item.type === 'episode' || listCtx) && Settings.get('autoNext') && this.ctx && this.ctx.index < this.ctx.list.length - 1) {
       const box = $('.p-next', this.el); let n = 8; box.classList.remove('hidden');
       const nx = this.ctx.list[this.ctx.index + 1];
-      const render = () => { box.innerHTML = `<div>${t('nextEp')}: <b>${t('sShort')}${nx.season} ${t('epShort')}${nx.episode}</b> — ${n}s</div><div class="row gap"><button class="btn primary" data-a="next">${t('play')}</button><button class="btn" data-a="cancelNext">${t('cancel')}</button></div>`; };
+      const label = nx.type === 'episode' ? `${esc(nx.seriesName || '')} ${t('sShort')}${nx.season} ${t('epShort')}${nx.episode}` : esc(nx.name);
+      const render = () => { box.innerHTML = `<div>${listCtx ? t('nextUp') : t('nextEp')}: <b>${label}</b> — ${n}s</div><div class="row gap"><button class="btn primary" data-a="next">${t('play')}</button><button class="btn" data-a="cancelNext">${t('cancel')}</button></div>`; };
       render(); $('[data-a=next]', box).focus();
       this._nextIv = setInterval(() => { n--; if (n <= 0) { clearInterval(this._nextIv); this.step(1); } else render(); }, 1000);
     }
@@ -508,7 +511,8 @@ const Player = {
     if (!this.ctx) return;
     const i = this.ctx.index + dir; if (i < 0 || i >= this.ctx.list.length) return;
     const it = this.ctx.list[i]; this.ctx.index = i;
-    this.open(it, this.ctx, it.type === 'episode' ? { startAt: (Progress.get(it) || {}).pos || 0 } : {});
+    const pr = it.type !== 'live' ? Progress.get(it) : null;
+    this.open(it, this.ctx, it.type === 'live' ? {} : { startAt: pr && !pr.done ? pr.pos || 0 : 0 });
   },
 
   async loadEpg() {
