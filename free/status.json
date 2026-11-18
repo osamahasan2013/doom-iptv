@@ -1,0 +1,72 @@
+{
+ "v": 1,
+ "updated": "2026-11-18T07:45:24+00:00",
+ "checked_links": 19067,
+ "strikes_to_remove": 2,
+ "duration_sec": 713,
+ "sources": [
+  {
+   "id": "iptv-org",
+   "name": "iptv-org (publicly available channels)",
+   "home": "https://github.com/iptv-org/iptv",
+   "ok": true,
+   "fail_days": 0,
+   "live": 12416,
+   "movies": 0,
+   "series": 0
+  },
+  {
+   "id": "free-tv",
+   "name": "Free-TV/IPTV (free-to-air channels)",
+   "home": "https://github.com/Free-TV/IPTV",
+   "ok": true,
+   "fail_days": 0,
+   "live": 2014,
+   "movies": 0,
+   "series": 0
+  },
+  {
+   "id": "ia-films",
+   "name": "Internet Archive — Feature Films (public domain)",
+   "home": "https://archive.org/details/feature_films",
+   "ok": true,
+   "fail_days": 0,
+   "live": 0,
+   "movies": 399,
+   "series": 0
+  },
+  {
+   "id": "ia-cartoons",
+   "name": "Internet Archive — Classic Cartoons (public domain)",
+   "home": "https://archive.org/details/classic_cartoons",
+   "ok": true,
+   "fail_days": 0,
+   "live": 0,
+   "movies": 81,
+   "series": 0
+  },
+  {
+   "id": "ia-tv",
+   "name": "Internet Archive — Classic TV (public domain / Creative Commons only)",
+   "home": "https://archive.org/details/classic_tv",
+   "ok": true,
+   "fail_days": 0,
+   "live": 0,
+   "movies": 0,
+   "series": 255
+  }
+ ],
+ "counts": {
+  "live": 9094,
+  "arabic": 355,
+  "movies": 480,
+  "series": 255,
+  "episodes": 1030
+ },
+ "removed_today": 0,
+ "results": {
+  "ok": 11319,
+  "restricted": 979,
+  "fail": 6769
+ }
+}
