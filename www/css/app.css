@@ -328,3 +328,11 @@ body.free-only .sidebar .nav { margin-top: 4px; }
 .or::before, .or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
 .free-start { background: linear-gradient(135deg, rgba(16,185,129,.25), rgba(91,140,255,.25)); border-color: rgba(16,185,129,.45); font-size: 16px; }
 .free-start .ic { width: 20px; height: 20px; }
+
+/* performance: skip layout/paint of off-screen cards, lighter effects on phones */
+.card, .ch-card { content-visibility: auto; contain-intrinsic-size: auto 300px; }
+.ch-card { contain-intrinsic-size: auto 76px; }
+@media (max-width: 900px), (pointer: coarse) {
+  .poster { box-shadow: none; } .card:hover, .card:active { transform: none; }
+  .content { scroll-behavior: auto; } .modal-back { backdrop-filter: none; -webkit-backdrop-filter: none; }
+}

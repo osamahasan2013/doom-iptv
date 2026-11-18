@@ -274,7 +274,9 @@ const App = {
     sortSel.addEventListener('change', () => { Settings.set('sort', sortSel.value); this.render(); });
     $('.hid-toggle', shell).addEventListener('change', e => { this.showHidden = e.target.checked; this.renderCats(); this.render(); });
     const si = $('.search-in', shell);
-    si.addEventListener('input', debounce(() => { this.q = si.value.trim().toLowerCase(); this.render(); }, 220));
+    const runSearch = () => { const q = si.value.trim().toLowerCase(); if (q === this.q) return; this.q = q; this.render(); this.content.scrollTop = 0; };
+    const soon = debounce(runSearch, 250);
+    ['input', 'compositionend', 'keyup', 'change', 'search'].forEach(ev => si.addEventListener(ev, e => { if (e.key === 'Enter') { si.blur(); runSearch(); } else soon(); }));
     $('.sub-sel', shell).addEventListener('change', e => {
       const v = e.target.value; if (v === '__add') { this.updateSubSelect(); return this.addSubscription(); }
       if (v === '__merged') Playlists.setMerged(); else Playlists.setActive(v);
@@ -329,10 +331,10 @@ const App = {
       const bad = new Set(data[sec].cats.filter(c => ADULT_RX.test(c.name || '')).map(c => c.id));
       data[sec] = { cats: data[sec].cats.filter(c => !bad.has(c.id)), items: data[sec].items.filter(it => !bad.has(it.cat) && !ADULT_RX.test(it.name || '')) };
     }
-    this.data = data; this.dataTs = ts; this.idx = {}; this.catsBySec = {};
+    this.data = data; this.dataTs = ts; this.idx = {}; this.catsBySec = {}; this._memo = new Map(); this.dataVer = (this.dataVer || 0) + 1;
     for (const sec of ['movies', 'series', 'live']) {
       const m = new Map(); const counts = {};
-      for (const it of data[sec].items) { it._q = (it.name || '').toLowerCase(); m.set((it.pl || '') + ':' + it.id, it); counts[it.cat] = (counts[it.cat] || 0) + 1; }
+      for (const it of data[sec].items) { it._q = (it.name || '').toLowerCase(); it._n = it._q.replace(/^\s*(hq|4k|fhd|uhd|hd|sd|vip)\s*[|:-]\s*/, '').trim(); m.set((it.pl || '') + ':' + it.id, it); counts[it.cat] = (counts[it.cat] || 0) + 1; }
       this.idx[sec] = m; this.catsBySec[sec] = { map: new Map(data[sec].cats.map(c => [c.id, c])), counts };
     }
   },
@@ -396,29 +398,30 @@ const App = {
   },
 
   filterItems(sec, items) {
-    const cats = this.catsBySec[sec].map; const showHidden = this.showHidden; const pe = Parental.d.enabled;
-    return items.filter(it => {
-      const c = cats.get(it.cat);
-      if (c && pe && !Parental.catAllowed(sec, c)) return false;
-      if (c && !showHidden && Hidden.is(sec, c.id)) return false;
-      return true;
-    });
+    const block = new Set(this.showHidden ? [] : Hidden.set(sec));
+    if (Parental.d.enabled) for (const c of this.data[sec].cats) if (!Parental.catAllowed(sec, c)) block.add(c.id);
+    return block.size ? items.filter(it => !block.has(it.cat)) : items.slice();
   },
-  sortItems(items) {
+  /* filtered + sorted list for a section/category, cached until something that affects it changes */
+  listFor(sec, cat) {
+    const key = [sec, cat, Settings.get('sort'), this.showHidden, Hidden.ver, Parental.ver || 0, Parental.d.enabled, this.dataVer].join('|');
+    let v = this._memo.get(key);
+    if (!v) { const base = cat === 'all' ? this.data[sec].items : this.data[sec].items.filter(it => it.cat === cat); v = this.sortItems(this.filterItems(sec, base), sec); if (this._memo.size > 40) this._memo.clear(); this._memo.set(key, v); }
+    return v;
+  },
+  sortItems(items, sec) {
     const s = Settings.get('sort'); const a = items.slice();
-    const nm = x => (x.name || '').replace(/^\s*(hq|4k|fhd|hd)\s*\|\s*/i, '');
+    const cmp = (x, y) => (x._n < y._n ? -1 : x._n > y._n ? 1 : 0); // precomputed keys: much faster than localeCompare
     if (s === 'added') a.sort((x, y) => (y.added || 0) - (x.added || 0));
-    else if (s === 'az') a.sort((x, y) => nm(x).localeCompare(nm(y)));
-    else if (s === 'za') a.sort((x, y) => nm(y).localeCompare(nm(x)));
+    else if (s === 'az') a.sort(cmp);
+    else if (s === 'za') a.sort((x, y) => cmp(y, x));
     else if (s === 'rating') a.sort((x, y) => (y.rating || 0) - (x.rating || 0));
     else if (s === 'year') a.sort((x, y) => (y.year || 0) - (x.year || 0));
-    else if (this.section === 'live') a.sort((x, y) => (x.num || 0) - (y.num || 0));
+    else if ((sec || this.section) === 'live') a.sort((x, y) => (x.num || 0) - (y.num || 0));
     return a;
   },
   renderBrowse() {
-    const sec = this.section; let items = this.data[sec].items;
-    if (this.cat !== 'all') items = items.filter(it => it.cat === this.cat);
-    items = this.sortItems(this.filterItems(sec, items));
+    const sec = this.section; const items = this.listFor(sec, this.cat);
     const c = this.catsBySec[sec].map.get(this.cat);
     this.setTitle(this.cat === 'all' ? t(sec) : (c ? c.name : t(sec)));
     this.content.innerHTML = '';
@@ -429,7 +432,7 @@ const App = {
   renderSearch() {
     this.setTitle(t('results') + ': “' + this.q + '”'); this.content.innerHTML = ''; let any = false;
     for (const sec of ['movies', 'series', 'live']) {
-      const items = this.filterItems(sec, this.data[sec].items.filter(it => it._q.includes(this.q)));
+      const q = this.q; const items = this.listFor(sec, 'all').filter(it => it._q.includes(q));
       if (!items.length) continue; any = true;
       this.content.appendChild(h('h3', { class: 'sec-h' }, t(sec), h('small', { class: 'muted' }, ' ' + items.length)));
       const grid = h('div', { class: sec === 'live' ? 'grid live' : 'grid' }); this.content.appendChild(grid);
@@ -446,7 +449,9 @@ const App = {
     const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) more(90); }, { root: this.content, rootMargin: '800px' });
     more(firstBatch); if (i < items.length) io.observe(sentinel);
   },
+  thumb(src) { return typeof src === 'string' ? src.replace(/(image\.tmdb\.org\/t\/p\/)(original|w\d{3,4}(?:_and_h\d+_[a-z0-9]+)?)\//, '$1w342/') : src; },
   imgEl(src, name, cls) {
+    src = this.thumb(src);
     const ph = () => { const d = h('div', { class: 'ph ' + (cls || '') }, (name || '?').replace(/^\s*(hq|4k|hd)\s*\|\s*/i, '').trim().slice(0, 2).toUpperCase()); return d; };
     if (!src) return ph();
     const img = h('img', { src, loading: 'lazy', decoding: 'async', alt: '', referrerpolicy: 'no-referrer', class: cls || '' });
@@ -511,7 +516,7 @@ const App = {
   },
   playLive(it, list) {
     let ctxList = list;
-    if (!ctxList && this.data) { ctxList = this.sortItems(this.filterItems('live', this.data.live.items.filter(x => x.cat === it.cat))); if (!ctxList.length) ctxList = [it]; }
+    if (!ctxList && this.data) { ctxList = this.listFor('live', it.cat); if (!ctxList.length) ctxList = [it]; }
     let index = ctxList ? ctxList.findIndex(x => x.id === it.id && x.pl === it.pl) : 0; if (index < 0) { ctxList = [it]; index = 0; }
     const full = this.findItem('live', it.id, it.pl) || it;
     Player.open(full, { list: ctxList, index });
@@ -788,7 +793,7 @@ const App = {
       h('p', { class: 'muted small' }, t('backupHint')));
 
     section(t('about'), h('div', { class: 'about' }, h('div', { class: 'logo big' }, h('span', { html: ic('play') }), 'DOOM IPTV'),
-      h('p', { class: 'muted' }, t('version') + ' 1.0.0'), h('p', {}, t('designedBy') + ': ', h('b', {}, LANG === 'ar' ? 'أسامة حسن دسوقي' : 'OSAMA HASAN DESOUKY'))));
+      h('p', { class: 'muted' }, t('version') + ' ' + (window.DOOM_VERSION || 'dev')), h('p', {}, t('designedBy') + ': ', h('b', {}, LANG === 'ar' ? 'أسامة حسن دسوقي' : 'OSAMA HASAN DESOUKY'))));
   },
   subCard(p) {
     const a = Accounts.get(p.id) || {}; const d = Accounts.daysLeft(p.id);

@@ -189,7 +189,7 @@ const Player = {
     });
     g.addEventListener('dblclick', () => { if (this._touch) return; clearTimeout(tapT); this.toggleFS(); });
     g.addEventListener('touchstart', e => {
-      this._touch = true; clearTimeout(this._touchT);
+      this._touch = true; this._touchSeen = true; clearTimeout(this._touchT);
       const tt = e.touches[0]; const r = g.getBoundingClientRect();
       s = { x: tt.clientX, y: tt.clientY, rx: (tt.clientX - r.left) / r.width, w: r.width, hgt: r.height, mode: null, t0: this.time(), b0: this.brightness, v0: this.v.volume, moved: false };
     }, { passive: true });
@@ -259,7 +259,7 @@ const Player = {
     this.mediaSession();
     try { if (navigator.wakeLock) this.wake = await navigator.wakeLock.request('screen'); } catch {}
     clearInterval(this.tickIv); this.tickIv = setInterval(() => this.tick(), 250);
-    this.showUI();
+    if (!this.userTapped) this.showUI(true); else this.showUI();
     if (document.body.classList.contains('tv')) setTimeout(() => $('[data-a=toggle]', this.el).focus(), 50);
   },
 
@@ -374,15 +374,22 @@ const Player = {
     $('.p-title', this.el).textContent = title; $('.p-sub', this.el).textContent = sub;
     const fav = $('[data-a=fav]', this.el); fav.classList.toggle('on', Lists.inAny(it));
   },
-  showUI() {
+  showUI(auto) {
     this.el.classList.add('ui'); clearTimeout(this.uiTimer);
+    // touch screens: after the user taps, the controls stay until the next tap (only the first appearance hides by itself)
+    if (this.isTouch() && this.userTapped && !auto) return;
     this.uiTimer = setTimeout(() => {
       if (this.paused() || !$('.p-menu', this.el).classList.contains('hidden') || !$('.p-side', this.el).classList.contains('hidden')) return;
       if (this.el.contains(document.activeElement) && document.activeElement.matches('input[type=range]')) return;
       this.el.classList.remove('ui');
     }, this._touch || matchMedia('(pointer: coarse)').matches ? 6000 : 3500);
   },
-  toggleUI() { if (this.el.classList.contains('ui')) { this.el.classList.remove('ui'); clearTimeout(this.uiTimer); } else this.showUI(); },
+  isTouch() { return this._touch || this._touchSeen || matchMedia('(pointer: coarse)').matches; },
+  toggleUI() {
+    const now = Date.now(); if (now - (this._lastToggle || 0) < 350) return; // one tap = one toggle, even if the browser repeats the event
+    this._lastToggle = now; this.userTapped = true;
+    if (this.el.classList.contains('ui')) { this.el.classList.remove('ui'); clearTimeout(this.uiTimer); } else this.showUI();
+  },
   osd(html, isHtml) {
     const o = $('.p-osd', this.el); o.innerHTML = isHtml ? html : esc(html); o.classList.remove('hidden');
     clearTimeout(this._osdT); this._osdT = setTimeout(() => o.classList.add('hidden'), 900);

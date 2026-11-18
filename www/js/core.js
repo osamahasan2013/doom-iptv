@@ -425,8 +425,9 @@ const Providers = { xtream: XtreamProvider, m3u: M3UProvider, demo: DemoProvider
 
 /* ---------------- playlists (multiple subscriptions: separate or merged) ---------------- */
 const Playlists = {
-  all() { return LS.get('playlists', []); },
-  save(list) { LS.set('playlists', list); },
+  _all: null,
+  all() { return this._all || (this._all = LS.get('playlists', [])); }, // cached: read once, not per item
+  save(list) { this._all = list; LS.set('playlists', list); this._c = {}; },
   get(id) { return this.all().find(p => p.id === id) || null; },
   activeId() { const id = LS.get('activePlaylist', null); return this.get(id) ? id : (this.all()[0] && this.all()[0].id) || null; },
   active() { return this.get(this.activeId()); },
@@ -542,14 +543,16 @@ const Hidden = {
   data: LS.get('hiddenCats', {}),
   key(sec, id) { return Playlists.scopeId() + ':' + sec + ':' + id; },
   is(sec, id) { return !!this.data[this.key(sec, id)]; },
-  toggle(sec, id) { const k = this.key(sec, id); if (this.data[k]) delete this.data[k]; else this.data[k] = 1; LS.set('hiddenCats', this.data); },
+  ver: 0,
+  toggle(sec, id) { const k = this.key(sec, id); if (this.data[k]) delete this.data[k]; else this.data[k] = 1; this.ver++; LS.set('hiddenCats', this.data); },
+  set(sec) { const p = Playlists.scopeId() + ':' + sec + ':'; const s = new Set(); for (const k in this.data) if (k.startsWith(p)) s.add(k.slice(p.length)); return s; },
   count(sec) { const p = Playlists.scopeId() + ':' + sec + ':'; return Object.keys(this.data).filter(k => k.startsWith(p)).length; }
 };
 
 /* ---------------- parental controls ---------------- */
 const Parental = {
   d: Object.assign({ enabled: false, pin: null, allowed: {}, dailyMin: 0, from: '', to: '', used: {} }, LS.get('parental', {})),
-  save() { LS.set('parental', this.d); },
+  save() { this.ver = (this.ver || 0) + 1; LS.set('parental', this.d); },
   today() { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); },
   overrideUntil: 0,
   catAllowed(sec, cat) {
@@ -559,7 +562,8 @@ const Parental = {
     if (!set) return true; // nothing configured = all allowed
     return !!set[cat.id];
   },
-  setAllowed(sec, map) { this.d.allowed[Playlists.scopeId() + ':' + sec] = map; this.save(); },
+  ver: 0,
+  setAllowed(sec, map) { this.d.allowed[Playlists.scopeId() + ':' + sec] = map; this.ver++; this.save(); },
   getAllowed(sec) { return this.d.allowed[Playlists.scopeId() + ':' + sec] || null; },
   async checkPin(pin) { return !!this.d.pin && (await sha256('doom:' + pin)) === this.d.pin; },
   async setPin(pin) { this.d.pin = await sha256('doom:' + pin); this.save(); },
