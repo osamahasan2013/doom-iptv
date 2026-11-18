@@ -3,7 +3,7 @@
 DOOM IPTV — Free IPTV catalogue builder.
 
 Collects free channels, movies and series from the open sources in sources.json, classifies them
-(sports, news, movies, series, kids, arabic, adult ...), checks every link and writes the result to
+(sports, news, movies, series, kids, arabic ...), checks every link and writes the result to
 free/*.json (read by the app) and free/m3u/*.m3u (usable in any player).
 
 Runs once a day in GitHub Actions (.github/workflows/free-iptv.yml). A link that fails on
@@ -23,7 +23,7 @@ CAT_NAMES = {
     'music': 'Music', 'entertainment': 'Entertainment', 'religious': 'Religious', 'general': 'General', 'comedy': 'Comedy', 'family': 'Family',
     'education': 'Education', 'science': 'Science', 'business': 'Business', 'lifestyle': 'Lifestyle', 'cooking': 'Cooking', 'travel': 'Travel',
     'culture': 'Culture', 'classic': 'Classic', 'outdoor': 'Outdoor', 'auto': 'Auto', 'weather': 'Weather', 'legislative': 'Legislative',
-    'public': 'Public', 'relax': 'Relax', 'shop': 'Shopping', 'woman': 'Woman', 'interactive': 'Interactive', 'adult': 'Adult', 'drama': 'Drama',
+    'public': 'Public', 'relax': 'Relax', 'shop': 'Shopping', 'woman': 'Woman', 'interactive': 'Interactive', 'drama': 'Drama',
     'horror': 'Horror', 'western': 'Western', 'action': 'Action', 'crime': 'Crime', 'scifi': 'Sci-Fi', 'romance': 'Romance', 'war': 'War'
 }
 KEYWORDS = [  # name-based guess for channels without category data
@@ -36,7 +36,8 @@ KEYWORDS = [  # name-based guess for channels without category data
     ('documentary', r'docu|discovery|nat ?geo|history|nature|wild|وثائقي'),
     ('religious', r'quran|qur|sunnah|iqraa|islam|church|god|قرآن|القرآن|السنة'),
 ]
-ADULT_RX = re.compile(r'\b(xxx|porn|erotic|nude|nudist|adult only|18\+|sex)\b', re.I)
+# adult content is excluded completely (channels, movies, series)
+ADULT_RX = re.compile(r'(\b(adults?|xxx|porn\w*|erotic\w*|nsfw|nude|nudist|sexy?|playboy|hustler|brazzers)\b|18\s*\+|\+\s*18|للكبار|بالغين|إباحي|اباحي|سكس)', re.I)
 GENRES = [('horror', r'horror|zombie|vampire|monster'), ('western', r'western|cowboy'), ('comedy', r'comedy|comedies'), ('crime', r'crime|noir|detective|gangster'),
           ('scifi', r'science fiction|sci-?fi'), ('romance', r'romance|romantic'), ('war', r'\bwar\b|military'), ('action', r'action|adventure'),
           ('documentary', r'documentary'), ('animation', r'animation|cartoon'), ('drama', r'drama')]
@@ -117,9 +118,9 @@ def src_iptv_org(src):
         feed = s.get('feed')
         if feed and ch and feed_lang.get((ch['id'], feed)) is not None and s.get('title') and s.get('title') != name:
             name = s.get('title')
-        cats = [c for c in ((ch or {}).get('categories') or []) if c != 'xxx'] or guess_cats(name)
-        if (ch or {}).get('is_nsfw') or 'xxx' in ((ch or {}).get('categories') or []):
-            cats = ['adult']
+        if (ch or {}).get('is_nsfw') or 'xxx' in ((ch or {}).get('categories') or []) or ADULT_RX.search(name):
+            continue  # adult channels are never included
+        cats = list((ch or {}).get('categories') or []) or guess_cats(name)
         cc = ((ch or {}).get('country') or '').lower()
         langs = feed_lang.get(((ch or {}).get('id'), feed)) or main_lang.get((ch or {}).get('id')) or []
         key = (ch['id'] + '@' + (feed or '')) if ch else 'iptv-org:' + norm(name)
@@ -147,7 +148,10 @@ def src_m3u(src, iptv_ids=None, countries=None):
             if playable(line):
                 name = re.sub(r'\s*[Ⓖ Ⓨ Ⓢ Ⓟ]\s*$', '', cur['name']).strip() or cur['name']
                 ref = (iptv_ids or {}).get(cur['tid'].split('@')[0]) if cur['tid'] else None
-                cats = [c for c in (ref or {}).get('categories', []) if c != 'xxx'] or guess_cats(name + ' ' + cur['group'])
+                if (ref or {}).get('is_nsfw') or 'xxx' in (ref or {}).get('categories', []) or ADULT_RX.search(name + ' ' + cur['group']):
+                    cur = None
+                    continue
+                cats = list((ref or {}).get('categories', [])) or guess_cats(name + ' ' + cur['group'])
                 cc = ((ref or {}).get('country') or (countries or {}).get(norm(re.sub(r'[^\w\s]', '', cur['group'])), '') or '').lower()
                 key = norm(name) + '|' + cc
                 it = out.setdefault(key, {'id': 'ft:' + key, 'n': name, 'l': cur['logo'], 'c': cats, 'cc': cc, 'lg': ['ara'] if cc in ARAB else [], 'u': [], 's': src['id']})
@@ -204,7 +208,7 @@ def src_archive(src, workers):
         yr = re.search(r'(18|19|20)\d\d', str(d.get('year') or md.get('year') or md.get('date') or title))
         cats = [src['category']] if src.get('category') else [g for g, rx in GENRES if re.search(rx, subj + ' ' + title, re.I)][:2] or ['classic']
         if ADULT_RX.search(title + ' ' + subj):
-            cats = ['adult']
+            return None
         return {'id': 'ia:' + d['identifier'], 'n': title, 'p': f'{api}/services/img/{urllib.parse.quote(d["identifier"])}', 'y': int(yr.group(0)) if yr else None,
                 'd': desc, 'c': cats, 'vids': vids, 's': src['id']}
 
@@ -439,12 +443,11 @@ def main():
             for it in items:
                 grp = CAT_NAMES.get(it['c'][0], it['c'][0]) if it.get('c') else 'General'
                 f.write(f'#EXTINF:-1 tvg-logo="{it.get("l", "")}" group-title="{grp}",{it["n"]}\n{it["u"][0]}\n')
-    safe = [x for x in out_live if 'adult' not in x['c']]
+    safe = out_live
     m3u('all.m3u', safe)
     m3u('arabic.m3u', [x for x in safe if x.get('ar')])
     for c in cat_count:
-        if c != 'adult':
-            m3u(f'{c}.m3u', [x for x in safe if c in x['c']])
+        m3u(f'{c}.m3u', [x for x in safe if c in x['c']])
     log(json.dumps(status['counts']), 'removed today:', len(removed), f'({int(time.time() - t0)}s)')
 
 

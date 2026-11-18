@@ -325,6 +325,10 @@ const App = {
     }
   },
   setData(data, ts) {
+    for (const sec of ['movies', 'series', 'live']) { // adult content never reaches the interface
+      const bad = new Set(data[sec].cats.filter(c => ADULT_RX.test(c.name || '')).map(c => c.id));
+      data[sec] = { cats: data[sec].cats.filter(c => !bad.has(c.id)), items: data[sec].items.filter(it => !bad.has(it.cat) && !ADULT_RX.test(it.name || '')) };
+    }
     this.data = data; this.dataTs = ts; this.idx = {}; this.catsBySec = {};
     for (const sec of ['movies', 'series', 'live']) {
       const m = new Map(); const counts = {};
@@ -751,7 +755,6 @@ const App = {
       const from = h('input', { class: 'input sm', type: 'time', value: P.from || '' }), to = h('input', { class: 'input sm', type: 'time', value: P.to || '' });
       [from, to].forEach(x => x.addEventListener('change', guard(() => { P.from = from.value; P.to = to.value; Parental.save(); })));
       parentalBody.append(
-        row(t('lockAdult'), sw(P.lockAdult, guard(v => { P.lockAdult = v; Parental.save(); this.renderCats(); }))),
         row(t('dailyLimit'), minIn, t('usedToday') + ': ' + Math.round(Parental.usedToday() / 60) + ' ' + t('minutes')),
         row(t('allowedHours'), h('div', { class: 'row gap' }, from, to)),
         h('div', { class: 'row gap wrap' }, ...['movies', 'series', 'live'].map(sec => h('button', { class: 'btn sm', onclick: guard(() => this.allowedCatsDialog(sec)) }, h('span', { html: ic('lock') }), t('allowedCats') + ': ' + t(sec)))));
@@ -767,7 +770,6 @@ const App = {
 
     section(t('free'), h('p', { class: 'muted small' }, t('freeHint')),
       row(t('freeBase'), (() => { const i = h('input', { class: 'input sm', value: Settings.get('freeBase') || DEFAULT_FREE_BASE }); i.addEventListener('change', () => { Settings.set('freeBase', i.value.trim()); FreeCat.load(true); }); return i; })()),
-      row(t('freeAdult'), sw(Settings.get('freeAdult'), async v => { if (v && Parental.d.enabled && !(await UI.pinPrompt())) return this.renderSettings(); Settings.set('freeAdult', v); if (v && Parental.d.enabled && Parental.d.lockAdult) UI.toast(t('lockAdult')); }), t('freeEmptyAdult')),
       FreeCat.status && FreeCat.status.sources ? h('div', { class: 'free-sources' }, ...FreeCat.status.sources.map(s => h('div', { class: 'src-row' }, h('span', { class: s.ok ? 'ok' : 'bad-t' }, s.ok ? '●' : '○'), h('a', { href: s.home || '#', target: '_blank', rel: 'noopener' }, s.name), h('small', { class: 'muted' }, [s.live && s.live + ' live', s.movies && s.movies + ' movies', s.series && s.series + ' series'].filter(Boolean).join(' · '))))) : null);
 
     const fileIn = h('input', { type: 'file', accept: '.json', class: 'hidden' });
@@ -815,7 +817,7 @@ const App = {
   },
   allowedCatsDialog(sec) {
     const cats = this.data[sec].cats; const cur = Parental.getAllowed(sec); const map = {};
-    cats.forEach(c => { map[c.id] = cur ? !!cur[c.id] : !(Parental.d.lockAdult && ADULT_RX.test(c.name)); });
+    cats.forEach(c => { map[c.id] = cur ? !!cur[c.id] : true; });
     const list = h('div', { class: 'cat-checks' });
     const draw = () => { list.innerHTML = ''; cats.forEach(c => { const cb = h('input', { type: 'checkbox' }); cb.checked = map[c.id]; cb.addEventListener('change', () => { map[c.id] = cb.checked; }); list.appendChild(h('label', { class: 'cat-check' }, cb, h('span', {}, c.name))); }); };
     draw();

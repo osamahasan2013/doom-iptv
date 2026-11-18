@@ -9,7 +9,7 @@ BASE = f'http://127.0.0.1:{PORT}'
 ACTIVE = {}
 
 def b64(s): return base64.b64encode(s.encode()).decode()
-VOD_CATS = [{'category_id': str(i + 1), 'category_name': n} for i, n in enumerate(['NEW RELEASES MOVIES', 'HQ Arabic Movies', 'HQ Moviesta Animation', 'English Movies 2020 - 2026', 'Kids', 'Adult XXX'])]
+VOD_CATS = [{'category_id': str(i + 1), 'category_name': n} for i, n in enumerate(['NEW RELEASES MOVIES', 'HQ Arabic Movies', 'HQ Moviesta Animation', 'English Movies 2020 - 2026', 'Kids'])]
 SER_CATS = [{'category_id': str(i + 10), 'category_name': n} for i, n in enumerate(['Arabic Series', 'English Series'])]
 LIVE_CATS = [{'category_id': str(i + 20), 'category_name': n} for i, n in enumerate(['News', 'Sports', 'Kids'])]
 TITLES = ["Ron's Gone Wrong", 'Far from the Tree', 'Seal Team', 'The Family 2', 'Earwig', 'Wimpy Kid', "Pil's Adventures", 'Monster Family 2', 'Vivo', 'Moonbound', 'Jujutsu 0', 'Crazy Racing']

@@ -316,7 +316,6 @@ body:not(.light) { color-scheme: dark; }
 .free-info { display: flex; align-items: center; gap: 6px; }
 .warn-chip { background: rgba(245,158,11,.18); color: #f59e0b; white-space: normal; }
 .cats-bar { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 6px; scrollbar-width: thin; } .cats-bar .chip-btn { flex: none; }
-.chip-btn.adult { border-color: rgba(239,68,68,.5); }
 .chips-bar select.input { width: auto; }
 .free-sources { display: flex; flex-direction: column; gap: 6px; } .src-row { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .src-row a { color: var(--text); } .bad-t { color: var(--bad); }

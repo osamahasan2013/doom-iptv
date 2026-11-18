@@ -8,21 +8,21 @@ const ARAB_CC = new Set(['sa', 'ae', 'eg', 'qa', 'kw', 'bh', 'om', 'jo', 'lb', '
 
 Object.assign(I18N.en, {
   free: 'Free IPTV', freeLive: 'Live', freeArabic: 'Arabic', freeIntl: 'International', allCountries: 'All countries', allCats: 'All',
-  freeChecked: 'Checked daily · updated {d}', freeWorking: '{n} working links', freeSources: 'Sources', freeAdult: 'Show adult category',
+  freeChecked: 'Checked daily · updated {d}', freeWorking: '{n} working links', freeSources: 'Sources',
   freeNotReady: 'The daily-checked list isn’t published yet, so channels come straight from iptv-org (not checked yet).',
   freeBase: 'Checked list address', freeHint: 'Only open, maintained sources of free live channels. Links that stop working are removed automatically.',
-  geo: 'May be region-locked', deadHidden: 'This link stopped working — hidden for 24 hours', adult: 'Adult',
+  geo: 'May be region-locked', deadHidden: 'This link stopped working — hidden for 24 hours',
   freeNoSub: 'Watch Free IPTV without a subscription', addSub: '+ Add subscription',
-  themeMode: 'Day / Night', day: 'Day', night: 'Night', freeEmptyAdult: 'The trusted sources don’t carry adult channels.'
+  themeMode: 'Day / Night', day: 'Day', night: 'Night'
 });
 Object.assign(I18N.ar, {
   free: 'IPTV مجاني', freeLive: 'مباشر', freeArabic: 'عربي', freeIntl: 'عالمي', allCountries: 'كل الدول', allCats: 'الكل',
-  freeChecked: 'فحص يومي · آخر تحديث {d}', freeWorking: '{n} رابط شغال', freeSources: 'المصادر', freeAdult: 'إظهار فئة البالغين',
+  freeChecked: 'فحص يومي · آخر تحديث {d}', freeWorking: '{n} رابط شغال', freeSources: 'المصادر',
   freeNotReady: 'القائمة المفحوصة يومياً لم تُنشر بعد، لذلك القنوات معروضة مباشرة من iptv-org (بدون فحص).',
   freeBase: 'عنوان القائمة المفحوصة', freeHint: 'مصادر مفتوحة ومُحدَّثة لقنوات مباشرة مجانية فقط. أي رابط يتوقف يُحذف تلقائياً.',
-  geo: 'قد يكون مقيداً جغرافياً', deadHidden: 'الرابط توقف عن العمل — تم إخفاؤه لمدة 24 ساعة', adult: 'للبالغين',
+  geo: 'قد يكون مقيداً جغرافياً', deadHidden: 'الرابط توقف عن العمل — تم إخفاؤه لمدة 24 ساعة',
   freeNoSub: 'شاهد IPTV المجاني بدون اشتراك', addSub: '+ إضافة اشتراك',
-  themeMode: 'نهاري / ليلي', day: 'نهاري', night: 'ليلي', freeEmptyAdult: 'المصادر الموثوقة لا تحتوي على قنوات للبالغين.'
+  themeMode: 'نهاري / ليلي', day: 'نهاري', night: 'ليلي'
 });
 
 class FreeProvider {
@@ -44,12 +44,11 @@ const FreeCat = {
   live: [], movies: [], series: [], status: null, ts: 0, loading: null, fallback: false,
   dead: LS.get('freeDead', {}),
   base() { let b = (Settings.get('freeBase') || DEFAULT_FREE_BASE).trim(); return b.endsWith('/') ? b : b + '/'; },
-  catName(id) { const k = 'fc_' + id; const v = t(k); return v !== k ? v : (id === 'adult' ? t('adult') : id.charAt(0).toUpperCase() + id.slice(1)); },
-  showAdult() { return !!Settings.get('freeAdult') && !(Parental.d.enabled && Parental.d.lockAdult); },
+  catName(id) { const k = 'fc_' + id; const v = t(k); return v !== k ? v : id.charAt(0).toUpperCase() + id.slice(1); },
   isDead(u) { const ts = this.dead[u]; return !!ts && Date.now() - ts < 86400000; },
   markDead(urls) { urls.forEach(u => { this.dead[u] = Date.now(); }); for (const [u, ts] of Object.entries(this.dead)) if (Date.now() - ts > 86400000) delete this.dead[u]; LS.set('freeDead', this.dead); },
   usable(it) {
-    if (!this.showAdult() && (it.fcats || []).includes('adult')) return false;
+    if ((it.fcats || []).includes('adult') || ADULT_RX.test(it.name || '')) return false;
     if (it.type === 'live') { const urls = [it.url, ...(it.alts || []).map(a => a.url)]; return urls.some(u => !this.isDead(u)); }
     return !this.isDead(it.url || '');
   },
@@ -86,7 +85,8 @@ const FreeCat = {
         if (/^https?:/.test(line) && !/\.mpd(\?|$)/i.test(line)) {
           const cc = ((/\.([a-z]{2})(@|$)/i.exec(cur.id) || [])[1] || '').toLowerCase();
           const key = cur.id || cur.n;
-          const it = out.get(key) || { id: 'io:' + key, n: cur.n.replace(/\s*\(\d{3,4}p\)|\s*\[[^\]]*\]/g, '').trim(), l: cur.l, c: (cur.g || 'General').toLowerCase().split(';').map(s => s.trim()).filter(c => c && c !== 'undefined' && c !== 'xxx'), cc, u: [] };
+          const it = out.get(key) || { id: 'io:' + key, n: cur.n.replace(/\s*\(\d{3,4}p\)|\s*\[[^\]]*\]/g, '').trim(), l: cur.l, c: (cur.g || 'General').toLowerCase().split(';').map(s => s.trim()).filter(c => c && c !== 'undefined'), cc, u: [] };
+          if ((cur.g || '').toLowerCase().includes('xxx') || ADULT_RX.test(cur.n)) { cur = null; continue; }
           if (!it.c.length) it.c = ['general'];
           it.u.push(line); if (ARAB_CC.has(cc)) it.ar = 1; out.set(key, it);
         }
@@ -137,7 +137,7 @@ const FreePage = {
     const order = ['sports', 'news', 'movies', 'series', 'kids', 'animation', 'documentary', 'music', 'religious', 'entertainment', 'general'];
     const catIds = Object.keys(counts).sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99) || counts[b] - counts[a]);
     wrap.appendChild(h('div', { class: 'chips-bar cats-bar' }, h('button', { class: 'chip-btn' + (this.cat === 'all' ? ' on' : ''), onclick: () => { this.cat = 'all'; this.render(app); } }, t('allCats'), h('small', {}, ' ' + items.length)),
-      ...catIds.map(k => h('button', { class: 'chip-btn' + (this.cat === k ? ' on' : '') + (k === 'adult' ? ' adult' : ''), onclick: () => { this.cat = k; this.render(app); } }, this.catLabel(k), h('small', {}, ' ' + counts[k])))));
+      ...catIds.map(k => h('button', { class: 'chip-btn' + (this.cat === k ? ' on' : ''), onclick: () => { this.cat = k; this.render(app); } }, this.catLabel(k), h('small', {}, ' ' + counts[k])))));
     if (this.cat !== 'all') items = items.filter(x => x.fcats.includes(this.cat));
     if (app.q) items = items.filter(x => x._q.includes(app.q));
     if (!items.length) { wrap.appendChild(app.empty(FreeCat.error ? t('errLogin') : null)); return; }
@@ -149,9 +149,9 @@ const FreePage = {
   catLabel(k) {
     const ar = { sports: 'رياضة', news: 'أخبار', movies: 'أفلام', series: 'مسلسلات', kids: 'أطفال', animation: 'رسوم متحركة', documentary: 'وثائقي', music: 'موسيقى', religious: 'ديني', entertainment: 'ترفيه', general: 'عام',
       comedy: 'كوميديا', family: 'عائلي', education: 'تعليمي', science: 'علوم', business: 'اقتصاد', lifestyle: 'لايف ستايل', cooking: 'طبخ', travel: 'سفر', culture: 'ثقافة', classic: 'كلاسيكي', outdoor: 'مغامرات',
-      auto: 'سيارات', weather: 'طقس', legislative: 'برلماني', public: 'عام/حكومي', relax: 'استرخاء', shop: 'تسوق', woman: 'المرأة', adult: 'للبالغين', drama: 'دراما', horror: 'رعب', western: 'ويسترن', action: 'أكشن',
+      auto: 'سيارات', weather: 'طقس', legislative: 'برلماني', public: 'عام/حكومي', relax: 'استرخاء', shop: 'تسوق', woman: 'المرأة', drama: 'دراما', horror: 'رعب', western: 'ويسترن', action: 'أكشن',
       crime: 'جريمة', scifi: 'خيال علمي', romance: 'رومانسي', war: 'حرب', interactive: 'تفاعلي' };
-    const en = { scifi: 'Sci-Fi', shop: 'Shopping', adult: 'Adult' };
+    const en = { scifi: 'Sci-Fi', shop: 'Shopping' };
     return LANG === 'ar' ? (ar[k] || k) : (en[k] || k.charAt(0).toUpperCase() + k.slice(1));
   },
   countryName(cc) { try { return new Intl.DisplayNames([LANG], { type: 'region' }).of(cc.toUpperCase()) + ' (' + cc.toUpperCase() + ')'; } catch { return cc.toUpperCase(); } }

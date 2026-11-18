@@ -73,7 +73,7 @@ const I18N = {
     allowedCats: 'Allowed categories', allowedCatsHint: 'Only checked categories are visible while parental controls are on.',
     dailyLimit: 'Daily watch limit (minutes, 0 = unlimited)', allowedHours: 'Allowed viewing hours', from: 'From', to: 'To', usedToday: 'Watched today',
     timeUp: 'Viewing time is over', timeUpSub: 'Enter the PIN to keep watching.', outsideHours: 'Viewing is not allowed at this hour',
-    locked: 'Locked', hideCat: 'Hide category', unhideCat: 'Show category', lockAdult: 'Auto-block adult categories',
+    locked: 'Locked', hideCat: 'Hide category', unhideCat: 'Show category',
     speed: 'Speed', aspect: 'Aspect', brightness: 'Brightness', volume: 'Volume', audio: 'Audio', subtitles: 'Subtitles', off: 'Off', loadSub: 'Load subtitle file…',
     fit: 'Fit', fill: 'Fill / Zoom', stretch: 'Stretch', original: 'Original', sleep: 'Sleep timer', minutes: 'min', nextEp: 'Next episode', channels: 'Channels',
     nowPlaying: 'Now', next: 'Next', noEpg: 'No guide data', catchup: 'Catch-up', pip: 'Picture in picture', fullscreen: 'Full screen', info: 'Info',
@@ -108,7 +108,7 @@ const I18N = {
     allowedCats: 'الفئات المسموحة', allowedCatsHint: 'عند تفعيل الرقابة تظهر الفئات المحددة فقط.',
     dailyLimit: 'حد المشاهدة اليومي (دقائق، 0 = بلا حد)', allowedHours: 'ساعات المشاهدة المسموحة', from: 'من', to: 'إلى', usedToday: 'المشاهدة اليوم',
     timeUp: 'انتهى وقت المشاهدة', timeUpSub: 'أدخل رمز PIN للاستمرار.', outsideHours: 'المشاهدة غير مسموحة في هذا الوقت',
-    locked: 'مقفل', hideCat: 'إخفاء الفئة', unhideCat: 'إظهار الفئة', lockAdult: 'حجب فئات البالغين تلقائياً',
+    locked: 'مقفل', hideCat: 'إخفاء الفئة', unhideCat: 'إظهار الفئة',
     speed: 'السرعة', aspect: 'الأبعاد', brightness: 'الإضاءة', volume: 'الصوت', audio: 'الصوت', subtitles: 'الترجمة', off: 'إيقاف', loadSub: 'تحميل ملف ترجمة…',
     fit: 'ملائمة', fill: 'ملء / تكبير', stretch: 'تمديد', original: 'الأصلي', sleep: 'مؤقت النوم', minutes: 'د', nextEp: 'الحلقة التالية', channels: 'القنوات',
     nowPlaying: 'الآن', next: 'التالي', noEpg: 'لا يوجد دليل برامج', catchup: 'إعادة البث', pip: 'صورة داخل صورة', fullscreen: 'ملء الشاشة', info: 'معلومات',
@@ -141,7 +141,7 @@ const LS = {
 
 const DEFAULT_SETTINGS = {
   lang: 'auto', liveFormat: 'm3u8', seekStep: 10, aspect: 'fit', speed: 1, autoNext: true, refreshHours: 12,
-  proxy: '', accent: '#5b8cff', tvMode: 'auto', theme: 'auto', freeAdult: false, freeBase: '', sort: 'default', lastSection: 'movies'
+  proxy: '', accent: '#5b8cff', tvMode: 'auto', theme: 'auto', freeBase: '', sort: 'default', lastSection: 'movies'
 };
 const Settings = {
   data: Object.assign({}, DEFAULT_SETTINGS, LS.get('settings', {})),
@@ -221,7 +221,8 @@ const ratingOf = o => {
   let r = parseFloat(o.rating); if (!(r > 0) && o.rating_5based) r = parseFloat(o.rating_5based) * 2;
   return r > 0 ? Math.round(r * 10) / 10 : null;
 };
-const ADULT_RX = /\b(adult|xxx|18\+|\+18|porn|for adults|للكبار)\b/i;
+/* adult content is removed from the whole app: categories / channels whose names match are dropped */
+const ADULT_RX = /(\b(adults?|xxx|porn\w*|erotic\w*|nsfw|sexy?|playboy|hustler|brazzers)\b|18\s*\+|\+\s*18|للكبار|بالغين|إباحي|اباحي|سكس)/i;
 
 /* ---------------- providers ---------------- */
 class XtreamProvider {
@@ -374,7 +375,7 @@ class DemoProvider {
   async catalog() {
     const adj = ['Brave', 'Lost', 'Silent', 'Crimson', 'Hidden', 'Golden', 'Midnight', 'Wild', 'Little', 'Last', 'Frozen', 'Flying', 'Secret', 'Starlit', 'Iron', 'Paper'];
     const noun = ['Robot', 'Island', 'Garden', 'Kingdom', 'Comet', 'Lantern', 'Voyage', 'Forest', 'Harbor', 'Dragon', 'Desert', 'Orbit', 'Rider', 'Village', 'Engine', 'Owl'];
-    const mcats = ['New Releases', 'Arabic Movies', 'Animation', 'Action', 'Drama', 'Comedy', 'Kids', 'Documentary', 'Adult (demo)'];
+    const mcats = ['New Releases', 'Arabic Movies', 'Animation', 'Action', 'Drama', 'Comedy', 'Kids', 'Documentary'];
     const scats = ['Arabic Series', 'English Series', 'Kids Series', 'Turkish Series'];
     const lcats = ['News', 'Sports', 'Kids', 'Documentary', 'Movies 24/7'];
     const cat = (arr, type) => arr.map((name, i) => ({ id: type[0] + i, name, type }));
@@ -547,7 +548,7 @@ const Hidden = {
 
 /* ---------------- parental controls ---------------- */
 const Parental = {
-  d: Object.assign({ enabled: false, pin: null, allowed: {}, dailyMin: 0, from: '', to: '', lockAdult: true, used: {} }, LS.get('parental', {})),
+  d: Object.assign({ enabled: false, pin: null, allowed: {}, dailyMin: 0, from: '', to: '', used: {} }, LS.get('parental', {})),
   save() { LS.set('parental', this.d); },
   today() { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); },
   overrideUntil: 0,
@@ -555,8 +556,7 @@ const Parental = {
     if (!this.d.enabled) return true;
     const k = Playlists.scopeId() + ':' + sec;
     const set = this.d.allowed[k];
-    if (this.d.lockAdult && cat && ADULT_RX.test(cat.name || '')) return false;
-    if (!set) return true; // nothing configured = all allowed (except adult)
+    if (!set) return true; // nothing configured = all allowed
     return !!set[cat.id];
   },
   setAllowed(sec, map) { this.d.allowed[Playlists.scopeId() + ':' + sec] = map; this.save(); },
