@@ -113,10 +113,12 @@ const SpatialNav = {
     for (const el of items) {
       if (el === cur) continue; const q = el.getBoundingClientRect(); const x = q.left + q.width / 2, y = q.top + q.height / 2;
       const dx = x - cx, dy = y - cy; let main, cross;
-      if (dir === 'left') { if (q.right > r.left + 2) continue; main = -dx; cross = Math.abs(dy); }
-      if (dir === 'right') { if (q.left < r.right - 2) continue; main = dx; cross = Math.abs(dy); }
-      if (dir === 'up') { if (q.bottom > r.top + 2) continue; main = -dy; cross = Math.abs(dx); }
-      if (dir === 'down') { if (q.top < r.bottom - 2) continue; main = dy; cross = Math.abs(dx); }
+      // judge direction from the centres (a focused item may be slightly enlarged and overlap its neighbours)
+      if (dir === 'left') { if (!(dx < -8 && q.left < r.left + 2)) continue; main = -dx; cross = Math.abs(dy); }
+      if (dir === 'right') { if (!(dx > 8 && q.right > r.right - 2)) continue; main = dx; cross = Math.abs(dy); }
+      if (dir === 'up') { if (!(dy < -8 && q.top < r.top + 2)) continue; main = -dy; cross = Math.abs(dx); }
+      if (dir === 'down') { if (!(dy > 8 && q.bottom > r.bottom - 2)) continue; main = dy; cross = Math.abs(dx); }
+      if ((dir === 'left' || dir === 'right') ? Math.abs(dy) > Math.max(r.height, q.height) * 1.5 + 40 && main < cross : false) continue;
       const score = main + cross * 2.2; if (score < bestScore) { bestScore = score; best = el; }
     }
     if (!best && (dir === 'down' || dir === 'up')) { // scroll containers when nothing visible further
@@ -180,7 +182,7 @@ const App = {
     const meta = $('meta[name=theme-color]'); if (meta) meta.content = light ? '#f3f5fa' : '#0a0f1e';
     $$('.theme-btn').forEach(tb => { tb.innerHTML = ic(light ? 'moon' : 'sun'); });
     if (mq && !this._mqBound) { this._mqBound = true; (mq.addEventListener ? mq.addEventListener('change', () => this.applyTheme()) : mq.addListener(() => this.applyTheme())); }
-    const tv = Settings.get('tvMode'); document.body.classList.toggle('tv', tv === 'on' || (tv === 'auto' && isTV()));
+    const tv = Settings.get('tvMode'); document.body.classList.toggle('tv', tv === 'on' || (tv === 'auto' && (isTV() || LS.get('tvSeen', false))));
   },
 
   /* ---------- welcome / add subscription ---------- */
@@ -190,6 +192,7 @@ const App = {
       h('div', { class: 'or' }, h('span', {}, LANG === 'ar' ? 'أو' : 'or')),
       h('button', { class: 'btn wide free-start', onclick: () => { LS.set('freeOnly', true); this.startFreeOnly(); } }, h('span', { html: ic('globe') }), t('freeNoSub')));
     document.body.appendChild(h('div', { class: 'welcome-wrap' }, card));
+    if (document.body.classList.contains('tv')) setTimeout(() => this.ensureFocus(), 60);
   },
   playlistForm(existing, done) {
     let type = existing ? existing.type : 'xtream';
@@ -421,6 +424,7 @@ const App = {
 
   render() {
     this.updateBackBtn && this.updateBackBtn();
+    if (document.body.classList.contains('tv')) setTimeout(() => this.ensureFocus(), 60);
     if (!this.el || (!this.data && this.section !== 'free')) return;
     if (this.section === 'free') { this.el.dataset.section = 'free'; return FreePage.render(this); }
     if (this.q && this.q.length >= 2) return this.renderSearch();
@@ -948,26 +952,60 @@ const App = {
   },
 
   /* ---------- keyboard / remote ---------- */
+  /* put the remote's focus somewhere useful when nothing is focused */
+  ensureFocus() {
+    const a = document.activeElement;
+    if (a && a !== document.body && document.body.contains(a) && a.offsetParent !== null) return;
+    const root = SpatialNav.root();
+    const pick = $('.content .card, .content .ch-card, .content .pl-row, .content button', root) || $('.modal button, .modal input', root) || $('.welcome .seg-btn', root) || $('.nav-item.on, .seg-btn.on, .cat.on', root);
+    const f = pick || SpatialNav.focusables(root)[0]; if (f) f.focus();
+  },
+  enableTvMode() {
+    if (Settings.get('tvMode') === 'off' || document.body.classList.contains('tv')) return;
+    document.body.classList.add('tv'); LS.set('tvSeen', true); setTimeout(() => this.ensureFocus(), 50);
+  },
   bindGlobalKeys() {
+    window.addEventListener('doom-tv', () => this.enableTvMode());
+    window.addEventListener('touchstart', () => { this._touched = true; if (LS.get('tvSeen', false) && Settings.get('tvMode') === 'auto' && !isTV()) { LS.del('tvSeen'); document.body.classList.remove('tv'); } }, { passive: true, capture: true });
+    const textInput = el => el && el.matches && el.matches('input:not([type]),input[type=text],input[type=search],input[type=password],input[type=number],input[type=url],input[type=email],input[type=time],input[type=datetime-local],textarea');
     document.addEventListener('keydown', e => {
+      const k = e.key, code = e.keyCode, tgt = e.target;
+      const dirs = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' };
+      // remote keys before anything else: arrows switch on TV navigation, OK (DPAD_CENTER = 23) acts like Enter
+      if ((dirs[k] || code === 23) && !this._touched) this.enableTvMode();
+      const ok = code === 23 || k === 'Select' || k === 'Accept';
       if (Player.open_ && !UI.top() && Player.onKey(e)) { e.preventDefault(); return; }
-      const k = e.key, code = e.keyCode;
-      const back = k === 'Escape' || k === 'GoBack' || k === 'BrowserBack' || code === 10009 || code === 461 || (k === 'Backspace' && !(e.target.matches && e.target.matches('input,textarea')));
+      if (ok) {
+        const a = document.activeElement;
+        if (!a || a === document.body) { this.ensureFocus(); e.preventDefault(); return; }
+        if (a.matches('select')) { try { a.showPicker ? a.showPicker() : a.click(); } catch { a.click(); } }
+        else if (a.matches('input[type=checkbox]')) a.click();
+        else if (!textInput(a)) a.click();
+        else a.focus();
+        e.preventDefault(); return;
+      }
+      const back = k === 'Escape' || k === 'GoBack' || k === 'BrowserBack' || code === 10009 || code === 461 || (k === 'Backspace' && !textInput(tgt));
       if (back) {
         const ctx = $('.ctx'); if (ctx) { ctx.remove(); e.preventDefault(); return; }
         const m = UI.top(); if (m) { m.close(); e.preventDefault(); return; }
         if (document.body.classList.contains('side-open')) { document.body.classList.remove('side-open'); e.preventDefault(); return; }
-        if (!(e.target.matches && e.target.matches('input,textarea,select')) && this.el && document.body.contains(this.el) && this.goBack()) e.preventDefault();
+        if (!textInput(tgt) && this.el && document.body.contains(this.el) && this.goBack()) e.preventDefault();
         return;
       }
-      const dirs = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' };
-      if (dirs[k] && (document.body.classList.contains('tv') || !e.target.matches || !e.target.matches('input,select,textarea') || /Up|Down/.test(k) && e.target.matches('input[type=search],input[type=text]'))) {
-        if (e.target.matches && e.target.matches('input[type=range]') && /Left|Right/.test(k)) return;
-        if (e.target.matches && e.target.matches('input:not([type=checkbox]):not([type=range]),textarea') && /Left|Right/.test(k)) return;
-        let d = dirs[k]; if (document.documentElement.dir === 'rtl' && (d === 'left' || d === 'right') && false) d = d === 'left' ? 'right' : 'left';
-        if (SpatialNav.move(d)) e.preventDefault();
+      if (k === 'Enter' && tgt && tgt.matches && tgt.matches('select')) { try { tgt.showPicker && tgt.showPicker(); } catch {} return; }
+      if (dirs[k]) {
+        const d = dirs[k]; const a = document.activeElement;
+        if (!a || a === document.body) { this.ensureFocus(); e.preventDefault(); return; }
+        if (tgt.matches && tgt.matches('input[type=range]') && (d === 'left' || d === 'right')) return; // adjust slider
+        if (textInput(tgt) && (d === 'left' || d === 'right')) { // move the caret; leave the field at its edge
+          const v = tgt.value || ''; let st = null; try { st = tgt.selectionStart; } catch {}
+          const rtl = getComputedStyle(tgt).direction === 'rtl'; const towardStart = (d === 'left') !== rtl;
+          if (st != null && !(towardStart ? st === 0 : st >= v.length)) return;
+        }
+        if (SpatialNav.move(d)) e.preventDefault(); // selects, text fields (up/down) and everything else move the focus
+        else if (tgt.matches && tgt.matches('select,input')) e.preventDefault(); // never get stuck changing a list with the arrows
       }
-      if (k === '/' && !Player.open_ && !(e.target.matches && e.target.matches('input,textarea'))) { e.preventDefault(); const s = $('.search-in'); s && s.focus(); }
+      if (k === '/' && !Player.open_ && !textInput(tgt)) { e.preventDefault(); const s = $('.search-in'); s && s.focus(); }
     });
   }
 };

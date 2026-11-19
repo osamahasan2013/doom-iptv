@@ -40,7 +40,8 @@ const fmtBytes = b => {
 const b64 = s => { try { return decodeURIComponent(escape(atob(s || ''))); } catch { return s || ''; } };
 const isNative = () => !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 const isElectron = () => /Electron/i.test(navigator.userAgent);
-const isTV = () => /SMART-TV|SmartTV|Tizen|Web0S|webOS|AFT|BRAVIA|Android TV|GoogleTV|CrKey|HbbTV|NetCast/i.test(navigator.userAgent) || new URLSearchParams(location.search).has('tv');
+const isTV = () => !!window.__DOOM_TV || /SMART-TV|SmartTV|Tizen|Web0S|webOS|AFT|BRAVIA|Android ?TV|GoogleTV|CrKey|HbbTV|NetCast|\bTV\b|Projector/i.test(navigator.userAgent) || new URLSearchParams(location.search).has('tv')
+  || (isNative() && navigator.maxTouchPoints === 0 && !('ontouchstart' in window)); // Android app without a touchscreen = TV box / projector
 
 async function sha256(text) {
   try {

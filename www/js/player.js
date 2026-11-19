@@ -705,7 +705,12 @@ const Player = {
 
   /* ---------- remote / keyboard ---------- */
   onKey(e) {
-    const k = e.key, code = e.keyCode; const el = this.el;
+    const code = e.keyCode; const el = this.el;
+    const k = code === 23 || e.key === 'Select' || e.key === 'Accept' ? 'Enter' : e.key; // remote OK button
+    if (k === 'Enter' && code === 23) { // OK on a focused control presses it; otherwise it shows the controls / pauses
+      const a = document.activeElement;
+      if (a && el.contains(a) && a.matches('button, [data-a], input[type=checkbox]') && el.classList.contains('ui')) { a.click(); return true; }
+    }
     const menuOpen = ['.p-menu', '.p-side', '.p-stats', '.p-sync'].some(x => !$(x, el).classList.contains('hidden'));
     const uiShown = el.classList.contains('ui');
     if (k === 'Escape' || k === 'Backspace' && !(e.target.matches && e.target.matches('input')) || k === 'GoBack' || k === 'BrowserBack' || code === 10009 || code === 461) {

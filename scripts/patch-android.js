@@ -23,9 +23,17 @@ if (mainJava) {
   const pkg = (fs.readFileSync(mainJava, 'utf8').match(/^package\s+([\w.]+);/m) || [])[1];
   fs.writeFileSync(mainJava, `package ${pkg};
 
+import android.app.UiModeManager;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -36,18 +44,45 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         goFullScreen();
+        focusWebView();
+        if (isTv()) { // tell the page it is on a TV so remote-control navigation is on from the start
+            Handler h = new Handler(Looper.getMainLooper());
+            for (int ms : new int[] { 300, 1000, 2500, 5000 }) h.postDelayed(this::markTv, ms);
+        }
+    }
+
+    private boolean isTv() {
+        UiModeManager ui = (UiModeManager) getSystemService(Context.UI_MODE_SERVICE);
+        PackageManager pm = getPackageManager();
+        return (ui != null && ui.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION)
+            || pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
+            || !pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
+    }
+
+    private void markTv() {
+        if (getBridge() == null || getBridge().getWebView() == null) return;
+        getBridge().getWebView().evaluateJavascript("window.__DOOM_TV=true;window.dispatchEvent(new Event('doom-tv'));", null);
+    }
+
+    private void focusWebView() {
+        if (getBridge() == null || getBridge().getWebView() == null) return;
+        WebView w = getBridge().getWebView();
+        w.setFocusable(true);
+        w.setFocusableInTouchMode(true);
+        w.requestFocus(View.FOCUS_DOWN);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         goFullScreen();
+        focusWebView();
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) goFullScreen();
+        if (hasFocus) { goFullScreen(); focusWebView(); }
     }
 
     private void goFullScreen() {

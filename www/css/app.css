@@ -371,3 +371,9 @@ body.free-only .sidebar .nav { margin-top: 4px; }
 .pl-row.dragging { background: rgba(91,140,255,.22); border-color: var(--accent); box-shadow: 0 8px 24px rgba(0,0,0,.35); pointer-events: none; }
 .pl-list.sorting .pl-row:not(.dragging) { transition: transform .12s; }
 .pl-row, .pl-list { content-visibility: visible; }
+
+/* TV / remote: always show where the focus is */
+body.tv :focus { outline: 3px solid var(--accent) !important; outline-offset: 3px; }
+body.tv .input:focus, body.tv select:focus { box-shadow: 0 0 0 3px var(--accent); }
+body.tv .seg-btn:focus, body.tv .chip-btn:focus, body.tv .btn:focus, body.tv .pl-row:focus, body.tv .ch-card:focus { transform: scale(1.04); }
+body.tv .pl-row:focus, body.tv .ch-card:focus, body.tv .ep-row:focus { background: rgba(91,140,255,.22); }
