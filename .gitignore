@@ -1,6 +1,6 @@
 node_modules/
 dist/
-android/
+/android/
 www/lib/*.js
 __pycache__/
 *.pyc
