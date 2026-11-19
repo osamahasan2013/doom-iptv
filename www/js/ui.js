@@ -213,7 +213,8 @@ const App = {
       } else fields.appendChild(h('p', { class: 'muted small' }, t('demoNote')));
     };
     const btn = h('button', { class: 'btn primary wide' }, t('login'));
-    f.append(tabs, fields, err, btn); draw();
+    const phone = existing ? null : h('button', { type: 'button', class: 'btn wide phone-btn', onclick: () => PhonePair.open() }, '📱 ' + t('fromPhone'));
+    f.append(...[phone, tabs, fields, err, btn].filter(Boolean)); draw();
     f.addEventListener('submit', async e => {
       e.preventDefault(); err.textContent = ''; btn.disabled = true; btn.textContent = t('loading');
       const fd = Object.fromEntries(new FormData(f).entries());
@@ -247,6 +248,7 @@ const App = {
           <button class="nav-item" data-sec="downloads">${ic('download')}<span>${t('downloads')}</span><em class="dl-count"></em></button>
           <button class="nav-item" data-sec="recordings">${ic('rec')}<span>${t('recordings')}</span><em class="rec-count"></em></button>
           <button class="nav-item" data-sec="multiview">${ic('mv')}<span>${t('multiview')}</span></button>
+          <button class="nav-item" data-sec="speed">${ic('speed')}<span>${t('speedTest')}</span></button>
           <button class="nav-item" data-sec="settings">${ic('settings')}<span>${t('settings')}</span></button>
         </nav>
         <div class="cats-label">${t('categories')}</div>
@@ -395,6 +397,7 @@ const App = {
   },
   go(sec) {
     if (this.section === 'multiview' && sec !== 'multiview') MultiView.stopAll();
+    if (this.section === 'speed' && sec !== 'speed') SpeedTest.stop();
     if (['movies', 'series', 'live'].includes(sec)) { if (sec !== this.section) this.cat = 'all'; Settings.set('lastSection', sec); }
     this.section = sec; document.body.classList.remove('side-open');
     if (sec === 'free') { this.q = ''; const si = $('.search-in', this.el); if (si) si.value = ''; }
@@ -437,6 +440,7 @@ const App = {
       case 'recordings': return this.renderRecordings();
       case 'multiview': return MultiView.render(this.content);
       case 'settings': return this.renderSettings();
+      case 'speed': return SpeedPage.render(this);
     }
   },
 

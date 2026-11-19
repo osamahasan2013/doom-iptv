@@ -21,6 +21,7 @@ const findMain = dir => { for (const f of fs.readdirSync(dir, { withFileTypes: t
 const mainJava = findMain(javaRoot);
 if (mainJava) {
   const pkg = (fs.readFileSync(mainJava, 'utf8').match(/^package\s+([\w.]+);/m) || [])[1];
+  fs.writeFileSync(path.join(path.dirname(mainJava), 'PairServer.java'), fs.readFileSync(path.join(__dirname, 'android', 'PairServer.java'), 'utf8').replace(/^package\s+[\w.]+;/m, `package ${pkg};`));
   fs.writeFileSync(mainJava, `package ${pkg};
 
 import android.app.UiModeManager;
@@ -40,15 +41,41 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
+    private PairServer pair;
+    private String pairUrl;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         goFullScreen();
         focusWebView();
+        // "Add from your phone": small page on the home network, address shown on screen as a QR code
+        new Thread(() -> {
+            pair = new PairServer(json -> runOnUiThread(() -> {
+                if (getBridge() != null && getBridge().getWebView() != null)
+                    getBridge().getWebView().evaluateJavascript("window.DOOM_REMOTE_ADD&&window.DOOM_REMOTE_ADD(" + json + ")", null);
+            }));
+            pairUrl = pair.start();
+            Handler h = new Handler(Looper.getMainLooper());
+            for (int ms : new int[] { 200, 1000, 2500, 5000 }) h.postDelayed(this::markLan, ms);
+        }).start();
         if (isTv()) { // tell the page it is on a TV so remote-control navigation is on from the start
             Handler h = new Handler(Looper.getMainLooper());
             for (int ms : new int[] { 300, 1000, 2500, 5000 }) h.postDelayed(this::markTv, ms);
         }
+    }
+
+    private void markLan() {
+        if (getBridge() == null || getBridge().getWebView() == null) return;
+        String ip = PairServer.lanIp();
+        String url = (ip != null && pair != null && pair.port() > 0) ? ("http://" + ip + ":" + pair.port() + pair.path()) : null;
+        getBridge().getWebView().evaluateJavascript("window.DOOM_LAN={url:" + (url == null ? "null" : "'" + url + "'") + "};window.dispatchEvent(new Event('doom-lan'));", null);
+    }
+
+    @Override
+    public void onDestroy() {
+        if (pair != null) pair.stop();
+        super.onDestroy();
     }
 
     private boolean isTv() {
@@ -77,6 +104,7 @@ public class MainActivity extends BridgeActivity {
         super.onResume();
         goFullScreen();
         focusWebView();
+        new Handler(Looper.getMainLooper()).postDelayed(this::markLan, 500);
     }
 
     @Override
