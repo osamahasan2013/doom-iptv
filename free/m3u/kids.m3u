@@ -19,10 +19,14 @@ https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-3-usa/5d58265a862a476dc7f
 http://85.237.89.159:3342/ar-s/Nickelodeon/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/M0ik0i2.png" group-title="Kids",Sat 7 Kids
 https://svs.itworkscdn.net/sat7kidslive/sat7kids.smil/playlist_dvr.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/hdsrxvX.png" group-title="Kids",Taha TV
+https://stream.starmenajo.com/hls/app/live/ts:fhd.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/OXtIkOn.png" group-title="Animation",10 Shake
 https://i.mjh.nz/.r/10shake-nsw.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/xXGeZms.png" group-title="Kids",123TV
 http://200.59.191.177:8000/play/a0lb/index.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/m6y9AMe.png" group-title="Kids",13 Kids
+https://origin.dpsgo.com/ssai/event/LhHrVtyeQkKZ-Ye_xEU75g/master.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/z3npqO1.png" group-title="Kids",3ABN Kids Network
 https://3abn.bozztv.com/3abn2/Kids_live/smil:Kids_live.smil/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/2JO5Y8c.png" group-title="Kids",4 Fun Kids
@@ -33,6 +37,8 @@ https://m6.livecdn.io/akilikids.co.ke/akilikids.smil/playlist.m3u8
 http://stream.mcquack.net/306/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/ekF5cAi.png" group-title="Kids",Aqlvoy
 https://stream8.cinerama.uz/1205/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/n1KusFW.png" group-title="Kids",Arutz HaYeladim
+https://r.il.cdn-redge.media/livehls/oil/freetv/live/kids_channel/live.livx/playlist.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Kids",Baby Einstein
 https://ds25p79iq4576.cloudfront.net/master.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/SbBKr8L.png" group-title="Kids",Baby Shark TV
@@ -42,7 +48,7 @@ http://178.134.1.158:8081/babytime/index.m3u8
 #EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/babyfirsttv/images/5/56/BabyFirst_Logo_2019.png/revision/latest?cb=20260612182539" group-title="Kids",Babyfirst
 https://cdn.fast.jwp.services/v1/channel/1_jB6940Ei_TvhvIHDL/manifest.m3u8
 #EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/babyfirsttv/images/5/56/BabyFirst_Logo_2019.png/revision/latest?cb=20260612182539" group-title="Kids",BabyFirst Spanish
-http://168.228.44.241:9997/play/a07u/index.m3u8
+http://168.196.127.137:6001/play/a06j/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/4BDJ5FT.png" group-title="Kids",BabyTV Latin America
 http://138.121.15.230:9002/BABY-TV/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/4BDJ5FT.png" group-title="Kids",BabyTV Turkiye
@@ -51,8 +57,8 @@ https://saran-live.ercdn.net/babytv/index.m3u8
 https://fs.uplink.kz/balapan/mono.m3u8?token=onlinetv
 #EXTINF:-1 tvg-logo="https://vote.rtrk.kz/img/balapan-logo.png" group-title="Kids",Balapan HD
 https://balapantv-stream.qazcdn.com/balapantv/balapantv/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://otv.server-img.lfstrm.tv/images/channel_logos/logo_638108d82e47243302bc81f1.png" group-title="Kids",Balapan International
-https://live-3.otcnet.ru/Balapan/index.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Kids",Balapan TV
+https://balapantv-stream.qazcdn.com/balapantv/balapantv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/2/25/Mr._Bean_Animated_Series_stacked_logo.png" group-title="Animation",Banijay Mr Bean Animé
 https://amg00627-amg00627c31-rakuten-fr-3991.playouts.now.amagi.tv/playlist/amg00627-banijayfast-mrbeanfrcc-rakutenfr/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://svgmix.com/uploads/95f4f8-cbeebies-bbc-four.svg" group-title="Kids",BBC Four/CBeebies
@@ -62,7 +68,7 @@ https://stream.paroledivita.org/bejoy.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/bWxjtuJ.png" group-title="Kids",Benin TV Junior
 https://srtblive.streamakaci.tv/ortb/ortb2-multi/playlist_dvr.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/nUYuCAP.png" group-title="Kids",Boing
-http://90.170.214.40:9700/stream/avatel/boing/master.m3u8
+http://digisat.ddns.net:4022/udp/239.0.5.177:8208
 #EXTINF:-1 tvg-logo="https://i.imgur.com/niSlrqT.png" group-title="Kids",BOING
 https://live02-seg.msf.cdn.mediaset.net/live/ch-kb/kb-clr.isml/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/rabKj9i.png" group-title="Kids",Boing HD
@@ -72,7 +78,7 @@ https://stream8.cinerama.uz/1007/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Boomerang_2014_logo.svg/960px-Boomerang_2014_logo.svg.png" group-title="Kids",Boomerang
 https://live-us1.thaimomo.com/live-as/chboomerang-2/chunklist_w135479847.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Boomerang_2014_logo.svg/960px-Boomerang_2014_logo.svg.png" group-title="Kids",Boomerang
-http://23.237.104.106:8080/USA_BOOMERANG/index.m3u8
+http://212.5.144.156:8080/boomerang/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Boomerang_2014_logo.svg/960px-Boomerang_2014_logo.svg.png" group-title="Kids",Boomerang HD
 http://41.205.93.154/BOOMERANG/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/1/18/Boxkidstv.png" group-title="Kids",Box Kids TV
@@ -285,10 +291,14 @@ https://northtelecom.b-cdn.net/hodhodtv.m3u8
 http://stream.mcquack.net/44/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/FBOJnfT.png" group-title="Kids",Iunior TV
 https://5f22d76e220e1.streamlock.net/iuniortv/iuniortv/chunklist_w774879328.m3u8
+#EXTINF:-1 tvg-logo="https://static-cdn.jtvnw.net/jtv_user_pictures/6b97e19f-4243-4d48-b794-ff8cf54d795f-profile_image-300x300.png" group-title="Animation",Japanim TV
+https://foxkidstv.be:3369/stream/play.m3u8
 #EXTINF:-1 tvg-logo="https://www.tvchinese.net/uploads/tv/jxtv6.jpg" group-title="Kids",Jiangxi Children's Channel
 https://play-live-hls.jxtvcn.com.cn/live-city/tv_jxtv6.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/ODhkYyx.png" group-title="Kids",JimJam Europe
 http://212.5.144.156:8080/jimjam/index.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/w8fYTnw.png" group-title="Kids",Junior
+https://r.il.cdn-redge.media/livehls/oil/freetv/live/junior/live.livx/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/wlLgSiA.png" group-title="Kids",K2
 https://d1pmpe0hs35ka5.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-39hsskpppgf72/K2_IT.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/K3PSHiT.png" group-title="Kids",Kapitan Fantastika
@@ -318,7 +328,7 @@ https://amg02757-amg02757c5-samsung-gb-5765.playouts.now.amagi.tv/playlist/amg02
 #EXTINF:-1 tvg-logo="" group-title="Kids",LooLoo Kids TV
 https://amg02757-amg02757c3-rakuten-de-6135.playouts.now.amagi.tv/playlist/amg02757-loolookids-llkdefast-rakutende/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/kmMIjjf.png" group-title="Kids",Mama
-http://stream.mcquack.net/79/index.m3u8
+https://stream8.cinerama.uz/1244/tracks-v1a1/mono.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/j6IiysJ.png" group-title="Music",MCN6 Music Channel
 https://d18fcxaqfnwjhj.cloudfront.net/CDN_Ingest/MCN6_MUSIC.smil/Playlist.m3u8
 #EXTINF:-1 tvg-logo="https://www.newsfromme.com/wp-content/uploads/2024/05/metvtoons01.jpg" group-title="Animation",MeTV Toons
@@ -358,7 +368,7 @@ http://102.129.186.182:81/nick/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nick_Jr._logo_2023_(outline).svg/960px-Nick_Jr._logo_2023_(outline).svg.png" group-title="Kids",Nick Jr.
 http://92.114.85.87:8013/play/a004/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nick_Jr._logo_2023_(outline).svg/960px-Nick_Jr._logo_2023_(outline).svg.png" group-title="Kids",Nick Jr.
-http://stream.mcquack.net/220/index.m3u8
+https://stream8.cinerama.uz/1501/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/KT4tdQs.png" group-title="Kids",Nick Jr.
 http://212.5.144.156:8080/nickjr/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nick_Jr._logo_2023_(outline).svg/960px-Nick_Jr._logo_2023_(outline).svg.png" group-title="Kids",Nick Jr. (Poland) (576i)
@@ -487,8 +497,6 @@ https://495c5a85d9074f29acffeaea9e0215eb.msvdn.net/super/super_main/super_main_h
 http://109.94.1.3:8080/132/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/SX3_logo.svg/960px-SX3_logo.svg.png" group-title="Animation",SX3
 https://directes-tv-cat.3catdirectes.cat/live-content/super3-hls/master.m3u8
-#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/TeenNick_2019_logo.svg/960px-TeenNick_2019_logo.svg.png" group-title="Kids",TeenNick
-http://89.33.29.115:8080/TeenNick/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/T%C3%A9l%C3%A9toon%2B_Logo.png/960px-T%C3%A9l%C3%A9toon%2B_Logo.png" group-title="Animation",Teletoon+ HD
 http://92.114.85.87:8009/play/a006/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/T%C3%A9l%C3%A9toon%2B_Logo.png/960px-T%C3%A9l%C3%A9toon%2B_Logo.png" group-title="Animation",Teletoon+ HD (1080i)
@@ -502,7 +510,7 @@ https://dltiqboxjw21d.cloudfront.net/index.m3u8
 #EXTINF:-1 tvg-logo="https://dominicanchannels.com/wp-content/uploads/tigueritos-tv.jpg" group-title="Animation",Tiguerito TV
 https://ss2.tvrdomi.com:1936/tigueritostv/tigueritostv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/QCOUJ30.png" group-title="Kids",TiJi
-https://stream8.cinerama.uz/1441/tracks-v1a1/mono.m3u8
+http://stream.mcquack.net/111/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/zCTf71x.png" group-title="Kids",Tiny Pop
 https://amg01753-narrativeuk-amg01753c1-lg-gb-1830.playouts.now.amagi.tv/playlist/amg01753-narrativeuk-tinypop-lggb/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/zCTf71x.png" group-title="Kids",Tiny Pop +1
