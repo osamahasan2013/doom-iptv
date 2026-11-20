@@ -101,6 +101,8 @@ https://muc3.iptv-playoutcenter.de/dokusat/dokusat1/playlist.m3u8
 https://streaming.grupomediosdelnorte.com:19360/ecovision/ecovision.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/EFDsCkH.png" group-title="Documentary",Epic Crimes
 https://cc-wsuyg2uxeak04.akamaized.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-wsuyg2uxeak04/master.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Documentary",FREE Vibes Nature
+https://amg00346-amg00346c32-amgplt0022.playout.now3.amagi.tv/playlist/amg00346-amg00346c32-amgplt0022/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/ENvOMDQ.png" group-title="Documentary",GEM Nature
 https://ca-rt.onetv.app/gemnature/index-0.m3u8?token=onetv202
 #EXTINF:-1 tvg-logo="https://i.imgur.com/4oVcjLd.png" group-title="Documentary",Get.Factual
@@ -113,10 +115,14 @@ http://170.83.16.50/HISTORY/index.m3u8
 http://92.114.85.87:8015/play/a00c/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/History_%282021%29.svg/500px-History_%282021%29.svg.png" group-title="Documentary",History
 http://212.5.144.156:8080/history/index.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Documentary",History & Warfare
+https://amg01515-amg01515c89-amgplt0022.playout.now3.amagi.tv/ts-us-w2-n1/playlist/amg01515-amg01515c89-amgplt0022/playlist.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Documentary",History & Warfare Now
 https://d1nzda2a2b3swt.cloudfront.net/History_Warfare_Now.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/History_%282021%29.svg/500px-History_%282021%29.svg.png" group-title="Documentary",History (Poland) (576i)
 http://92.114.85.87:8015/play/a00c/index.m3u8
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/History2_logo_%282022%29.svg/500px-History2_logo_%282022%29.svg.png" group-title="Documentary",History 2
+http://116.90.120.149:8000/play/a0l1/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/History2_logo_%282022%29.svg/500px-History2_logo_%282022%29.svg.png" group-title="Documentary",History 2 Latin America
 http://138.121.15.230:9002/HISTORY-2/index.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Documentary",History 365
@@ -125,6 +131,22 @@ https://pb-162j8hrspp1iq.akamaized.net/History_365.m3u8
 https://d28gzbv9fhdm3h.cloudfront.net/playlist/amg00376-magellantv-historyandwarfarenowaunzin-samsungau/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/History_%282021%29.svg/500px-History_%282021%29.svg.png" group-title="Documentary",History Asia
 https://freem3u.xyz/api/live/play.m3u8?vid=9856
+#EXTINF:-1 tvg-logo="" group-title="Documentary",History Channel: Ax Men
+https://8d46229f.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/Vml6aW9fQXhNZW5fSExT/playlist.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Documentary",History Channel: Classic Car Auctions
+https://amg00276-amg00276c52-amgplt0022.playout.now3.amagi.tv/ts-us-e2-n1/playlist/amg00276-amg00276c52-amgplt0022/playlist.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Documentary",History Channel: Deal Zone
+https://acae5ac4.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/Vml6aW9fRGVhbFpvbmVfSExT/playlist.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Documentary",History Channel: Ice Road Truckers
+https://aenetworks.global.transmit.live/hls/67be3e4696054518835e5d04/v1/aenetworks_iceroadtruckers_1/vizio_us/latest/main/hls/playlist.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Documentary",History Channel: Modern Innovations
+https://amg00276-amg00276c4-amgplt0022.playout.now3.amagi.tv/ts-us-w2-n1/playlist/amg00276-amg00276c4-amgplt0022/playlist.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Documentary",History Channel: Modern Marvels
+https://afa672a3.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/Vml6aW9fTW9kZXJuTWFydmVsc19ITFM/playlist.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Documentary",History Channel: Torque
+https://c9c2f259.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/Vml6aW9fVG9ycXVlX0hMUw/playlist.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Documentary",History Channel: Xtreme Outdoor
+https://787fc879.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/Vml6aW9fU2tpbGxzQW5kVGhyaWxsc19ITFM/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/ulHoqlP.png" group-title="Documentary",History Hit
 https://ldsaaaaaa-timeline-samsungau-awedz.amagi.tv/playlist/ldsAAAAAA-timeline-samsungau/playlist.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Documentary",History Hunters
@@ -134,7 +156,7 @@ http://15.204.246.24:8080/HistoryHD/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/History_%282021%29.svg/500px-History_%282021%29.svg.png" group-title="Documentary",History Latin America South
 http://45.184.109.10/live/69393EAE6ADBC65A68F942022362A202/37.m3u8
 #EXTINF:-1 tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_HISTORY_TV18/images/LOGO_HD/image.png" group-title="Documentary",History TV18 HD
-https://amg01448-amg01448c16-samsung-in-3495.playouts.now.amagi.tv/playlist/amg01448-samsungindia-historychannelenglish-samsungin/playlist.m3u8
+http://116.90.120.149:8000/play/a12z/index.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Documentary",ID
 http://213.91.179.28:8000/play/a0c0
 #EXTINF:-1 tvg-logo="https://play-lh.googleusercontent.com/2IlBX3IQHna8g4g-56vwGWb14K38spcviIh3i7uJCJ32ydfhcKZdOsacgijPkPeerEA" group-title="Documentary",India TV Aap Ki Adalat
@@ -143,6 +165,8 @@ https://amg01550-amg01550c6-samsung-in-4679.playouts.now.amagi.tv/playlist/amg01
 http://88.212.15.50/live/test_id_hevc_atktv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/InvestigationDiscoveryLogo2020.svg/960px-InvestigationDiscoveryLogo2020.svg.png" group-title="Documentary",Investigation Discovery
 http://88.212.7.14/live/id_hun/index.m3u8
+#EXTINF:-1 tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_INVESTIGATION_DISCOVERY_HD/images/LOGO_HD/image.png" group-title="Documentary",Investigation Discovery
+http://116.90.120.149:8000/play/a119/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/InvestigationDiscoveryLogo2020.svg/960px-InvestigationDiscoveryLogo2020.svg.png" group-title="Documentary",Investigation Discovery
 http://212.5.144.156:8080/id/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/InvestigationDiscoveryLogo2020.svg/960px-InvestigationDiscoveryLogo2020.svg.png" group-title="Documentary",Investigation Discovery Latin America South
@@ -155,6 +179,8 @@ https://fs.uplink.kz/istoriya/mono.m3u8?token=onlinetv
 https://s6.hopslan.com/dokuX/index.m3u8
 #EXTINF:-1 tvg-logo="https://yt3.googleusercontent.com/CRP3YudPa55QypbDnIvuh3erLZTsn2HK8ESR-2fJFFiLJVf7US2CKQELCKK_UowmHA3wCjAdxg=s512-c-k-c0x00ffffff-no-rj" group-title="Documentary",Law & Crime
 https://a-cdn.klowdtv.com/live3/law_720p/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/7uNdcWB.png" group-title="Documentary",Love Nature en Español
+https://amg01515-amg01515c17-vizio-us-10418.playouts.now.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://lovepetstv.com/wp-content/uploads/2022/12/LovePets_Logo_SecondaryColor.png" group-title="Documentary",Love Pets
 https://amg01576-blueskyeenterta-lovepetsemea-samsungse-ctamh.amagi.tv/playlist/amg01576-blueskyeenterta-lovepetsemea-samsungse/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/RBcD49X.png" group-title="Documentary",Love The Planet
@@ -169,6 +195,8 @@ https://amg01821-amg01821c11-rlaxx-gb-10459.playouts.now.amagi.tv/playlist.m3u8
 https://d3j95sejv6mybj.cloudfront.net/Lucky_Dog.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/gEraSp5.png" group-title="Documentary",MagellanTV Now
 https://amg00376-magellan-amg00376c5-samsung-au-1708.playouts.now.amagi.tv/playlist/amg00376-magellantv-magellantvnowww-samsungau/playlist.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Documentary",MagellanTV Wildest
+https://amg00376-magellan-amg00376c1-vizio-us-1377.playouts.now.amagi.tv/playlist/amg00376-magellantv-magellantvnowmainus-vizious/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/GvqbLZB.png" group-title="Business",Moconomy
 https://amogonetworx-moconomy-2-us.tcl.wurl.tv/playlist.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Documentary",Modern Marvels Presented by History
@@ -197,10 +225,16 @@ http://212.5.144.156:8080/natgeo/index.m3u8
 https://live-fi.tvkaista.net/national-geographic/live.m3u8?hd=true
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Natgeologo.svg/960px-Natgeologo.svg.png" group-title="Documentary",National Geographic (Poland) (576i)
 http://92.114.85.87:8006/play/a00a/index.m3u8
+#EXTINF:-1 tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_NATIONAL_GEOGRAPHIC_CHANNEL/images/LOGO_HD/image.png" group-title="Documentary",National Geographic HD
+http://116.90.120.149:8000/play/a115/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Natgeologo.svg/960px-Natgeologo.svg.png" group-title="Documentary",National Geographic Latin America
 http://15.204.246.24:8080/NatGeoHD/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/National_Geographic_Wild_logo.svg/960px-National_Geographic_Wild_logo.svg.png" group-title="Documentary",National Geographic Wild
 https://saran-live.ercdn.net/natgeowild/index.m3u8
+#EXTINF:-1 tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_NAT_GEO_WILD/images/LOGO_HD/image.png" group-title="Documentary",National Geographic Wild HD
+http://116.90.120.149:8000/play/a11h/index.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Documentary",Nature Moments
+https://amg00090-blueantllc-naturemomentsuhd-vizious-b0xck.amagi.tv/playlist/amg00090-blueantllc-naturemomentsuhd-vizious/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://naturetimetv.com/wp-content/uploads/2023/05/NatureTime_white_Primary.png" group-title="Documentary",Nature Time
 https://bamusa-naturetime-emea-fra-rakuten.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/CGB6qiV.png" group-title="Documentary",Naturescape – Pluto TV
@@ -208,7 +242,7 @@ https://service-stitcher.clusters.pluto.tv/v1/stitch/embed/hls/channel/610a9ebe8
 #EXTINF:-1 tvg-logo="https://naturetimetv.com/wp-content/uploads/2023/05/NatureTime_white_Primary.png" group-title="Documentary",NatureTime
 https://amg00090-blueantllc-lovenature-au-samsungau-wggcn.amagi.tv/playlist/amg00090-blueantllc-lovenature-au-samsungau/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/ZZxzueO.png" group-title="Documentary",Nauka
-http://stream.mcquack.net/125/index.m3u8
+https://vod.tuva.ru/nauka2/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/iTTd3Ir.png" group-title="Documentary",O'zbekiston Tarixi
 https://stream8.cinerama.uz/1209/tracks-v1a1/playlist.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Documentary",PBS History
@@ -244,7 +278,9 @@ https://mumt04.tangotv.in/m18aqlK4SAFARITV/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/x06npU2.png" group-title="Documentary",Samsung Wild Life
 https://pb-olm46bexcljjf.akamaized.net/Samsung_Wild_Life.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/dB3cJzO.png" group-title="Documentary",Smotrim 100% Fakty
-https://stream.smotrim.ru/hls/fasttv06/playlist_3.m3u8
+https://stream.smotrim.ru/hls2/fasttv06/playlist_3.m3u8
+#EXTINF:-1 tvg-logo="https://dtil.tmsimg.com/assets/s143799_ld_h15_aa.png?lock=720x540" group-title="Documentary",Sony BBC Earth HD
+http://116.90.120.149:8000/play/a130/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/F5Uosum.png" group-title="Documentary",Spektrum
 http://88.212.15.50/live/test_spektrum/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://media.port.hu/images/001/591/100x100/776.jpg" group-title="Documentary",Spektrum
@@ -279,8 +315,12 @@ http://46.53.200.153:7777/play/a01i/index.m3u8
 http://46.53.200.153:7777/play/a01j/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/8BPZ18l.png" group-title="Documentary",viju Nature
 http://46.53.200.153:7777/play/a01k/index.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/9Weqdsk.png" group-title="Documentary",viju+ Planet HD
+http://stream.mcquack.net/240/index.m3u8
 #EXTINF:-1 tvg-logo="https://framerusercontent.com/images/41VQQ7F0fYlp1MX1N4Ixog5QnPI.png" group-title="Documentary",WaterBear
 https://amg01415-waterbearnetwor-waterbear-samsunguk-1h0y8.amagi.tv/playlist/amg01415-waterbearnetwor-waterbear-samsunguk/playlist.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Documentary",WBTV: History Untold
+https://amg00136-amg00136c50-amgplt0022.playout.now3.amagi.tv/ts-us-w2-n1/playlist/amg00136-amg00136c50-amgplt0022/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://provider-static.plex.tv/epg/cms/production/49cf6309-0a4a-4d39-bdcc-fa48e4ef84a7/WEDOBIGSTORIES_LIGHTTHEME_-_Sorin_Stoian.png" group-title="Documentary",Wedo Big Stories
 https://amg00735-videosolutionsa-wedobigdocs-ono-0urlz.amagi.tv/playlist/amg00735-videosolutionsa-wedobigdocs-ono/playlist.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Documentary",Wild Nature
