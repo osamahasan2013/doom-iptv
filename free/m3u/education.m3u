@@ -64,8 +64,6 @@ http://200.59.191.177:8000/play/a0la/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/rvQdzL1.png" group-title="Education",CreaTV Classrooms Channel 28 (San Jose CA)
 https://reflect-creatv.cablecast.tv/live-14/live/live.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/V8AUJP6.png" group-title="Education",Da Vinci
-http://116.90.120.149:8000/play/a0ad/index.m3u8
-#EXTINF:-1 tvg-logo="https://i.imgur.com/V8AUJP6.png" group-title="Education",Da Vinci
 http://116.90.120.149:8000/play/a0s6/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/DIau0GB.png" group-title="Education",DC.gov DKN (Washington DC)
 https://video.oct.dc.gov/out/u/DKN.m3u8
@@ -151,6 +149,8 @@ https://mumt05.tangotv.in/87NeALx2GYANDARSHAN/index.m3u8
 https://reflect-hktv.cablecast.tv/live-3/live/live.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/bVbpgiD.png" group-title="Education",HCTV Educational Access Channel
 https://reflect-hudsonctv.cablecast.tv/live-26/live/stream-1/live.m3u8
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/HTV4_logo.webp/960px-HTV4_logo.webp.png" group-title="Education",HTV4
+https://freem3u.xyz/api/live/play.m3u8?vid=9
 #EXTINF:-1 tvg-logo="https://i.imgur.com/1V3UXVb.jpg" group-title="Education",iSTUFF
 https://relay2.cdn.fem-net.de/hls/loop/istuff_live/istuff_live-720p.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/RUKVrOH.png" group-title="Education",ISTV
