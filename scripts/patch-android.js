@@ -60,6 +60,10 @@ public class MainActivity extends BridgeActivity {
             for (int ms : new int[] { 200, 1000, 2500, 5000 }) h.postDelayed(this::markLan, ms);
         }).start();
         if (isTv()) { // tell the page it is on a TV so remote-control navigation is on from the start
+            if (getBridge() != null && getBridge().getWebView() != null) { // let the page lay itself out on a wider virtual screen (see applyScale in ui.js)
+                android.webkit.WebSettings ws = getBridge().getWebView().getSettings();
+                ws.setUseWideViewPort(true); ws.setLoadWithOverviewMode(true);
+            }
             Handler h = new Handler(Looper.getMainLooper());
             for (int ms : new int[] { 300, 1000, 2500, 5000 }) h.postDelayed(this::markTv, ms);
         }

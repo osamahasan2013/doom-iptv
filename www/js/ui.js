@@ -182,7 +182,7 @@ const App = {
     const meta = $('meta[name=theme-color]'); if (meta) meta.content = light ? '#f3f5fa' : '#0a0f1e';
     $$('.theme-btn').forEach(tb => { tb.innerHTML = ic(light ? 'moon' : 'sun'); });
     if (mq && !this._mqBound) { this._mqBound = true; (mq.addEventListener ? mq.addEventListener('change', () => this.applyTheme()) : mq.addListener(() => this.applyTheme())); }
-    const tv = Settings.get('tvMode'); document.body.classList.toggle('tv', tv === 'on' || (tv === 'auto' && (isTV() || LS.get('tvSeen', false))));
+    const tv = Settings.get('tvMode'); document.body.classList.toggle('tv', tv === 'on' || (tv === 'auto' && (isTV() || LS.get('tvSeen', false)))); this.applyScale();
   },
 
   /* ---------- welcome / add subscription ---------- */
@@ -244,12 +244,14 @@ const App = {
         <nav class="nav">
           <button class="nav-item" data-sec="continue">${ic('history')}<span>${t('continue')}</span></button>
           <button class="nav-item" data-sec="favorites">${ic('star')}<span>${t('favorites')}</span></button>
-          <button class="nav-item" data-sec="free">${ic('globe')}<span>${t('free')}</span></button>
-          <button class="nav-item" data-sec="downloads">${ic('download')}<span>${t('downloads')}</span><em class="dl-count"></em></button>
-          <button class="nav-item" data-sec="recordings">${ic('rec')}<span>${t('recordings')}</span><em class="rec-count"></em></button>
-          <button class="nav-item" data-sec="multiview">${ic('mv')}<span>${t('multiview')}</span></button>
-          <button class="nav-item" data-sec="speed">${ic('speed')}<span>${t('speedTest')}</span></button>
-          <button class="nav-item" data-sec="settings">${ic('settings')}<span>${t('settings')}</span></button>
+          <div class="nav-tools">
+          <button class="nav-item tool" data-sec="free" title="${t('free')}">${ic('globe')}<span>${t('free')}</span></button>
+          <button class="nav-item tool" data-sec="downloads" title="${t('downloads')}">${ic('download')}<span>${t('downloads')}</span><em class="dl-count"></em></button>
+          <button class="nav-item tool" data-sec="recordings" title="${t('recordings')}">${ic('rec')}<span>${t('recordings')}</span><em class="rec-count"></em></button>
+          <button class="nav-item tool" data-sec="multiview" title="${t('multiview')}">${ic('mv')}<span>${t('multiview')}</span></button>
+          <button class="nav-item tool" data-sec="speed" title="${t('speedTest')}">${ic('speed')}<span>${t('speedTest')}</span></button>
+          <button class="nav-item tool" data-sec="settings" title="${t('settings')}">${ic('settings')}<span>${t('settings')}</span></button>
+          </div>
         </nav>
         <div class="cats-label">${t('categories')}</div>
         <div class="cats"></div>
@@ -878,6 +880,7 @@ const App = {
 
     section(t('appearance'),
       row(t('themeMode'), sel('theme', [['auto', t('auto')], ['light', '☀️ ' + t('day')], ['dark', '🌙 ' + t('night')]], () => this.applyTheme())),
+      row(t('uiSize'), sel('uiSize', [['xs', t('sizeXs')], ['s', t('sizeS')], ['m', t('sizeM')], ['l', t('sizeL')], ['xl', t('sizeXl')]], () => this.applyScale()), t('uiSizeHint')),
       row(t('language'), sel('lang', [['auto', t('auto')], ['en', 'English'], ['ar', 'العربية']], () => { this.applyLang(); this.renderShell(); this.setData(this.data, this.dataTs); this.section = 'settings'; this.renderCats(); this.render(); })),
       row(t('theme'), h('div', { class: 'swatches' }, ...['#5b8cff', '#8b5cf6', '#ec4899', '#f97316', '#10b981', '#06b6d4', '#eab308'].map(c => h('button', { class: 'swatch' + (Settings.get('accent') === c ? ' on' : ''), style: { background: c }, 'aria-label': c, onclick: () => { Settings.set('accent', c); this.applyTheme(); this.renderSettings(); } })))),
       row(t('tvMode'), sel('tvMode', [['auto', t('auto')], ['on', t('yes')], ['off', t('no')]], () => this.applyTheme())));
@@ -966,11 +969,31 @@ const App = {
   },
   enableTvMode() {
     if (Settings.get('tvMode') === 'off' || document.body.classList.contains('tv')) return;
-    document.body.classList.add('tv'); LS.set('tvSeen', true); setTimeout(() => this.ensureFocus(), 50);
+    document.body.classList.add('tv'); LS.set('tvSeen', true); this.applyScale(); setTimeout(() => this.ensureFocus(), 50);
+  },
+  /* UI size. A TV WebView reports a small CSS screen (e.g. 960x540 for 1080p), which made everything look zoomed in.
+     On TV the page is laid out on a wider virtual screen and scaled down to fit; elsewhere CSS zoom is used. */
+  applyScale() {
+    const size = Settings.get('uiSize') || 'm', html = document.documentElement, meta = $('meta[name=viewport]'), b = document.body;
+    html.style.zoom = ''; b.classList.remove('zoomfix'); b.style.removeProperty('--z');
+    const zoom = z => { if (Math.abs(z - 1) < .02) return; html.style.zoom = z; b.style.setProperty('--z', z); b.classList.add('zoomfix'); };
+    if (b.classList.contains('tv')) {
+      const W = Math.max({ xs: 1920, s: 1680, m: 1440, l: 1280, xl: 1120 }[size] || 1440, Math.round(screen.width || 0));
+      if (meta) meta.content = 'width=' + W + ', user-scalable=no, viewport-fit=cover';
+      clearTimeout(this._scaleT);
+      this._scaleT = setTimeout(() => { if (innerWidth < W - 40) zoom(innerWidth / W); }, 350);   // viewport width not honoured → zoom instead
+    } else {
+      if (meta) meta.content = 'width=device-width, initial-scale=1, viewport-fit=cover';
+      zoom({ xs: .8, s: .9, m: 1, l: 1.1, xl: 1.2 }[size] || 1);
+    }
   },
   bindGlobalKeys() {
     window.addEventListener('doom-tv', () => this.enableTvMode());
-    window.addEventListener('touchstart', () => { this._touched = true; if (LS.get('tvSeen', false) && Settings.get('tvMode') === 'auto' && !isTV()) { LS.del('tvSeen'); document.body.classList.remove('tv'); } }, { passive: true, capture: true });
+    window.addEventListener('resize', () => {   // TV: the wide layout may kick in late → measure again (drops the zoom fallback if not needed)
+      if (!document.body.classList.contains('tv') || innerWidth === this._lastW) return; this._lastW = innerWidth;
+      clearTimeout(this._rsT); this._rsT = setTimeout(() => this.applyScale(), 250);
+    });
+    window.addEventListener('touchstart', () => { this._touched = true; if (LS.get('tvSeen', false) && Settings.get('tvMode') === 'auto' && !isTV()) { LS.del('tvSeen'); document.body.classList.remove('tv'); this.applyScale(); } }, { passive: true, capture: true });
     const textInput = el => el && el.matches && el.matches('input:not([type]),input[type=text],input[type=search],input[type=password],input[type=number],input[type=url],input[type=email],input[type=time],input[type=datetime-local],textarea');
     document.addEventListener('keydown', e => {
       const k = e.key, code = e.keyCode, tgt = e.target;
