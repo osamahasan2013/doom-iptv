@@ -410,3 +410,6 @@ body.tv .shell { padding: 1.2vh 1.6vw; }
 body.tv .sidebar { border-radius: 14px; }
 /* the focused selected tab was white text on a white pill in day mode */
 body.tv .seg-btn.on:focus, body.light.tv .seg-btn.on:focus { background: var(--accent); color: #fff; }
+.logo-img { width: 34px; height: 34px; border-radius: 9px; object-fit: cover; flex: none; }
+.logo-hero { display: block; width: 150px; height: 150px; margin: 0 auto; border-radius: 30px; object-fit: cover; box-shadow: 0 12px 40px rgba(255, 90, 20, .25); }
+.logo-hero.small { width: 96px; height: 96px; border-radius: 20px; margin: 0 auto 8px; }

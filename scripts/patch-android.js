@@ -12,6 +12,8 @@ x = x.replace(/android:screenOrientation="[^"]*"/g, '');
 fs.writeFileSync(mf, x);
 const draw = path.join(root, 'res', 'drawable'); fs.mkdirSync(draw, { recursive: true });
 fs.copyFileSync(path.join(__dirname, '..', 'assets', 'banner.png'), path.join(draw, 'banner.png'));
+const drawX = path.join(root, 'res', 'drawable-xhdpi'); fs.mkdirSync(drawX, { recursive: true });   // sharp TV banner on 1080p screens
+fs.copyFileSync(path.join(__dirname, '..', 'assets', 'banner-xhdpi.png'), path.join(drawX, 'banner.png'));
 console.log('Android manifest patched for TV + cleartext');
 
 // Full screen: hide the status bar, navigation bar and the large-screen taskbar (projectors, tablets, TV boxes).

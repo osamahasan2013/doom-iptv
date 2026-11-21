@@ -188,7 +188,7 @@ const App = {
   /* ---------- welcome / add subscription ---------- */
   welcome() {
     document.body.innerHTML = ''; Player.el = null; Player.init();
-    const card = h('div', { class: 'welcome' }, h('div', { class: 'logo big' }, h('span', { html: ic('play') }), 'DOOM'), h('h1', {}, t('welcome')), h('p', { class: 'muted' }, t('welcomeSub')), this.playlistForm(),
+    const card = h('div', { class: 'welcome' }, h('img', { class: 'logo-hero', src: 'icons/icon-512.png', alt: 'DOOM' }), h('h1', {}, t('welcome')), h('p', { class: 'muted' }, t('welcomeSub')), this.playlistForm(),
       h('div', { class: 'or' }, h('span', {}, LANG === 'ar' ? 'أو' : 'or')),
       h('button', { class: 'btn wide free-start', onclick: () => { LS.set('freeOnly', true); this.startFreeOnly(); } }, h('span', { html: ic('globe') }), t('freeNoSub')));
     document.body.appendChild(h('div', { class: 'welcome-wrap' }, card));
@@ -237,7 +237,7 @@ const App = {
     const shell = h('div', { class: 'shell' });
     shell.innerHTML = `
       <aside class="sidebar">
-        <div class="brand"><span class="logo">${ic('play')}</span><b>DOOM</b><button class="icon-btn only-mobile theme-btn side-theme" data-act="theme" aria-label="${t('themeMode')}">${ic(document.body.classList.contains('light') ? 'moon' : 'sun')}</button><button class="icon-btn only-mobile" data-act="closeSide" aria-label="close">${ic('close')}</button></div>
+        <div class="brand"><img class="logo-img" src="icons/logo-128.png" alt=""><b>DOOM</b><button class="icon-btn only-mobile theme-btn side-theme" data-act="theme" aria-label="${t('themeMode')}">${ic(document.body.classList.contains('light') ? 'moon' : 'sun')}</button><button class="icon-btn only-mobile" data-act="closeSide" aria-label="close">${ic('close')}</button></div>
         <div class="seg main-seg">
           <button class="seg-btn" data-sec="movies">${t('movies')}</button><button class="seg-btn" data-sec="series">${t('series')}</button><button class="seg-btn" data-sec="live">${t('live')}</button>
         </div>
@@ -918,7 +918,7 @@ const App = {
         } }, '📥 ' + t('pasteBackup'))),
       h('p', { class: 'muted small' }, t('backupHint')));
 
-    section(t('about'), h('div', { class: 'about' }, h('div', { class: 'logo big' }, h('span', { html: ic('play') }), 'DOOM IPTV'),
+    section(t('about'), h('div', { class: 'about' }, h('img', { class: 'logo-hero small', src: 'icons/icon-512.png', alt: 'DOOM IPTV' }),
       h('p', { class: 'about-name' }, t('designedBy') + ': ', h('b', {}, LANG === 'ar' ? 'أسامة حسن دسوقي' : 'OSAMA HASAN DESOUKY')),
       h('p', { class: 'about-ver' }, t('version') + ' ', h('bdi', {}, window.DOOM_VERSION || 'dev'))));
   },
