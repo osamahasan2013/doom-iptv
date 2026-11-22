@@ -104,27 +104,52 @@ const SpatialNav = {
     if (Player.open_) { for (const s of ['.p-menu', '.p-side', '.p-err', '.p-next']) { const x = $(s, Player.el); if (x && !x.classList.contains('hidden')) return x; } return Player.el; }
     return document.body;
   },
-  move(dir) {
-    const root = this.root(); const cur = document.activeElement && root.contains(document.activeElement) ? document.activeElement : null;
-    const items = this.focusables(root);
-    if (!cur) { items[0] && items[0].focus(); return true; }
-    const r = cur.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-    let best = null, bestScore = Infinity;
+  /* scroll areas that keep their own list (the grid, the categories, dialogs) */
+  SCROLLERS: '.content, .cats, .modal-body, .ps-list, .p-side, .sidebar',
+  rect: el => el.getBoundingClientRect(),
+  pick(dir, cur, items, r, sameRow) {
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2; let best = null, bestScore = Infinity;
     for (const el of items) {
-      if (el === cur) continue; const q = el.getBoundingClientRect(); const x = q.left + q.width / 2, y = q.top + q.height / 2;
-      const dx = x - cx, dy = y - cy; let main, cross;
+      if (el === cur) continue; const q = this.rect(el); if (!q.width || !q.height) continue;
+      const x = q.left + q.width / 2, y = q.top + q.height / 2, dx = x - cx, dy = y - cy; let main, cross;
       // judge direction from the centres (a focused item may be slightly enlarged and overlap its neighbours)
       if (dir === 'left') { if (!(dx < -8 && q.left < r.left + 2)) continue; main = -dx; cross = Math.abs(dy); }
       if (dir === 'right') { if (!(dx > 8 && q.right > r.right - 2)) continue; main = dx; cross = Math.abs(dy); }
       if (dir === 'up') { if (!(dy < -8 && q.top < r.top + 2)) continue; main = -dy; cross = Math.abs(dx); }
       if (dir === 'down') { if (!(dy > 8 && q.bottom > r.bottom - 2)) continue; main = dy; cross = Math.abs(dx); }
-      if ((dir === 'left' || dir === 'right') ? Math.abs(dy) > Math.max(r.height, q.height) * 1.5 + 40 && main < cross : false) continue;
+      const horiz = dir === 'left' || dir === 'right';
+      if (horiz && Math.abs(dy) > Math.max(r.height, q.height) * 1.5 + 40 && main < cross) continue;
+      // up/down must not jump sideways into another panel (e.g. from the movies grid into the side menu)
+      if (!horiz && !sameRow && (q.right < r.left - 4 || q.left > r.right + 4) && cross > main) continue;
       const score = main + cross * 2.2; if (score < bestScore) { bestScore = score; best = el; }
     }
-    if (!best && (dir === 'down' || dir === 'up')) { // scroll containers when nothing visible further
-      const sc = cur.closest('.content, .modal-body, .ps-list, .sidebar'); if (sc) { sc.scrollBy({ top: dir === 'down' ? 300 : -300 }); return true; }
+    return best;
+  },
+  /* keep the focused item comfortably inside its scroll area — instant, no smooth-scroll lag on TV boxes */
+  reveal(el) {
+    const sc = el.closest(this.SCROLLERS); if (!sc || sc.scrollHeight <= sc.clientHeight + 2) return;
+    const q = this.rect(el), s = this.rect(sc), pad = Math.min(90, s.height * .18);
+    let d = 0; if (q.top < s.top + pad) d = q.top - s.top - pad; else if (q.bottom > s.bottom - pad) d = q.bottom - s.bottom + pad;
+    if (d) { const b = sc.style.scrollBehavior; sc.style.scrollBehavior = 'auto'; sc.scrollTop += d; sc.style.scrollBehavior = b; }
+  },
+  move(dir) {
+    const root = this.root(); const cur = document.activeElement && root.contains(document.activeElement) ? document.activeElement : null;
+    if (!cur) { const f = this.focusables(root)[0]; f && f.focus(); return true; }
+    const r = this.rect(cur);
+    let best = null;
+    // 1) up/down: stay inside the same list first, including the rows that are below or above the screen
+    const sc = cur.closest(this.SCROLLERS);
+    if ((dir === 'up' || dir === 'down') && sc && root.contains(sc)) {
+      const own = $$('button:not([disabled]),a[href],input:not([type=hidden]),select,textarea,[tabindex]:not([tabindex="-1"])', sc).filter(el => !el.closest('.hidden'));
+      best = this.pick(dir, cur, own, r, true);
+      if (!best && sc.scrollHeight > sc.clientHeight + 2) {     // more items are still being loaded below → scroll to load them, then try again
+        const before = sc.scrollTop; sc.style.scrollBehavior = 'auto'; sc.scrollTop += dir === 'down' ? 320 : -320; sc.style.scrollBehavior = '';
+        if (sc.scrollTop !== before) { setTimeout(() => { const nb = this.pick(dir, cur, $$('[tabindex]:not([tabindex="-1"]),button:not([disabled])', sc), this.rect(cur), true); if (nb) { nb.focus({ preventScroll: true }); this.reveal(nb); } }, 120); return true; }
+      }
     }
-    if (best) { best.focus({ preventScroll: false }); best.scrollIntoView({ block: 'nearest', inline: 'nearest' }); return true; }
+    // 2) everything visible on screen
+    if (!best) best = this.pick(dir, cur, this.focusables(root), r, false);
+    if (best) { best.focus({ preventScroll: true }); this.reveal(best); return true; }
     return false;
   }
 };
