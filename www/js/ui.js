@@ -108,7 +108,7 @@ const SpatialNav = {
   SCROLLERS: '.content, .cats, .modal-body, .ps-list, .p-side, .sidebar',
   rect: el => el.getBoundingClientRect(),
   pick(dir, cur, items, r, sameRow) {
-    const cx = r.left + r.width / 2, cy = r.top + r.height / 2; let best = null, bestScore = Infinity;
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2; let best = null, bestScore = Infinity; const cands = [];
     for (const el of items) {
       if (el === cur) continue; const q = this.rect(el); if (!q.width || !q.height) continue;
       const x = q.left + q.width / 2, y = q.top + q.height / 2, dx = x - cx, dy = y - cy; let main, cross;
@@ -121,7 +121,12 @@ const SpatialNav = {
       if (horiz && Math.abs(dy) > Math.max(r.height, q.height) * 1.5 + 40 && main < cross) continue;
       // up/down must not jump sideways into another panel (e.g. from the movies grid into the side menu)
       if (!horiz && !sameRow && (q.right < r.left - 4 || q.left > r.right + 4) && cross > main) continue;
+      if (!horiz) { cands.push([main, cross, el]); continue; }
       const score = main + cross * 2.2; if (score < bestScore) { bestScore = score; best = el; }
+    }
+    if (cands.length) {   // up/down: go to the nearest row first, then the closest item in that row
+      const minMain = Math.min(...cands.map(c => c[0]));
+      for (const [main, cross, el] of cands) if (main <= minMain + 24) { const sc = cross + main * .1; if (sc < bestScore) { bestScore = sc; best = el; } }
     }
     return best;
   },
@@ -547,11 +552,39 @@ const App = {
     const open = () => (opts.onOpen || (() => this.openItem(it)))();
     card.addEventListener('click', e => {
       if (e.target.closest('.fav-btn')) { e.stopPropagation(); const on = Lists.toggle('fav', it); e.target.closest('.fav-btn').classList.toggle('on', on); UI.toast((on ? t('addedTo') : t('removedFrom')) + ' ' + t('favDefault')); return; }
+      if (card._lp) { card._lp = false; return; }
       open();
     });
-    card.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); open(); } });
-    card.addEventListener('contextmenu', e => { e.preventDefault(); this.itemMenu(card, it, opts); });
+    this.bindPress(card, it, open, opts);
     return card;
+  },
+  /* OK / tap opens; holding OK on the remote, or a long press on the screen, opens "add to list" straight away */
+  bindPress(card, it, open, opts) {
+    const isOk = e => e.key === 'Enter' || e.keyCode === 23 || e.key === 'Select' || e.key === 'Accept';
+    const lists = () => { card._lp = true; try { navigator.vibrate && navigator.vibrate(25); } catch {} UI.listPicker(it, () => { const f = $('.fav-btn', card); f && f.classList.toggle('on', Lists.inAny(it)); }); };
+    // a held remote button repeats its key-down; a short press ends with key-up.
+    // If a TV never sends key-up (and no repeats either), the press still opens the item.
+    let kt = null, down = false, reps = 0;
+    card.addEventListener('keydown', e => {
+      if (!isOk(e)) return; e.preventDefault(); e.stopPropagation();
+      if (down) { reps++; return; } down = true; reps = 0; card._lp = false; clearTimeout(kt);
+      kt = setTimeout(() => { if (!down) return; down = false; if (reps > 0) lists(); else open(); }, 550);
+    });
+    card.addEventListener('keyup', e => {
+      if (!isOk(e)) return; e.preventDefault(); clearTimeout(kt);
+      if (down) open(); down = false;
+    });
+    card.addEventListener('blur', () => { clearTimeout(kt); down = false; });
+    let pt = null, sx = 0, sy = 0, touchAt = 0;
+    card.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse') return; touchAt = Date.now(); sx = e.clientX; sy = e.clientY; card._lp = false;
+      clearTimeout(pt); pt = setTimeout(lists, 520);
+    });
+    const cancel = () => clearTimeout(pt);
+    card.addEventListener('pointermove', e => { if (Math.hypot(e.clientX - sx, e.clientY - sy) > 12) cancel(); });
+    card.addEventListener('pointerup', cancel); card.addEventListener('pointercancel', cancel);
+    card.addEventListener('touchend', e => { if (card._lp) e.preventDefault(); }, { passive: false });   // the lifted finger must not tap the list that just opened
+    card.addEventListener('contextmenu', e => { e.preventDefault(); if (Date.now() - touchAt < 1500) return; this.itemMenu(card, it, opts); });  // right-click on PC keeps the full menu
   },
   channelCard(it, list, opts = {}) {
     const card = h('div', { class: 'ch-card', tabindex: 0, role: 'button', 'aria-label': it.name },
@@ -562,10 +595,10 @@ const App = {
     const open = () => opts.onOpen ? opts.onOpen() : this.playLive(it, list);
     card.addEventListener('click', e => {
       if (e.target.closest('.fav-btn')) { e.stopPropagation(); const on = Lists.toggle('fav', it); e.target.closest('.fav-btn').classList.toggle('on', on); return; }
+      if (card._lp) { card._lp = false; return; }
       open();
     });
-    card.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); open(); } });
-    card.addEventListener('contextmenu', e => { e.preventDefault(); this.itemMenu(card, it, opts); });
+    this.bindPress(card, it, open, opts);
     return card;
   },
   itemMenu(anchor, it, opts = {}) {
@@ -1015,7 +1048,7 @@ const App = {
   bindGlobalKeys() {
     window.addEventListener('doom-tv', () => this.enableTvMode());
     window.addEventListener('resize', () => {   // TV: the wide layout may kick in late → measure again (drops the zoom fallback if not needed)
-      if (!document.body.classList.contains('tv') || innerWidth === this._lastW) return; this._lastW = innerWidth;
+      if (!document.body.classList.contains('tv') || innerWidth === this._lastW || textInput(document.activeElement)) return; this._lastW = innerWidth;
       clearTimeout(this._rsT); this._rsT = setTimeout(() => this.applyScale(), 250);
     });
     window.addEventListener('touchstart', () => { this._touched = true; if (LS.get('tvSeen', false) && Settings.get('tvMode') === 'auto' && !isTV()) { LS.del('tvSeen'); document.body.classList.remove('tv'); this.applyScale(); } }, { passive: true, capture: true });
@@ -1033,7 +1066,8 @@ const App = {
         if (a.matches('select')) { try { a.showPicker ? a.showPicker() : a.click(); } catch { a.click(); } }
         else if (a.matches('input[type=checkbox]')) a.click();
         else if (!textInput(a)) a.click();
-        else a.focus();
+        else if (document.body.classList.contains('tv') && TvKeyboard.supports(a) && !a.dataset.syskb) TvKeyboard.open(a);
+        else { a.focus(); return; }   // let the system keyboard open normally
         e.preventDefault(); return;
       }
       const back = k === 'Escape' || k === 'GoBack' || k === 'BrowserBack' || code === 10009 || code === 461 || (k === 'Backspace' && !textInput(tgt));
@@ -1044,6 +1078,7 @@ const App = {
         if (!textInput(tgt) && this.el && document.body.contains(this.el) && this.goBack()) e.preventDefault();
         return;
       }
+      if (k === 'Enter' && document.body.classList.contains('tv') && TvKeyboard.supports(tgt) && !tgt.dataset.syskb) { e.preventDefault(); TvKeyboard.open(tgt); return; }
       if (k === 'Enter' && tgt && tgt.matches && tgt.matches('select')) { try { tgt.showPicker && tgt.showPicker(); } catch {} return; }
       if (dirs[k]) {
         const d = dirs[k]; const a = document.activeElement;
