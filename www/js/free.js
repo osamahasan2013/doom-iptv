@@ -14,6 +14,7 @@ Object.assign(I18N.en, {
   geo: 'May be region-locked', deadHidden: 'This link stopped working — hidden for 24 hours',
   freeNoSub: 'Watch Free IPTV without a subscription', addSub: '+ Add subscription', back: 'Back', updatedOk: 'Updated ✓', playAll: 'Play all', copyBackup: 'Copy backup', pasteBackup: 'Paste backup', copiedBackup: 'Backup copied ✓ — paste it somewhere safe (e.g. a note)', copyManual: 'Select all and copy this text:', pasteHint: 'Paste the backup text you copied earlier:', badBackup: 'That text is not a DOOM backup', shuffle: 'Shuffle', reorderHint: 'Drag ⋮⋮ to change the order', moveUp: 'Move up', moveDown: 'Move down', moveTop: 'Move to top', moveBottom: 'Move to bottom', nextUp: 'Up next', autoNextAll: 'Auto-play next (episodes & lists)', exitHint: 'Press back again to exit',
   themeMode: 'Day / Night', day: 'Day', night: 'Night',
+  refreshLib: 'Refresh library', refreshingLib: 'Updating the library…', libUpdated: 'Library updated', libAgo: 'Updated {t}', justNow: 'just now', minAgo: '{n} min ago', hrAgo: '{n} h ago', dayAgo: '{n} days ago', libNew: 'New: {list}', libNothingNew: 'No new titles', libFailed: 'Could not update {name} — kept the saved copy', nMovies: '{n} movies', nSeries: '{n} series', nChannels: '{n} channels',
   uiSize: 'Interface size', uiSizeHint: 'Icons, text and lists on the screen (on a TV the whole screen is scaled)', sizeXs: 'Very small', sizeS: 'Small', sizeM: 'Medium', sizeL: 'Large', sizeXl: 'Very large'
 });
 Object.assign(I18N.ar, {
@@ -24,6 +25,7 @@ Object.assign(I18N.ar, {
   geo: 'قد يكون مقيداً جغرافياً', deadHidden: 'الرابط توقف عن العمل — تم إخفاؤه لمدة 24 ساعة',
   freeNoSub: 'شاهد IPTV المجاني بدون اشتراك', addSub: '+ إضافة اشتراك', back: 'رجوع', updatedOk: 'تم التحديث ✓', playAll: 'تشغيل الكل', copyBackup: 'نسخ النسخة الاحتياطية', pasteBackup: 'لصق النسخة الاحتياطية', copiedBackup: 'تم نسخ النسخة الاحتياطية ✓ — الصقها في مكان آمن (مثل ملاحظة)', copyManual: 'حدد كل النص وانسخه:', pasteHint: 'الصق نص النسخة الاحتياطية الذي نسخته سابقاً:', badBackup: 'هذا النص ليس نسخة احتياطية من DOOM', shuffle: 'عشوائي', reorderHint: 'اسحب ⋮⋮ لتغيير الترتيب', moveUp: 'تحريك لأعلى', moveDown: 'تحريك لأسفل', moveTop: 'نقل للأول', moveBottom: 'نقل للآخر', nextUp: 'التالي', autoNextAll: 'تشغيل التالي تلقائياً (الحلقات والقوائم)', exitHint: 'اضغط رجوع مرة أخرى للخروج',
   themeMode: 'نهاري / ليلي', day: 'نهاري', night: 'ليلي',
+  refreshLib: 'تحديث المكتبة', refreshingLib: 'جاري تحديث المكتبة…', libUpdated: 'تم تحديث المكتبة', libAgo: 'آخر تحديث {t}', justNow: 'الآن', minAgo: 'منذ {n} دقيقة', hrAgo: 'منذ {n} ساعة', dayAgo: 'منذ {n} يوم', libNew: 'جديد: {list}', libNothingNew: 'لا يوجد محتوى جديد', libFailed: 'تعذّر تحديث {name} — تم الإبقاء على النسخة المحفوظة', nMovies: '{n} فيلم', nSeries: '{n} مسلسل', nChannels: '{n} قناة',
   uiSize: 'حجم الواجهة', uiSizeHint: 'حجم الأيقونات والكتابة والقوائم على الشاشة (على التلفزيون بتتصغّر الشاشة كلها)', sizeXs: 'صغير جداً', sizeS: 'صغير', sizeM: 'متوسط', sizeL: 'كبير', sizeXl: 'كبير جداً'
 });
 

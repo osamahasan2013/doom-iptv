@@ -29,7 +29,7 @@ jobs:
         if: env.DOOM_KEY_PASSWORD != ''
         run: openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in signing/doom-release.jks.enc -out android/app/doom-release.jks -pass env:DOOM_KEY_PASSWORD
       - run: node scripts/patch-android.js
-      - run: npx @capacitor/assets generate --android --iconBackgroundColor '#0a0f1e' --splashBackgroundColor '#0a0f1e' || echo "icon generation skipped"
+      - run: npx @capacitor/assets generate --android --iconBackgroundColor '#0e0c0e' --splashBackgroundColor '#0e0c0e' || echo "icon generation skipped"
       - run: npx cap sync android
       - name: Build APK
         run: |
@@ -55,7 +55,7 @@ jobs:
       - run: echo "window.DOOM_VERSION = '1.0.${{ github.run_number }}';" > www/js/version.js
       - run: npx cap add ios
       - run: node scripts/patch-ios.js
-      - run: npx @capacitor/assets generate --ios --iconBackgroundColor '#0a0f1e' --splashBackgroundColor '#0a0f1e' || echo "icon generation skipped"
+      - run: npx @capacitor/assets generate --ios --iconBackgroundColor '#0e0c0e' --splashBackgroundColor '#0e0c0e' || echo "icon generation skipped"
       - run: npx cap sync ios
       - name: Build unsigned app
         run: |

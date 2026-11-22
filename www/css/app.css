@@ -435,3 +435,13 @@ body.tv .modal-back { backdrop-filter: none; -webkit-backdrop-filter: none; }
 .tvkb-k.on { background: rgba(91,140,255,.35); } .tvkb-k.sys { flex: none; padding: 0 14px; font-size: 14px; white-space: nowrap; }
 body.tv .tvkb-k:focus { background: var(--accent); color: #fff; outline: 3px solid #fff !important; outline-offset: 0; transform: scale(1.08); }
 .card, .ch-card { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+
+/* library refresh button with "updated … ago" */
+.lib-upd { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; margin-bottom: 6px; border-radius: 10px; background: rgba(var(--fg),.05); text-align: start; }
+.lib-upd:hover { background: rgba(var(--fg),.1); }
+.lib-upd .lib-ic { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: rgba(255,106,26,.15); color: #ff7a2e; flex: none; }
+.lib-upd .lib-ic .ic { width: 16px; height: 16px; }
+.lib-upd .lib-txt { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; } .lib-upd b { font-size: 13.5px; font-weight: 600; } .lib-upd small { font-size: 12px; color: var(--muted); }
+.lib-upd.busy .lib-ic .ic { animation: spin 1s linear infinite; }
+body.tv .lib-upd:focus { background: var(--accent); color: #fff; outline: none; } body.tv .lib-upd:focus small { color: #fff; opacity: .85; }
+body.free-only .lib-upd { display: none; }

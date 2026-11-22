@@ -285,7 +285,7 @@ const App = {
         </nav>
         <div class="cats-label">${t('categories')}</div>
         <div class="cats"></div>
-        <div class="side-foot"><div class="exp-banner"></div><label class="switch-row"><span>${t('showHidden')} (<span class="hid-n">0</span>)</span><input type="checkbox" class="switch hid-toggle"></label></div>
+        <div class="side-foot"><div class="exp-banner"></div><button class="lib-upd" data-act="refresh"><span class="lib-ic">${ic('refresh')}</span><span class="lib-txt"><b>${t('refreshLib')}</b><small class="lib-ago"></small></span></button><label class="switch-row"><span>${t('showHidden')} (<span class="hid-n">0</span>)</span><input type="checkbox" class="switch hid-toggle"></label></div>
       </aside>
       <div class="scrim"></div>
       <main class="main">
@@ -313,7 +313,7 @@ const App = {
       const a = e.target.closest('[data-act]'); if (!a) return;
       if (a.dataset.act === 'refresh') {
         if (this.section === 'free') { const u = $('.upd', this.el); u.classList.remove('hidden'); FreeCat.load(true).then(() => { u.classList.add('hidden'); this.render(); UI.toast(t('updatedOk')); }); }
-        else this.loadCatalog(true).then(() => UI.toast(t('updatedOk')));
+        else this.refreshLibrary();
       }
       if (a.dataset.act === 'back') this.goBack();
       if (a.dataset.act === 'addSub') this.addSubscription();
@@ -380,12 +380,51 @@ const App = {
       $('.upd', this.el).classList.add('hidden');
     }
   },
+  /* manual "refresh library": fetch everything again, keep the saved copy of any subscription that fails, report what is new */
+  async refreshLibrary() {
+    if (this.refreshing || !Playlists.inScope().length) return;
+    this.refreshing = true; this.updLib(); $('.upd', this.el) && $('.upd', this.el).classList.remove('hidden');
+    const before = {}; for (const sec of ['movies', 'series', 'live']) before[sec] = new Set(this.idx && this.idx[sec] ? this.idx[sec].keys() : []);
+    const res = await Promise.all(Playlists.inScope().map(p => Catalog.load(p, true).then(r => ({ p, r }))
+      .catch(e => Catalog.load(p, false).then(r => ({ p, r, failed: e })).catch(() => ({ p, failed: e })))));
+    const ok = res.filter(x => x.r);
+    res.filter(x => x.failed).forEach(x => UI.toast(t('libFailed', { name: x.p.name })));
+    if (ok.length) {
+      this.setData(Catalog.merge(ok.map(x => x.r.data)), Math.min(...ok.map(x => x.failed ? x.r.ts : Date.now())));
+      const nw = {}; for (const sec of ['movies', 'series', 'live']) { nw[sec] = 0; for (const k of this.idx[sec].keys()) if (!before[sec].has(k)) nw[sec]++; }
+      const first = !before.movies.size && !before.series.size && !before.live.size;
+      const parts = [nw.movies && this.count(nw.movies, 'nMovies'), nw.series && this.count(nw.series, 'nSeries'), nw.live && this.count(nw.live, 'nChannels')].filter(Boolean);
+      if (res.some(x => !x.failed)) UI.toast('✓ ' + t('libUpdated') + (first ? '' : ' — ' + (parts.length ? t('libNew', { list: parts.join(' · ') }) : t('libNothingNew'))));
+      this.renderCats(); if (!Player.open_ && !UI.top()) this.render();
+    }
+    this.refreshing = false; $('.upd', this.el) && $('.upd', this.el).classList.add('hidden'); this.updLib();
+  },
+  /* Arabic counts: 1 ساعة · 2 ساعتين · 3–10 ساعات · 11+ ساعة */
+  count(n, key) {
+    if (LANG !== 'ar') return t(key, { n });
+    const w = { min: ['دقيقة', 'دقيقتين', 'دقائق'], hr: ['ساعة', 'ساعتين', 'ساعات'], day: ['يوم', 'يومين', 'أيام'], mov: ['فيلم', 'فيلمين', 'أفلام'], ser: ['مسلسل', 'مسلسلين', 'مسلسلات'], ch: ['قناة', 'قناتين', 'قنوات'] }[key.replace(/Ago$|^n/, '').toLowerCase().replace('movies', 'mov').replace('series', 'ser').replace('channels', 'ch')];
+    if (!w) return t(key, { n });
+    const s = n === 1 ? w[0] : n === 2 ? w[1] : n <= 10 ? n + ' ' + w[2] : n + ' ' + w[0];
+    return /Ago$/.test(key) ? 'منذ ' + s : s;
+  },
+  ago(ts) {
+    const m = Math.max(0, Math.round((Date.now() - ts) / 60000));
+    return m < 1 ? t('justNow') : m < 60 ? this.count(m, 'minAgo') : m < 60 * 24 ? this.count(Math.round(m / 60), 'hrAgo') : this.count(Math.round(m / 1440), 'dayAgo');
+  },
+  updLib() {
+    const b = this.el && $('.lib-upd', this.el); if (!b) return;
+    b.classList.toggle('busy', !!this.refreshing);
+    $('.lib-txt b', b).textContent = this.refreshing ? t('refreshingLib') : t('refreshLib');
+    $('.lib-ago', b).textContent = this.dataTs && !this.refreshing ? t('libAgo', { t: this.ago(this.dataTs) }) : '';
+    b.title = this.dataTs ? t('updated') + ': ' + new Date(this.dataTs).toLocaleString() : '';
+    clearTimeout(this._libT); this._libT = setTimeout(() => this.updLib(), 60000);
+  },
   setData(data, ts) {
     for (const sec of ['movies', 'series', 'live']) { // adult content never reaches the interface
       const bad = new Set(data[sec].cats.filter(c => ADULT_RX.test(c.name || '')).map(c => c.id));
       data[sec] = { cats: data[sec].cats.filter(c => !bad.has(c.id)), items: data[sec].items.filter(it => !bad.has(it.cat) && !ADULT_RX.test(it.name || '')) };
     }
-    this.data = data; this.dataTs = ts; this.idx = {}; this.catsBySec = {}; this._memo = new Map(); this.dataVer = (this.dataVer || 0) + 1;
+    this.data = data; this.dataTs = ts; setTimeout(() => this.updLib(), 0); this.idx = {}; this.catsBySec = {}; this._memo = new Map(); this.dataVer = (this.dataVer || 0) + 1;
     for (const sec of ['movies', 'series', 'live']) {
       const m = new Map(); const counts = {};
       for (const it of data[sec].items) { it._q = (it.name || '').toLowerCase(); it._n = it._q.replace(/^\s*(hq|4k|fhd|uhd|hd|sd|vip)\s*[|:-]\s*/, '').trim(); m.set((it.pl || '') + ':' + it.id, it); counts[it.cat] = (counts[it.cat] || 0) + 1; }

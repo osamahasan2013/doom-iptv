@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0a0f1e">
+<meta name="theme-color" content="#0e0c0e">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,8 +12,42 @@
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="css/app.css">
+<style>
+/* startup animation: the flaming shield rises out of the dark, embers drift up, a fire line sweeps */
+#splash { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; background: radial-gradient(60vmin 60vmin at 50% 46%, #2a1208 0%, #120c0c 45%, #0e0c0e 75%); transition: opacity .45s ease, transform .45s ease; }
+#splash.out { opacity: 0; transform: scale(1.06); pointer-events: none; }
+#splash .sp-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
+#splash .sp-glow { position: absolute; top: 2vmin; width: 46vmin; height: 46vmin; border-radius: 50%; background: radial-gradient(circle, rgba(255,110,20,.55), rgba(255,60,0,.18) 45%, transparent 70%); opacity: 0; animation: spGlow 1.6s ease-out .15s forwards, spPulse 1.4s ease-in-out 1.75s infinite alternate; }
+#splash img { position: relative; width: 40vmin; height: 40vmin; max-width: 300px; max-height: 300px; object-fit: cover; -webkit-mask-image: radial-gradient(circle, #000 55%, transparent 71%); mask-image: radial-gradient(circle, #000 55%, transparent 71%); opacity: 0; transform: translateY(4vmin) scale(.72); animation: spLogo .9s cubic-bezier(.2,.9,.25,1.15) .1s forwards; }
+#splash .sp-name { margin-top: 1.5vmin; font: 800 clamp(16px, 3.4vmin, 28px)/1 system-ui, sans-serif; color: #ffd9b0; letter-spacing: .9em; text-indent: .9em; opacity: 0; animation: spName .9s ease-out .55s forwards; text-shadow: 0 0 18px rgba(255,120,30,.6); }
+#splash .sp-line { margin-top: 2.4vmin; width: 26vmin; max-width: 200px; height: 3px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden; opacity: 0; animation: spFade .3s ease .8s forwards; }
+#splash .sp-line i { display: block; width: 40%; height: 100%; border-radius: 3px; background: linear-gradient(90deg, transparent, #ff4d00, #ffb347, transparent); animation: spSweep 1.1s ease-in-out .8s infinite; }
+#splash .sp-em { position: absolute; bottom: 30%; width: 5px; height: 5px; border-radius: 50%; background: #ffae42; box-shadow: 0 0 8px 2px rgba(255,120,20,.8); opacity: 0; animation: spEmber 2.2s ease-out infinite; }
+@keyframes spLogo { to { opacity: 1; transform: none; } }
+@keyframes spGlow { to { opacity: 1; } }
+@keyframes spPulse { from { transform: scale(.96); opacity: .8; } to { transform: scale(1.06); opacity: 1; } }
+@keyframes spName { from { opacity: 0; letter-spacing: .9em; text-indent: .9em; } to { opacity: 1; letter-spacing: .32em; text-indent: .32em; } }
+@keyframes spFade { to { opacity: 1; } }
+@keyframes spSweep { from { transform: translateX(-110%); } to { transform: translateX(260%); } }
+@keyframes spEmber { 0% { opacity: 0; transform: translate(0, 0) scale(1); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), -38vmin) scale(.3); } }
+@media (prefers-reduced-motion: reduce) { #splash *, #splash { animation-duration: .01s !important; animation-iteration-count: 1 !important; } }
+</style>
 </head>
 <body>
+<div id="splash" aria-hidden="true"><div class="sp-wrap"><div class="sp-glow"></div>
+<span class="sp-em" style="left:38%;--dx:-3vmin;animation-delay:.6s"></span><span class="sp-em" style="left:52%;--dx:2vmin;animation-delay:.9s"></span><span class="sp-em" style="left:61%;--dx:5vmin;animation-delay:1.3s"></span><span class="sp-em" style="left:45%;--dx:-1vmin;animation-delay:1.6s"></span><span class="sp-em" style="left:57%;--dx:-4vmin;animation-delay:2s"></span>
+<img src="icons/icon-512.png" alt=""><div class="sp-name">DOOM IPTV</div><div class="sp-line"><i></i></div></div></div>
+<script>
+(function () { // show once per launch; leave after ~1.6 s (or when the page has loaded, if that takes longer); never more than 4 s
+  var el = document.getElementById('splash'), t0 = Date.now();
+  document.documentElement.appendChild(el);   // outside <body>: the app clears the body when it starts
+  try { if (sessionStorage.getItem('doomSplash')) { el.remove(); return; } sessionStorage.setItem('doomSplash', '1'); } catch (e) {}
+  var gone = false; function hide() { if (gone) return; gone = true; el.classList.add('out'); setTimeout(function () { el.remove(); }, 480); }
+  function later() { setTimeout(hide, Math.max(0, 1650 - (Date.now() - t0))); }
+  if (document.readyState === 'complete') later(); else window.addEventListener('load', later);
+  setTimeout(hide, 4000);
+})();
+</script>
 <script src="js/version.js"></script>
 <script src="js/icons.js"></script>
 <script src="js/core.js"></script>
