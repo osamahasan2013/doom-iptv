@@ -53,7 +53,7 @@ class DemoEngine {
 }
 
 /* ---------- attach a stream to a <video> element ---------- */
-async function attachStream(video, url, { live = false, mime = '', onFatal } = {}) {
+async function attachStream(video, url, { live = false, mime = '', onFatal, startAt = 0 } = {}) {
   if (url.startsWith('demo:')) return new DemoEngine(video, url, live);
   video.srcObject = null;
   const isM3U8 = /\.m3u8(\?|$)/i.test(url) || mime === 'm3u8';
@@ -63,7 +63,7 @@ async function attachStream(video, url, { live = false, mime = '', onFatal } = {
     try {
       const Hls = await loadLib('hls');
       if (Hls.isSupported()) {
-        const hls = new Hls({ enableWorker: true, lowLatencyMode: live, backBufferLength: live ? 30 : 90, maxBufferLength: live ? 20 : 60, startFragPrefetch: true, fragLoadingMaxRetry: 4, manifestLoadingMaxRetry: 3 });
+        const hls = new Hls({ startPosition: !live && startAt > 0 ? startAt : -1, enableWorker: true, lowLatencyMode: live, backBufferLength: live ? 30 : 90, maxBufferLength: live ? 20 : 60, startFragPrefetch: true, fragLoadingMaxRetry: 4, manifestLoadingMaxRetry: 3 });
         let recovered = 0;
         hls.on(Hls.Events.ERROR, (_, d) => {
           if (!d.fatal) return;
@@ -90,8 +90,10 @@ async function attachStream(video, url, { live = false, mime = '', onFatal } = {
   }
   const onErr = () => onFatal && onFatal('native:' + (video.error && video.error.code));
   video.addEventListener('error', onErr);
-  video.src = url; video.load(); video.play().catch(() => {});
-  return { name: 'native', destroy() { video.removeEventListener('error', onErr); try { video.pause(); video.removeAttribute('src'); video.load(); } catch {} } };
+  // resume: tell the player the start time up front (#t=) — it then asks the server for that part of the file
+  // directly, instead of loading from the start and jumping (two requests at once, which many IPTV servers refuse)
+  video.src = !live && startAt > 0 ? url + '#t=' + startAt.toFixed(1) : url; video.load(); video.play().catch(() => {});
+  return { name: 'native', startsAt: !live && startAt > 0, destroy() { video.removeEventListener('error', onErr); try { video.pause(); video.removeAttribute('src'); video.load(); } catch {} } };
 }
 
 function srtToVtt(txt) {
@@ -157,6 +159,7 @@ const Player = {
       <div class="p-next hidden"></div>
       <div class="p-sync hidden"></div>
       <div class="p-err hidden"></div>
+      <div class="p-resume hidden"></div>
       <input type="file" class="p-subfile hidden" accept=".srt,.vtt">`;
     document.body.appendChild(this.el);
     this.v = $('video', this.el);
@@ -293,11 +296,15 @@ const Player = {
     if (opts.url) this.attempts.push({ url: opts.url, mime: opts.mime, pl: item.pl, live });
     else {
       const prov = provOf(item);
-      this.attempts.push({ url: prov.streamUrl(item), pl: item.pl, live });
+      const direct = prov.streamUrl(item);
+      // Android app: movies & episodes go through the built-in proxy (one connection to the server, so resuming
+      // and seeking work on single-connection subscriptions); the direct address stays as the fallback
+      if (!live && window.DOOM_PROXY && /^https?:/i.test(direct) && !/\.(m3u8|ts)(\?|$)/i.test(direct)) this.attempts.push({ url: window.DOOM_PROXY + encodeURIComponent(direct), pl: item.pl, live, proxied: true });
+      this.attempts.push({ url: direct, pl: item.pl, live });
       if (live && prov instanceof XtreamProvider) this.attempts.push({ url: prov.streamUrl(item, { format: Settings.get('liveFormat') === 'ts' ? 'm3u8' : 'ts' }), pl: item.pl, live });
       for (const a of item.alts || []) { const ai = Object.assign({}, item, a); const p2 = Playlists.provider(a.pl); if (p2) this.attempts.push({ url: p2.streamUrl(ai), pl: a.pl, live }); }
     }
-    this.attemptIdx = 0;
+    this.attemptIdx = 0; this._reconnected = false;
     const pr = !live && !opts.url ? Progress.get(item) : null;
     this.startAt = opts.startAt != null ? opts.startAt : (pr && pr.pos > 15 ? pr.pos : 0);
     await this.startAttempt();
@@ -312,20 +319,46 @@ const Player = {
     if (document.body.classList.contains('tv')) setTimeout(() => $('[data-a=toggle]', this.el).focus(), 50);
   },
 
+  setCtx(ctx) { this.ctx = ctx; this.el.classList.toggle('has-ctx', !!ctx); },
   async startAttempt() {
     const a = this.attempts[this.attemptIdx]; if (!a) return this.showError();
     $('.p-spin', this.el).classList.remove('hidden');
     Conn.open('main', 'main', a.pl);
     const myIdx = this.attemptIdx;
     try {
-      this.engine = await attachStream(this.v, a.url, { live: a.live, mime: a.mime, onFatal: d => { if (this.attemptIdx === myIdx) this.fail(d); } });
+      this.engine = await attachStream(this.v, a.url, { live: a.live, mime: a.mime, startAt: this.startAt, onFatal: d => { if (this.attemptIdx === myIdx) this.fail(d); } });
     } catch (e) { return this.fail(e.message); }
     if (this.engine.demo !== false && this.engine instanceof DemoEngine) this.engine.onended = () => this.onEnded();
     this.v.playbackRate = this.item.type === 'live' ? 1 : (Settings.get('speed') || 1);
     if (this.engine instanceof DemoEngine) this.engine.rate = this.v.playbackRate;
     $('[data-a=speed]', this.el).textContent = this.v.playbackRate + 'x';
-    if (this.startAt) { if (this.engine instanceof DemoEngine) this.engine.t = this.startAt; else this.pendingSeek = this.startAt; }
+    if (this.startAt) {
+      if (this.engine instanceof DemoEngine) this.engine.t = this.startAt;
+      else if (this.engine.hls || this.engine.startsAt) this.checkSeek = this.startAt;   // already starting there; only correct it if ignored
+      else this.pendingSeek = this.startAt;
+    }
     if (this.engine instanceof DemoEngine) $('.p-spin', this.el).classList.add('hidden');
+    this.watchStart();
+  },
+  /* resuming can be slow on some servers: after a few seconds offer "start from the beginning",
+     and once reconnect by itself (the server may still be holding the previous connection) */
+  watchStart() {
+    clearTimeout(this._ws1); clearTimeout(this._ws2); this._started = false; $('.p-resume', this.el).classList.add('hidden');
+    if (this.engine instanceof DemoEngine || (this.item && this.item.type === 'live')) return;
+    const at = this.startAt, idx = this.attemptIdx;
+    this._ws1 = setTimeout(() => {
+      if (this._started || !this.open_ || this.attemptIdx !== idx) return;
+      const box = $('.p-resume', this.el); box.classList.remove('hidden');
+      box.innerHTML = `<div class="muted small">${at ? t('resumingAt', { t: fmtTime(at) }) : t('slowServer')}</div><div class="row gap">${at ? `<button class="btn" data-a="fromStart">${t('fromStart')}</button>` : ''}<button class="btn" data-a="reconnect">${t('reconnect')}</button></div>`;
+      if (document.body.classList.contains('tv')) { const b = $('button', box); b && b.focus(); }
+    }, 7000);
+    this._ws2 = setTimeout(() => { if (!this._started && this.open_ && this.attemptIdx === idx && !this._reconnected) { this._reconnected = true; this.reconnect(); } }, 16000);
+  },
+  reconnect(fromStart) {
+    clearTimeout(this._ws1); clearTimeout(this._ws2); $('.p-resume', this.el).classList.add('hidden');
+    if (fromStart) this.startAt = 0; else if (this.lastTime > 5) this.startAt = this.lastTime;
+    this.stopEngine(true); $('.p-spin', this.el).classList.remove('hidden');
+    setTimeout(() => { if (this.open_) this.startAttempt(); }, 1500);   // give the server a moment to drop the old connection
   },
 
   fail(detail) {
@@ -355,7 +388,7 @@ const Player = {
   close() {
     if (!this.open_) return;
     this.saveProgress(true); clearInterval(this._nextIv); $('.p-next', this.el).classList.add('hidden');
-    this.stopEngine(); clearInterval(this.tickIv); clearTimeout(this.sleepT); this.sleepT = 0;
+    this.stopEngine(); clearInterval(this.tickIv); clearTimeout(this.sleepT); this.sleepT = 0; clearTimeout(this._ws1); clearTimeout(this._ws2); this._reconnected = false;
     this.open_ = false; this.el.classList.add('hidden'); document.body.classList.remove('playing');
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     try { this.wake && this.wake.release(); } catch {} this.wake = null;
@@ -453,6 +486,8 @@ const Player = {
     if (ev === 'waiting') spin.classList.remove('hidden');
     if (ev === 'playing' || ev === 'canplay' || ev === 'seeked') spin.classList.add('hidden');
     if (ev === 'loadedmetadata' && this.pendingSeek) { try { this.v.currentTime = this.pendingSeek; } catch {} this.pendingSeek = 0; }
+    if (ev === 'loadedmetadata' && this.checkSeek) { const want = this.checkSeek; this.checkSeek = 0; if (Math.abs(this.v.currentTime - want) > 8) try { this.v.currentTime = want; } catch {} }
+    if (ev === 'playing' || ev === 'timeupdate' && this.v.currentTime > 0 && !this.v.paused) { if (!this._started) { this._started = true; clearTimeout(this._ws1); clearTimeout(this._ws2); $('.p-resume', this.el).classList.add('hidden'); } }
     if (ev === 'loadedmetadata') { this.applyAspect(); this.refreshTrackBtn(); }
     if (ev === 'playing') $('.p-err', this.el).classList.add('hidden');
     this.tick(true);
@@ -535,6 +570,8 @@ const Player = {
       case 'next': return this.step(1);
       case 'cancelNext': clearInterval(this._nextIv); return $('.p-next', this.el).classList.add('hidden');
       case 'retry': $('.p-err', this.el).classList.add('hidden'); this.attemptIdx = 0; return this.startAttempt();
+      case 'fromStart': return this.reconnect(true);
+      case 'reconnect': return this.reconnect(false);
       case 'mute': this.v.muted = !this.v.muted; $('[data-a=mute]', this.el).innerHTML = this.v.muted ? ic('mute') : ic('vol'); return;
       case 'fs': return this.toggleFS();
       case 'pip': try { if (document.pictureInPictureElement) document.exitPictureInPicture(); else this.v.requestPictureInPicture().catch(() => {}); } catch {} return;

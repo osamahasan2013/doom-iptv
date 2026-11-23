@@ -668,13 +668,14 @@ const App = {
     Player.open(full, { list: ctxList, index });
   },
   async playEpisode(ep) {
+    // start the episode immediately (the season list can take a while on big servers) and attach next/previous when it arrives
     const series = this.findItem('series', ep.seriesId, ep.pl) || { id: ep.seriesId, pl: ep.pl, name: ep.seriesName, img: ep.img };
+    Player.open(ep, null);
     try {
       const info = await provOf(series).seriesInfo(series.id, series);
       const list = this.episodesFlat(info, series); const index = list.findIndex(x => x.id === ep.id);
-      if (index >= 0) return Player.open(list[index], { list, index });
+      if (index >= 0 && Player.open_ && Player.item && keyOf(Player.item) === keyOf(ep)) Player.setCtx({ list, index });
     } catch {}
-    Player.open(ep, null);
   },
   episodesFlat(info, series) {
     const out = [];

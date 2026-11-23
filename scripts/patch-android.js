@@ -24,6 +24,7 @@ const mainJava = findMain(javaRoot);
 if (mainJava) {
   const pkg = (fs.readFileSync(mainJava, 'utf8').match(/^package\s+([\w.]+);/m) || [])[1];
   fs.writeFileSync(path.join(path.dirname(mainJava), 'PairServer.java'), fs.readFileSync(path.join(__dirname, 'android', 'PairServer.java'), 'utf8').replace(/^package\s+[\w.]+;/m, `package ${pkg};`));
+  fs.writeFileSync(path.join(path.dirname(mainJava), 'StreamProxy.java'), fs.readFileSync(path.join(__dirname, 'android', 'StreamProxy.java'), 'utf8').replace(/^package\s+[\w.]+;/m, `package ${pkg};`));
   fs.writeFileSync(mainJava, `package ${pkg};
 
 import android.app.UiModeManager;
@@ -44,6 +45,8 @@ import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
     private PairServer pair;
+    private StreamProxy proxy;   // one connection per movie to the IPTV server (resume / seeking)
+    private volatile int proxyPort;
     private String pairUrl;
 
     @Override
@@ -73,6 +76,11 @@ public class MainActivity extends BridgeActivity {
 
     private void markLan() {
         if (getBridge() == null || getBridge().getWebView() == null) return;
+        if (proxy == null) {   // open the local port off the main thread, then come back here
+            proxy = new StreamProxy();
+            new Thread(() -> { proxyPort = proxy.start(); runOnUiThread(this::markLan); }).start();
+        }
+        if (proxyPort > 0) getBridge().getWebView().evaluateJavascript("window.DOOM_PROXY='http://127.0.0.1:" + proxyPort + "/v?u=';", null);
         String ip = PairServer.lanIp();
         String url = (ip != null && pair != null && pair.port() > 0) ? ("http://" + ip + ":" + pair.port() + pair.path()) : null;
         getBridge().getWebView().evaluateJavascript("window.DOOM_LAN={url:" + (url == null ? "null" : "'" + url + "'") + "};window.dispatchEvent(new Event('doom-lan'));", null);
@@ -81,6 +89,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onDestroy() {
         if (pair != null) pair.stop();
+        if (proxy != null) proxy.stop();
         super.onDestroy();
     }
 
