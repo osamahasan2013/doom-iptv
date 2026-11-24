@@ -109,9 +109,14 @@ public class MainActivity extends BridgeActivity {
     private void focusWebView() {
         if (getBridge() == null || getBridge().getWebView() == null) return;
         WebView w = getBridge().getWebView();
+        // requestFocus on a WebView that is not in touch mode (TV) moves the page focus to its FIRST element
+        // ("initial focus"). This ran every time the window got focus back — e.g. while the TV keyboard
+        // (its own focusable window) switched language — and pulled the focus out of the text box, so the
+        // keyboard lost its connection. Turn that off and only ask for focus when the WebView does not have it.
+        w.getSettings().setNeedInitialFocus(false);
         w.setFocusable(true);
         w.setFocusableInTouchMode(true);
-        w.requestFocus(View.FOCUS_DOWN);
+        if (!w.hasFocus()) w.requestFocus();
     }
 
     @Override

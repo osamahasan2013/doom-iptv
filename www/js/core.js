@@ -142,7 +142,7 @@ const LS = {
 
 const DEFAULT_SETTINGS = {
   lang: 'auto', liveFormat: 'm3u8', seekStep: 10, aspect: 'fit', speed: 1, autoNext: true, refreshHours: 12,
-  proxy: '', accent: '#5b8cff', tvMode: 'auto', uiSize: 'm', longPress: 'menu', posterStyle: 'classic', tvKeyboard: 'app', theme: 'auto', freeBase: '', sort: 'default', lastSection: 'movies'
+  proxy: '', accent: '#5b8cff', tvMode: 'auto', uiSize: 'm', longPress: 'menu', posterStyle: 'classic', tvKeyboard: 'system', theme: 'auto', freeBase: '', sort: 'default', lastSection: 'movies'
 };
 const Settings = {
   data: Object.assign({}, DEFAULT_SETTINGS, LS.get('settings', {})),

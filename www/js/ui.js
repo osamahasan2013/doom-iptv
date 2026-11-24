@@ -1075,7 +1075,7 @@ const App = {
 
     section(t('appearance'),
       row(t('themeMode'), sel('theme', [['auto', t('auto')], ['light', '☀️ ' + t('day')], ['dark', '🌙 ' + t('night')]], () => this.applyTheme())),
-      row(t('tvKeyboard'), sel('tvKeyboard', [['app', t('kbApp')], ['system', t('kbSystem')]], () => TvKeyboard.guard()), t('tvKeyboardHint')),
+      row(t('tvKeyboard'), sel('tvKeyboard', [['system', t('kbSystem')], ['app', t('kbApp')]], () => TvKeyboard.guard()), t('tvKeyboardHint')),
       row(t('posterStyle'), sel('posterStyle', [['classic', t('pstClassic')], ['overlay', t('pstOverlay')]], () => { this.applyTheme(); this._memo && this._memo.clear(); }), t('posterStyleHint')),
       row(t('longPress'), sel('longPress', [['menu', t('lpMenu')], ['fav', t('lpFav')]]), t('longPressHint')),
       row(t('uiSize'), sel('uiSize', [['xs', t('sizeXs')], ['s', t('sizeS')], ['m', t('sizeM')], ['l', t('sizeL')], ['xl', t('sizeXl')]], () => this.applyScale()), t('uiSizeHint')),
