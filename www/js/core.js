@@ -142,7 +142,7 @@ const LS = {
 
 const DEFAULT_SETTINGS = {
   lang: 'auto', liveFormat: 'm3u8', seekStep: 10, aspect: 'fit', speed: 1, autoNext: true, refreshHours: 12,
-  proxy: '', accent: '#5b8cff', tvMode: 'auto', uiSize: 'm', theme: 'auto', freeBase: '', sort: 'default', lastSection: 'movies'
+  proxy: '', accent: '#5b8cff', tvMode: 'auto', uiSize: 'm', longPress: 'menu', posterStyle: 'classic', theme: 'auto', freeBase: '', sort: 'default', lastSection: 'movies'
 };
 const Settings = {
   data: Object.assign({}, DEFAULT_SETTINGS, LS.get('settings', {})),
@@ -524,9 +524,17 @@ const Progress = {
 
 const Lists = {
   data: LS.get('lists', null) || [{ id: 'fav', name: null, items: [] }],
-  save() { LS.set('lists', this.data); },
-  name(l) { return l.name || t('favDefault'); },
-  create(name) { const l = { id: uid(), name, items: [] }; this.data.push(l); this.save(); return l; },
+  ver: 0, _mark: null,
+  save() { LS.set('lists', this.data); this.ver++; this._mark = null; },
+  /* every custom list has a number (shown as a yellow star on posters); the main favourites list is the red heart */
+  number() { let n = 0; for (const l of this.data) if (l.id !== 'fav' && !l.num) { l.num = Math.max(0, ...this.data.map(x => x.num || 0)) + 1; n++; } if (n) LS.set('lists', this.data); },
+  name(l) { return l.id === 'fav' ? '❤ ' + (l.name || t('favDefault')) : '★' + (l.num || '') + ' ' + l.name; },
+  create(name) { const l = { id: uid(), name, num: Math.max(0, ...this.data.map(x => x.num || 0)) + 1, items: [] }; this.data.push(l); this.save(); return l; },
+  /* key → { fav, nums } for the poster markers (rebuilt only when a list changes) */
+  mark(it) {
+    if (!this._mark) { this._mark = new Map(); for (const l of this.data) for (const x of l.items) { const k = keyOf(x); let m = this._mark.get(k); if (!m) this._mark.set(k, m = { fav: false, nums: [] }); if (l.id === 'fav') m.fav = true; else m.nums.push(l.num); } }
+    return this._mark.get(keyOf(it));
+  },
   rename(id, name) { const l = this.data.find(x => x.id === id); if (l) { l.name = name; this.save(); } },
   remove(id) { if (id === 'fav') return; this.data = this.data.filter(l => l.id !== id); this.save(); },
   has(listId, it) { const l = this.data.find(x => x.id === listId); return !!(l && l.items.some(x => keyOf(x) === keyOf(it))); },
@@ -551,6 +559,8 @@ const Lists = {
   }
 };
 
+Lists.number();
+
 const Hidden = {
   data: LS.get('hiddenCats', {}),
   key(sec, id) { return Playlists.scopeId() + ':' + sec + ':' + id; },
@@ -558,8 +568,21 @@ const Hidden = {
   ver: 0,
   toggle(sec, id) { const k = this.key(sec, id); if (this.data[k]) delete this.data[k]; else this.data[k] = 1; this.ver++; LS.set('hiddenCats', this.data); },
   set(sec) { const p = Playlists.scopeId() + ':' + sec + ':'; const s = new Set(); for (const k in this.data) if (k.startsWith(p)) s.add(k.slice(p.length)); return s; },
-  count(sec) { const p = Playlists.scopeId() + ':' + sec + ':'; return Object.keys(this.data).filter(k => k.startsWith(p)).length; }
+  count(sec) { const p = Playlists.scopeId() + ':' + sec + ':'; const q = Playlists.scopeId() + ':i:' + sec + ':'; return Object.keys(this.data).filter(k => k.startsWith(p) || k.startsWith(q)).length; },
+  /* single titles / channels can be hidden too (long-press menu) */
+  ikey(it) { return Playlists.scopeId() + ':i:' + secOf(it) + ':' + keyOf(it); },
+  isItem(it) { return !!this.data[this.ikey(it)]; },
+  toggleItem(it) { const k = this.ikey(it); if (this.data[k]) delete this.data[k]; else this.data[k] = 1; this.ver++; LS.set('hiddenCats', this.data); return !!this.data[k]; },
+  itemSet(sec) { const p = Playlists.scopeId() + ':i:' + sec + ':'; const s = new Set(); for (const k in this.data) if (k.startsWith(p)) s.add(k.slice(p.length)); return s; }
 };
+const secOf = it => it.type === 'movie' ? 'movies' : it.type === 'live' ? 'live' : 'series';
+
+/* search text: lower case, Arabic letters unified (أإآ→ا ة→ه ى→ي ؤ→و ئ→ي), no tashkeel/tatweel, Arabic digits → 0-9,
+   accents removed, punctuation → spaces. The same folding is applied to titles and to what you type. */
+const fold = s => (s || '').normalize('NFKD').replace(/[\u0300-\u036f\u064b-\u065f\u0670\u0640]/g, '').toLowerCase()
+  .replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/ؤ/g, 'و').replace(/ئ/g, 'ي')
+  .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x660)).replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 0x6f0))
+  .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 
 /* ---------------- parental controls ---------------- */
 const Parental = {

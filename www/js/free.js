@@ -15,6 +15,7 @@ Object.assign(I18N.en, {
   freeNoSub: 'Watch Free IPTV without a subscription', addSub: '+ Add subscription', back: 'Back', updatedOk: 'Updated ✓', playAll: 'Play all', copyBackup: 'Copy backup', pasteBackup: 'Paste backup', copiedBackup: 'Backup copied ✓ — paste it somewhere safe (e.g. a note)', copyManual: 'Select all and copy this text:', pasteHint: 'Paste the backup text you copied earlier:', badBackup: 'That text is not a DOOM backup', shuffle: 'Shuffle', reorderHint: 'Drag ⋮⋮ to change the order', moveUp: 'Move up', moveDown: 'Move down', moveTop: 'Move to top', moveBottom: 'Move to bottom', nextUp: 'Up next', autoNextAll: 'Auto-play next (episodes & lists)', exitHint: 'Press back again to exit',
   themeMode: 'Day / Night', day: 'Day', night: 'Night',
   resumingAt: 'Resuming from {t}… the server is slow', slowServer: 'The server is slow to answer…', fromStart: 'Start from the beginning', reconnect: 'Reconnect',
+  posterStyle: 'Poster style', pstClassic: 'Title under the poster', pstOverlay: 'Smaller, title on the poster', posterStyleHint: 'How movies and series look in the lists', longPress: 'Long press on a title', lpMenu: 'Open the lists menu + hide / show', lpFav: 'Add to / remove from favourites', longPressHint: 'Holding OK on the remote, or a long touch', hideItem: 'Hide this title', showItem: 'Show this title again', itemHidden: 'Hidden — turn on “Show hidden” to see it', itemShown: 'Shown again',
   refreshLib: 'Refresh library', refreshingLib: 'Updating the library…', libUpdated: 'Library updated', libAgo: 'Updated {t}', justNow: 'just now', minAgo: '{n} min ago', hrAgo: '{n} h ago', dayAgo: '{n} days ago', libNew: 'New: {list}', libNothingNew: 'No new titles', libFailed: 'Could not update {name} — kept the saved copy', nMovies: '{n} movies', nSeries: '{n} series', nChannels: '{n} channels',
   uiSize: 'Interface size', uiSizeHint: 'Icons, text and lists on the screen (on a TV the whole screen is scaled)', sizeXs: 'Very small', sizeS: 'Small', sizeM: 'Medium', sizeL: 'Large', sizeXl: 'Very large'
 });
@@ -27,6 +28,7 @@ Object.assign(I18N.ar, {
   freeNoSub: 'شاهد IPTV المجاني بدون اشتراك', addSub: '+ إضافة اشتراك', back: 'رجوع', updatedOk: 'تم التحديث ✓', playAll: 'تشغيل الكل', copyBackup: 'نسخ النسخة الاحتياطية', pasteBackup: 'لصق النسخة الاحتياطية', copiedBackup: 'تم نسخ النسخة الاحتياطية ✓ — الصقها في مكان آمن (مثل ملاحظة)', copyManual: 'حدد كل النص وانسخه:', pasteHint: 'الصق نص النسخة الاحتياطية الذي نسخته سابقاً:', badBackup: 'هذا النص ليس نسخة احتياطية من DOOM', shuffle: 'عشوائي', reorderHint: 'اسحب ⋮⋮ لتغيير الترتيب', moveUp: 'تحريك لأعلى', moveDown: 'تحريك لأسفل', moveTop: 'نقل للأول', moveBottom: 'نقل للآخر', nextUp: 'التالي', autoNextAll: 'تشغيل التالي تلقائياً (الحلقات والقوائم)', exitHint: 'اضغط رجوع مرة أخرى للخروج',
   themeMode: 'نهاري / ليلي', day: 'نهاري', night: 'ليلي',
   resumingAt: 'جاري الاستكمال من {t}… السيرفر بطيء في الرد', slowServer: 'السيرفر بطيء في الرد…', fromStart: 'ابدأ من البداية', reconnect: 'إعادة الاتصال',
+  posterStyle: 'شكل البوسترات', pstClassic: 'الاسم تحت البوستر', pstOverlay: 'أصغر والاسم على البوستر', posterStyleHint: 'شكل الأفلام والمسلسلات في القوائم', longPress: 'الضغطة المطولة على المحتوى', lpMenu: 'تفتح قائمة المفضلات + إخفاء / إظهار', lpFav: 'تضيف للمفضلة مباشرة (أو تشيل منها)', longPressHint: 'الضغط مطولاً على OK في الريموت أو باللمس', hideItem: 'إخفاء هذا المحتوى', showItem: 'إظهار هذا المحتوى', itemHidden: 'تم الإخفاء — فعّل «إظهار المخفي» لرؤيته', itemShown: 'تم الإظهار',
   refreshLib: 'تحديث المكتبة', refreshingLib: 'جاري تحديث المكتبة…', libUpdated: 'تم تحديث المكتبة', libAgo: 'آخر تحديث {t}', justNow: 'الآن', minAgo: 'منذ {n} دقيقة', hrAgo: 'منذ {n} ساعة', dayAgo: 'منذ {n} يوم', libNew: 'جديد: {list}', libNothingNew: 'لا يوجد محتوى جديد', libFailed: 'تعذّر تحديث {name} — تم الإبقاء على النسخة المحفوظة', nMovies: '{n} فيلم', nSeries: '{n} مسلسل', nChannels: '{n} قناة',
   uiSize: 'حجم الواجهة', uiSizeHint: 'حجم الأيقونات والكتابة والقوائم على الشاشة (على التلفزيون بتتصغّر الشاشة كلها)', sizeXs: 'صغير جداً', sizeS: 'صغير', sizeM: 'متوسط', sizeL: 'كبير', sizeXl: 'كبير جداً'
 });
@@ -105,9 +107,9 @@ const FreeCat = {
     this.ts = d.ts; this.status = d.status; this.fallback = !!d.fallback; this.error = !!d.error;
     this.updated = (d.live && d.live.updated) || null;
     this.live = ((d.live && d.live.items) || []).map((x, i) => ({ type: 'live', id: x.id, pl: FREE_ID, name: x.n, img: x.l || '', url: x.u[0], alts: x.u.slice(1).map(u => ({ pl: FREE_ID, id: x.id, url: u })),
-      fcats: x.c || ['general'], cc: x.cc || '', ar: !!x.ar, geo: !!x.g, num: i + 1, _q: (x.n || '').toLowerCase() }));
-    this.movies = ((d.movies && d.movies.items) || []).map(x => ({ type: 'movie', id: x.id, pl: FREE_ID, name: x.n, img: x.p || '', year: x.y || null, plot: x.d || '', url: x.u, ext: 'mp4', fcats: x.c || [], _q: (x.n || '').toLowerCase() }));
-    this.series = ((d.series && d.series.items) || []).map(x => ({ type: 'series', id: x.id, pl: FREE_ID, name: x.n, img: x.p || '', year: x.y || null, plot: x.d || '', fcats: x.c || [], _eps: x.eps || [], _q: (x.n || '').toLowerCase() }));
+      fcats: x.c || ['general'], cc: x.cc || '', ar: !!x.ar, geo: !!x.g, num: i + 1 }));
+    this.movies = ((d.movies && d.movies.items) || []).map(x => ({ type: 'movie', id: x.id, pl: FREE_ID, name: x.n, img: x.p || '', year: x.y || null, plot: x.d || '', url: x.u, ext: 'mp4', fcats: x.c || [] }));
+    this.series = ((d.series && d.series.items) || []).map(x => ({ type: 'series', id: x.id, pl: FREE_ID, name: x.n, img: x.p || '', year: x.y || null, plot: x.d || '', fcats: x.c || [], _eps: x.eps || [] }));
   }
 };
 
@@ -145,7 +147,7 @@ const FreePage = {
     wrap.appendChild(h('div', { class: 'chips-bar cats-bar' }, h('button', { class: 'chip-btn' + (this.cat === 'all' ? ' on' : ''), onclick: () => { this.cat = 'all'; this.render(app); } }, t('allCats'), h('small', {}, ' ' + items.length)),
       ...catIds.map(k => h('button', { class: 'chip-btn' + (this.cat === k ? ' on' : ''), onclick: () => { this.cat = k; this.render(app); } }, this.catLabel(k), h('small', {}, ' ' + counts[k])))));
     if (this.cat !== 'all') items = items.filter(x => x.fcats.includes(this.cat));
-    if (app.q) items = items.filter(x => x._q.includes(app.q));
+    if (app.q) items = app.search(items, app.q);
     if (!items.length) { wrap.appendChild(app.empty(FreeCat.error ? t('errLogin') : null)); return; }
     const grid = h('div', { class: this.tab === 'live' ? 'grid live' : 'grid' }); wrap.appendChild(grid);
     if (this.tab === 'live') app.fillGrid(grid, items, it => { const card = app.channelCard(it, items); if (it.geo) $('.ch-meta', card).appendChild(h('span', { class: 'chip sm', title: t('geo') }, '🌐')); if (it.cc) $('.ch-meta', card).prepend(h('span', { class: 'chip sm' }, it.cc.toUpperCase())); return card; });

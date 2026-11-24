@@ -94,9 +94,24 @@ const UI = {
 
 /* ====================== TV / remote spatial navigation ====================== */
 const SpatialNav = {
+  SEL: 'button:not([disabled]),a[href],input:not([type=hidden]):not(.hidden),select,textarea,[tabindex]:not([tabindex="-1"])',
+  /* what is on screen. Poster grids can hold thousands of cards, so only the visible rows are measured (binary search) */
   focusables(root) {
-    return $$('button:not([disabled]),a[href],input:not([type=hidden]):not(.hidden),select,textarea,[tabindex]:not([tabindex="-1"])', root)
-      .filter(el => { if (el.closest('.hidden')) return false; const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth; });
+    const vis = el => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth; };
+    const grids = $$('.grid', root), gs = new Set(grids), out = [];
+    for (const el of $$(this.SEL, root)) { if (gs.has(el.parentElement) || el.closest('.hidden')) continue; if (vis(el)) out.push(el); }
+    for (const g of grids) {
+      const k = g.children; let lo = 0, hi = k.length;
+      while (lo < hi) { const m = (lo + hi) >> 1; if (k[m].getBoundingClientRect().bottom <= 0) lo = m + 1; else hi = m; }
+      for (let i = lo; i < k.length; i++) { const r = k[i].getBoundingClientRect(); if (r.top >= innerHeight) break; if (r.width && r.height && k[i].tabIndex >= 0) out.push(k[i]); }
+    }
+    return grids.length ? out.sort((a, b) => (a.compareDocumentPosition(b) & 4 ? -1 : 1)) : out;
+  },
+  /* the cards around the focused one in its grid (a few rows up and down) — enough to find the neighbour */
+  nearby(cur) {
+    const g = cur.parentElement; if (!g || !g.classList.contains('grid')) return null;
+    const k = g.children, i = Array.prototype.indexOf.call(k, cur); if (i < 0) return null;
+    return Array.prototype.slice.call(k, Math.max(0, i - 40), i + 41);
   },
   root() {
     const m = UI.top(); if (m) return m.box;
@@ -132,6 +147,10 @@ const SpatialNav = {
   },
   /* keep the focused item comfortably inside its scroll area — instant, no smooth-scroll lag on TV boxes */
   reveal(el) {
+    this._rv = el; if (this._rvq) return; this._rvq = true;
+    requestAnimationFrame(() => { this._rvq = false; const e = this._rv; if (e && e.isConnected) this.revealNow(e); });
+  },
+  revealNow(el) {
     const sc = el.closest(this.SCROLLERS); if (!sc || sc.scrollHeight <= sc.clientHeight + 2) return;
     const q = this.rect(el), s = this.rect(sc), pad = Math.min(90, s.height * .18);
     let d = 0; if (q.top < s.top + pad) d = q.top - s.top - pad; else if (q.bottom > s.bottom - pad) d = q.bottom - s.bottom + pad;
@@ -142,9 +161,11 @@ const SpatialNav = {
     if (!cur) { const f = this.focusables(root)[0]; f && f.focus(); return true; }
     const r = this.rect(cur);
     let best = null;
+    // 0) inside a poster grid: look only at the neighbouring rows (fast on huge lists)
+    const near = this.nearby(cur); if (near) best = this.pick(dir, cur, near, r, true);
     // 1) up/down: stay inside the same list first, including the rows that are below or above the screen
     const sc = cur.closest(this.SCROLLERS);
-    if ((dir === 'up' || dir === 'down') && sc && root.contains(sc)) {
+    if (!best && (dir === 'up' || dir === 'down') && sc && root.contains(sc)) {
       const own = $$('button:not([disabled]),a[href],input:not([type=hidden]),select,textarea,[tabindex]:not([tabindex="-1"])', sc).filter(el => !el.closest('.hidden'));
       best = this.pick(dir, cur, own, r, true);
       if (!best && sc.scrollHeight > sc.clientHeight + 2) {     // more items are still being loaded below → scroll to load them, then try again
@@ -160,6 +181,7 @@ const SpatialNav = {
 };
 
 /* ====================== the application ====================== */
+const HEART = "<svg viewBox='0 0 24 24' class='ic'><path d='M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.1 5.3 3 1.7-1.9 3.2-3 5.3-3 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z'/></svg>";
 const App = {
   data: null, idx: null, section: 'movies', cat: 'all', q: '', showHidden: false, refreshing: false, catsBySec: {},
   account: null, provider: null,
@@ -212,7 +234,7 @@ const App = {
     const meta = $('meta[name=theme-color]'); if (meta) meta.content = light ? '#f3f5fa' : '#0a0f1e';
     $$('.theme-btn').forEach(tb => { tb.innerHTML = ic(light ? 'moon' : 'sun'); });
     if (mq && !this._mqBound) { this._mqBound = true; (mq.addEventListener ? mq.addEventListener('change', () => this.applyTheme()) : mq.addListener(() => this.applyTheme())); }
-    const tv = Settings.get('tvMode'); document.body.classList.toggle('tv', tv === 'on' || (tv === 'auto' && (isTV() || LS.get('tvSeen', false)))); this.applyScale();
+    const tv = Settings.get('tvMode'); document.body.classList.toggle('tv', tv === 'on' || (tv === 'auto' && (isTV() || LS.get('tvSeen', false)))); document.body.classList.toggle('pst-overlay', Settings.get('posterStyle') === 'overlay'); this.applyScale();
   },
 
   /* ---------- welcome / add subscription ---------- */
@@ -273,7 +295,7 @@ const App = {
         </div>
         <nav class="nav">
           <button class="nav-item" data-sec="continue">${ic('history')}<span>${t('continue')}</span></button>
-          <button class="nav-item" data-sec="favorites">${ic('star')}<span>${t('favorites')}</span></button>
+          <button class="nav-item" data-sec="favorites"><span class="fav-ic">${HEART}</span><span>${t('favorites')}</span></button>
           <div class="nav-tools">
           <button class="nav-item tool" data-sec="free" title="${t('free')}">${ic('globe')}<span>${t('free')}</span></button>
           <button class="nav-item tool" data-sec="downloads" title="${t('downloads')}">${ic('download')}<span>${t('downloads')}</span><em class="dl-count"></em></button>
@@ -326,7 +348,7 @@ const App = {
     sortSel.addEventListener('change', () => { Settings.set('sort', sortSel.value); this.render(); });
     $('.hid-toggle', shell).addEventListener('change', e => { this.showHidden = e.target.checked; this.renderCats(); this.render(); });
     const si = $('.search-in', shell);
-    const runSearch = () => { const q = si.value.trim().toLowerCase(); if (q === this.q) return; this.q = q; this.render(); this.content.scrollTop = 0; };
+    const runSearch = () => { const q = si.value.trim(); if (q === this.q) return; this.q = q; this.render(); this.content.scrollTop = 0; };
     const soon = debounce(runSearch, 250);
     ['input', 'compositionend', 'keyup', 'change', 'search'].forEach(ev => si.addEventListener(ev, e => { if (e.key === 'Enter') { si.blur(); runSearch(); } else soon(); }));
     $('.sub-sel', shell).addEventListener('change', e => {
@@ -427,7 +449,7 @@ const App = {
     this.data = data; this.dataTs = ts; setTimeout(() => this.updLib(), 0); this.idx = {}; this.catsBySec = {}; this._memo = new Map(); this.dataVer = (this.dataVer || 0) + 1;
     for (const sec of ['movies', 'series', 'live']) {
       const m = new Map(); const counts = {};
-      for (const it of data[sec].items) { it._q = (it.name || '').toLowerCase(); it._n = it._q.replace(/^\s*(hq|4k|fhd|uhd|hd|sd|vip)\s*[|:-]\s*/, '').trim(); m.set((it.pl || '') + ':' + it.id, it); counts[it.cat] = (counts[it.cat] || 0) + 1; }
+      for (const it of data[sec].items) { it._q = null; it._n = (it.name || '').toLowerCase().replace(/^\s*(hq|4k|fhd|uhd|hd|sd|vip)\s*[|:-]\s*/, '').trim(); m.set((it.pl || '') + ':' + it.id, it); counts[it.cat] = (counts[it.cat] || 0) + 1; }
       this.idx[sec] = m; this.catsBySec[sec] = { map: new Map(data[sec].cats.map(c => [c.id, c])), counts };
     }
   },
@@ -492,6 +514,8 @@ const App = {
     const counts = this.catsBySec[sec].counts;
     for (const c of this.visibleCats(sec)) mk(c.id, c.name, counts[c.id] || 0, Hidden.is(sec, c.id));
     $('.hid-n', this.el).textContent = Hidden.count(sec);
+    if (Parental.d.enabled && this.showHidden) this.showHidden = false;
+    document.body.classList.toggle('parental-on', !!Parental.d.enabled);
     $('.hid-toggle', this.el).checked = this.showHidden;
   },
   setTitle(s) { $('.top-title', this.el).textContent = s; document.title = s + ' — DOOM'; },
@@ -501,7 +525,7 @@ const App = {
     if (document.body.classList.contains('tv')) setTimeout(() => this.ensureFocus(), 60);
     if (!this.el || (!this.data && this.section !== 'free')) return;
     if (this.section === 'free') { this.el.dataset.section = 'free'; return FreePage.render(this); }
-    if (this.q && this.q.length >= 2) return this.renderSearch();
+    if (this.q && fold(this.q).length >= 2) return this.renderSearch();
     this.el.dataset.section = this.section;
     switch (this.section) {
       case 'movies': case 'series': case 'live': return this.renderBrowse();
@@ -518,6 +542,8 @@ const App = {
   filterItems(sec, items) {
     const block = new Set(this.showHidden ? [] : Hidden.set(sec));
     if (Parental.d.enabled) for (const c of this.data[sec].cats) if (!Parental.catAllowed(sec, c)) block.add(c.id);
+    const hidItems = this.showHidden ? null : Hidden.itemSet(sec);
+    if (hidItems && hidItems.size) return items.filter(it => !block.has(it.cat) && !hidItems.has(keyOf(it)));
     return block.size ? items.filter(it => !block.has(it.cat)) : items.slice();
   },
   /* filtered + sorted list for a section/category, cached until something that affects it changes */
@@ -547,10 +573,40 @@ const App = {
     const grid = h('div', { class: sec === 'live' ? 'grid live' : 'grid' }); this.content.appendChild(grid);
     this.fillGrid(grid, items, it => sec === 'live' ? this.channelCard(it, items) : this.posterCard(it));
   },
+  /* search key of a title: folded name first, then its tags (HQ | AR | 4K …) so the name decides "starts with" */
+  skey(it) {
+    if (it._q) return it._q;
+    let n = it.name || '', tags = '';
+    n = n.replace(/^\s*((\[[^\]]{1,12}\]|[A-Za-z0-9+]{1,6})\s*[|:\-–]\s*)+/, m => { tags = m; return ''; });
+    return (it._q = ' ' + fold(n) + ' ' + fold(tags) + ' ');
+  },
+  /* Arabic & English search: whole phrase > start of title > start of a word (also after «ال») > anywhere >
+     all words in any order > without spaces > one typo per word. Ties keep the chosen sort order. */
+  search(items, q) {
+    const fq = fold(q); if (!fq) return [];
+    const toks = fq.split(' '), compact = fq.replace(/ /g, ''), res = [];
+    for (const it of items) {
+      const s = this.skey(it); let sc = -1;
+      if (s.startsWith(' ' + fq + ' ')) sc = s.trim() === fq ? 0 : 1;
+      else if (s.startsWith(' ' + fq)) sc = 1.5;
+      else if (s.includes(' ' + fq) || s.includes(' ال' + fq)) sc = 2;
+      else if (s.includes(fq)) sc = 3;
+      else if (toks.length > 1 && toks.every(tk => s.includes(tk))) sc = toks.every(tk => s.includes(' ' + tk) || s.includes(' ال' + tk)) ? 3.5 : 4;
+      else if (compact.length > 3 && (it._qc || (it._qc = s.replace(/ /g, ''))).includes(compact)) sc = 5;
+      if (sc >= 0) res.push([sc, it]);
+    }
+    if (res.length < 4 && fq.length >= 4) {   // typo-tolerant pass
+      const got = new Set(res.map(r => r[1]));
+      const near = (a, b, max) => { if (Math.abs(a.length - b.length) > max) return false; let prev = Array.from({ length: b.length + 1 }, (_, j) => j); for (let i = 1; i <= a.length; i++) { const cur = [i]; let best = i; for (let j = 1; j <= b.length; j++) { cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); best = Math.min(best, cur[j]); } if (best > max) return false; prev = cur; } return prev[b.length] <= max; };
+      const wordOk = (tk, words) => tk.length < 4 ? words.some(w => w.startsWith(tk)) : words.some(w => { const m = tk.length >= 8 ? 2 : 1; return near(tk, w, m) || (w.length > tk.length && near(tk, w.slice(0, tk.length), m)) || (w.startsWith('ال') && near(tk, w.slice(2), m)); });
+      for (const it of items) { if (got.has(it)) continue; const words = this.skey(it).trim().split(' '); if (toks.every(tk => wordOk(tk, words))) res.push([6, it]); }
+    }
+    return res.sort((a, b) => a[0] - b[0]).map(r => r[1]);   // Array.sort is stable: same score keeps the list order
+  },
   renderSearch() {
     this.setTitle(t('results') + ': “' + this.q + '”'); this.content.innerHTML = ''; let any = false;
     for (const sec of ['movies', 'series', 'live']) {
-      const q = this.q; const items = this.listFor(sec, 'all').filter(it => it._q.includes(q));
+      const q = this.q; const items = this.search(this.listFor(sec, 'all'), q);
       if (!items.length) continue; any = true;
       this.content.appendChild(h('h3', { class: 'sec-h' }, t(sec), h('small', { class: 'muted' }, ' ' + items.length)));
       const grid = h('div', { class: sec === 'live' ? 'grid live' : 'grid' }); this.content.appendChild(grid);
@@ -580,7 +636,8 @@ const App = {
     const pr = opts.progress || Progress.get(it);
     const card = h('div', { class: 'card', tabindex: 0, role: 'button', 'aria-label': it.name },
       h('div', { class: 'poster' }, this.imgEl(it.img, it.name),
-        h('button', { class: 'fav-btn' + (Lists.inAny(it) ? ' on' : ''), tabindex: -1, 'aria-label': t('favorites'), html: ic('star') }),
+        h('button', { class: 'fav-btn' + (Lists.has('fav', it) ? ' on' : ''), tabindex: -1, 'aria-label': t('favorites'), html: HEART }),
+        this.marks(it),
         Downloads.isDone(it) ? h('span', { class: 'badge' }, '⬇') : null,
         opts.sub ? h('span', { class: 'badge left' }, opts.sub) : null,
         pr && pr.pos && pr.dur ? h('div', { class: 'prog' }, h('i', { style: { width: Math.min(100, pr.pos / pr.dur * 100) + '%' } })) : null,
@@ -590,17 +647,56 @@ const App = {
         Playlists.mode() === 'merged' && it.alts ? h('span', { class: 'chip sm' }, '×' + (it.alts.length + 1)) : null));
     const open = () => (opts.onOpen || (() => this.openItem(it)))();
     card.addEventListener('click', e => {
-      if (e.target.closest('.fav-btn')) { e.stopPropagation(); const on = Lists.toggle('fav', it); e.target.closest('.fav-btn').classList.toggle('on', on); UI.toast((on ? t('addedTo') : t('removedFrom')) + ' ' + t('favDefault')); return; }
+      if (e.target.closest('.fav-btn')) { e.stopPropagation(); this.toggleFav(it, card); return; }
       if (card._lp) { card._lp = false; return; }
       open();
     });
     this.bindPress(card, it, open, opts);
     return card;
   },
+  /* red heart = main favourites, yellow star with its number = a custom list */
+  marks(it) {
+    const m = Lists.mark(it); const box = h('div', { class: 'marks' });
+    if (m) {
+      if (m.fav) box.appendChild(h('span', { class: 'mk heart', html: HEART }));
+      m.nums.slice().sort((a, b) => a - b).slice(0, 4).forEach(n => box.appendChild(h('span', { class: 'mk star' }, h('b', {}, String(n)))));
+    }
+    if (Hidden.isItem(it)) box.appendChild(h('span', { class: 'mk hid', html: ic('eyeOff') }));
+    return box;
+  },
+  refreshMarks(card, it) {
+    if (!card) return; const old = $('.marks', card); if (old) old.replaceWith(this.marks(it));
+    const f = $('.fav-btn', card); if (f) f.classList.toggle('on', Lists.has('fav', it));
+  },
+  toggleFav(it, card) {
+    const on = Lists.toggle('fav', it); this.refreshMarks(card, it);
+    UI.toast((on ? t('addedTo') : t('removedFrom')) + ' ' + Lists.name(Lists.data.find(l => l.id === 'fav')));
+    if (this.section === 'favorites') this.renderFavorites();
+  },
+  /* long-press menu: every list (tick to add/remove) + hide/show this title */
+  itemSheet(it, card) {
+    const body = h('div', { class: 'stack sheet' });
+    const draw = () => {
+      body.innerHTML = '';
+      for (const l of Lists.data) {
+        const on = Lists.has(l.id, it);
+        body.appendChild(h('button', { class: 'list-opt' + (on ? ' on' : ''), onclick: () => { const added = Lists.toggle(l.id, it); UI.toast((added ? t('addedTo') : t('removedFrom')) + ' ' + Lists.name(l)); this.refreshMarks(card, it); draw(); if (this.section === 'favorites') this.renderFavorites(); $$('.list-opt', body)[Lists.data.indexOf(l)]?.focus(); } },
+          l.id === 'fav' ? h('span', { class: 'mk heart inl', html: HEART }) : h('span', { class: 'mk star inl' }, h('b', {}, String(l.num))),
+          h('span', { class: 'grow' }, l.id === 'fav' ? (l.name || t('favDefault')) : l.name), h('span', { class: 'tick', html: on ? ic('check') : '' })));
+      }
+      body.appendChild(h('button', { class: 'list-opt ghost', onclick: async () => { const n = await UI.prompt(t('newList'), t('listName')); if (n) { const l = Lists.create(n); Lists.toggle(l.id, it); this.refreshMarks(card, it); UI.toast(t('addedTo') + ' ' + Lists.name(l)); draw(); } } }, h('span', { html: ic('plus') }), h('span', { class: 'grow' }, t('newList'))));
+      const hid = Hidden.isItem(it);
+      body.appendChild(h('div', { class: 'sheet-sep' }));
+      body.appendChild(h('button', { class: 'list-opt', onclick: () => { const now = Hidden.toggleItem(it); UI.top() && UI.top().close(); UI.toast(now ? t('itemHidden') : t('itemShown')); this.renderCats(); this.render(); } },
+        h('span', { html: ic(hid ? 'eye' : 'eyeOff') }), h('span', { class: 'grow' }, hid ? t('showItem') : t('hideItem'))));
+    };
+    draw();
+    UI.modal(it.seriesName ? it.seriesName + ' ' + t('sShort') + it.season + t('epShort') + it.episode : it.name, body);
+  },
   /* OK / tap opens; holding OK on the remote, or a long press on the screen, opens "add to list" straight away */
   bindPress(card, it, open, opts) {
     const isOk = e => e.key === 'Enter' || e.keyCode === 23 || e.key === 'Select' || e.key === 'Accept';
-    const lists = () => { card._lp = true; try { navigator.vibrate && navigator.vibrate(25); } catch {} UI.listPicker(it, () => { const f = $('.fav-btn', card); f && f.classList.toggle('on', Lists.inAny(it)); }); };
+    const lists = () => { card._lp = true; try { navigator.vibrate && navigator.vibrate(25); } catch {} if (Settings.get('longPress') === 'fav') this.toggleFav(it, card); else this.itemSheet(it, card); };
     // a held remote button repeats its key-down; a short press ends with key-up.
     // If a TV never sends key-up (and no repeats either), the press still opens the item.
     let kt = null, down = false, reps = 0;
@@ -630,10 +726,11 @@ const App = {
       h('div', { class: 'ch-logo' }, this.imgEl(it.img, it.name, 'contain')),
       h('div', { class: 'ch-info' }, h('div', { class: 'ch-name' }, (it.num ? it.num + '. ' : '') + it.name),
         h('div', { class: 'ch-meta' }, it.archive ? h('span', { class: 'chip sm' }, '⏪ ' + t('catchup')) : null, Recorder.isRecording(it) ? h('span', { class: 'chip sm red' }, '● REC') : null)),
-      h('button', { class: 'fav-btn' + (Lists.inAny(it) ? ' on' : ''), tabindex: -1, html: ic('star') }));
+      this.marks(it),
+      h('button', { class: 'fav-btn' + (Lists.has('fav', it) ? ' on' : ''), tabindex: -1, html: HEART }));
     const open = () => opts.onOpen ? opts.onOpen() : this.playLive(it, list);
     card.addEventListener('click', e => {
-      if (e.target.closest('.fav-btn')) { e.stopPropagation(); const on = Lists.toggle('fav', it); e.target.closest('.fav-btn').classList.toggle('on', on); return; }
+      if (e.target.closest('.fav-btn')) { e.stopPropagation(); this.toggleFav(it, card); return; }
       if (card._lp) { card._lp = false; return; }
       open();
     });
@@ -918,7 +1015,7 @@ const App = {
     const dt = h('input', { class: 'input', type: 'datetime-local', value: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}` });
     const dur = h('input', { class: 'input', type: 'number', min: 1, max: 600, value: 60 });
     const q = h('input', { class: 'input', placeholder: t('search') }); const res = h('div', { class: 'pick-list' }); const lbl = h('div', { class: 'picked' }, picked ? picked.name : '—');
-    const draw = () => { res.innerHTML = ''; const s = q.value.toLowerCase(); chans.filter(c => !s || c._q.includes(s)).slice(0, 80).forEach(c => res.appendChild(h('button', { class: 'ps-item' + (picked === c ? ' active' : ''), onclick: () => { picked = c; lbl.textContent = c.name; draw(); } }, c.name))); };
+    const draw = () => { res.innerHTML = ''; const s = q.value.trim(); (s ? this.search(chans, s) : chans).slice(0, 80).forEach(c => res.appendChild(h('button', { class: 'ps-item' + (picked === c ? ' active' : ''), onclick: () => { picked = c; lbl.textContent = c.name; draw(); } }, c.name))); };
     q.addEventListener('input', draw); draw();
     const m = UI.modal(t('schedule'), h('div', { class: 'stack' }, h('label', { class: 'lbl' }, t('channel')), lbl, q, res, h('label', { class: 'lbl' }, t('start')), dt, h('label', { class: 'lbl' }, t('duration')), dur,
       h('div', { class: 'row end gap' }, h('button', { class: 'btn', onclick: () => m.close() }, t('cancel')),
@@ -978,6 +1075,8 @@ const App = {
 
     section(t('appearance'),
       row(t('themeMode'), sel('theme', [['auto', t('auto')], ['light', '☀️ ' + t('day')], ['dark', '🌙 ' + t('night')]], () => this.applyTheme())),
+      row(t('posterStyle'), sel('posterStyle', [['classic', t('pstClassic')], ['overlay', t('pstOverlay')]], () => { this.applyTheme(); this._memo && this._memo.clear(); }), t('posterStyleHint')),
+      row(t('longPress'), sel('longPress', [['menu', t('lpMenu')], ['fav', t('lpFav')]]), t('longPressHint')),
       row(t('uiSize'), sel('uiSize', [['xs', t('sizeXs')], ['s', t('sizeS')], ['m', t('sizeM')], ['l', t('sizeL')], ['xl', t('sizeXl')]], () => this.applyScale()), t('uiSizeHint')),
       row(t('language'), sel('lang', [['auto', t('auto')], ['en', 'English'], ['ar', 'العربية']], () => { this.applyLang(); this.renderShell(); this.setData(this.data, this.dataTs); this.section = 'settings'; this.renderCats(); this.render(); })),
       row(t('theme'), h('div', { class: 'swatches' }, ...['#5b8cff', '#8b5cf6', '#ec4899', '#f97316', '#10b981', '#06b6d4', '#eab308'].map(c => h('button', { class: 'swatch' + (Settings.get('accent') === c ? ' on' : ''), style: { background: c }, 'aria-label': c, onclick: () => { Settings.set('accent', c); this.applyTheme(); this.renderSettings(); } })))),
@@ -1167,7 +1266,7 @@ const MultiView = {
     const chans = App.filterItems('live', App.data.live.items).concat(FreeCat.live.filter(x => FreeCat.usable(x)));
     if (!FreeCat.ts) FreeCat.load();
     const q = h('input', { class: 'input', placeholder: t('search') }); const list = h('div', { class: 'pick-list tall' });
-    const draw = () => { list.innerHTML = ''; const s = q.value.toLowerCase(); chans.filter(c => !s || c._q.includes(s)).slice(0, 150).forEach(c => list.appendChild(h('button', { class: 'ps-item', onclick: () => { m.close(); this.start(i, c); } }, App.imgEl(c.img, c.name, 'contain'), h('span', { class: 'ps-name' }, (c.num ? c.num + '. ' : '') + c.name)))); };
+    const draw = () => { list.innerHTML = ''; const s = q.value.trim(); (s ? App.search(chans, s) : chans).slice(0, 150).forEach(c => list.appendChild(h('button', { class: 'ps-item', onclick: () => { m.close(); this.start(i, c); } }, App.imgEl(c.img, c.name, 'contain'), h('span', { class: 'ps-name' }, (c.num ? c.num + '. ' : '') + c.name)))); };
     q.addEventListener('input', debounce(draw, 150)); draw();
     const m = UI.modal(t('pickChannel'), h('div', { class: 'stack' }, q, list));
   },

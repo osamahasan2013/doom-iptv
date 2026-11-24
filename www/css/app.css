@@ -450,3 +450,27 @@ body.free-only .lib-upd { display: none; }
 .p-resume { position: absolute; left: 50%; top: calc(50% + 56px); transform: translateX(-50%); z-index: 8; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 14px 18px; border-radius: 14px; background: rgba(10,10,14,.78); color: #fff; text-align: center; max-width: 90vw; }
 .p-resume .btn { background: rgba(255,255,255,.14); color: #fff; }
 body.tv .p-resume .btn:focus { background: var(--accent); }
+
+/* poster markers: red heart = favourites, yellow star with number = custom list */
+.marks { position: absolute; top: 7px; inset-inline-start: 7px; display: flex; gap: 4px; z-index: 2; pointer-events: none; }
+.mk { display: grid; place-items: center; width: 30px; height: 30px; filter: drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+.mk.heart .ic { width: 26px; height: 26px; fill: #ff3b4f; stroke: #fff; stroke-width: 1.2; }
+.mk.star { background: #ffc61a; clip-path: polygon(50% 0, 61.8% 35.1%, 98.5% 35.1%, 68.8% 56.8%, 80.2% 91.5%, 50% 70%, 19.8% 91.5%, 31.2% 56.8%, 1.5% 35.1%, 38.2% 35.1%); filter: none; width: 32px; height: 32px; }
+.mk.star b { font-size: 12px; font-weight: 800; color: #3a2600; margin-top: 4px; }
+.mk.hid { width: 26px; height: 26px; border-radius: 50%; background: rgba(0,0,0,.65); } .mk.hid .ic { width: 15px; height: 15px; color: #fff; }
+.mk.inl { position: static; flex: none; filter: none; }
+.ch-card { position: relative; } .ch-card .marks { top: 4px; inset-inline-start: 4px; } .ch-card .mk { width: 22px; height: 22px; } .ch-card .mk.star { width: 24px; height: 24px; } .ch-card .mk.star b { font-size: 10px; } .ch-card .mk.heart .ic { width: 19px; height: 19px; }
+.fav-btn .ic { fill: none; stroke: currentColor; stroke-width: 2; } .fav-btn.on { color: #ff3b4f; } .fav-btn.on .ic { fill: #ff3b4f; stroke: #ff3b4f; }
+.card .fav-btn.on { opacity: 0; } .card:hover .fav-btn.on { opacity: 1; }   /* the heart marker already shows it */
+.sheet .list-opt { display: flex; align-items: center; gap: 12px; } .sheet .tick .ic { width: 18px; height: 18px; color: var(--accent); }
+.sheet-sep { height: 1px; background: var(--line); margin: 4px 0; }
+body.parental-on .side-foot .switch-row { display: none; }
+/* poster style: smaller cards, title on the image */
+body.pst-overlay .grid:not(.live) { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px 14px; }
+body.tv.pst-overlay .grid:not(.live) { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+body.pst-overlay .card { position: relative; }
+body.pst-overlay .card .c-title { position: absolute; inset-inline: 0; bottom: 0; margin: 0; padding: 34px 8px 9px; border-radius: 0 0 var(--r) var(--r); background: linear-gradient(transparent, rgba(0,0,0,.55) 35%, rgba(0,0,0,.88)); color: #fff; font-size: 14px; font-weight: 700; text-align: center; text-shadow: 0 1px 3px #000; pointer-events: none; }
+body.pst-overlay .card .c-meta { display: none; }
+body.pst-overlay .card .prog { bottom: 0; z-index: 3; }
+@media (max-width: 700px) { body.pst-overlay .grid:not(.live) { grid-template-columns: repeat(3, 1fr); gap: 10px 8px; } body.pst-overlay .card .c-title { font-size: 12px; padding: 26px 5px 6px; } }
+.fav-ic .ic { width: 20px; height: 20px; fill: #ff3b4f; stroke: none; }
