@@ -109,7 +109,7 @@ const SpatialNav = {
   },
   /* the cards around the focused one in its grid (a few rows up and down) — enough to find the neighbour */
   nearby(cur) {
-    const g = cur.parentElement; if (!g || !(g.classList.contains('grid') || g.classList.contains('th-row'))) return null;
+    const g = cur.parentElement; if (!g || !(g.classList.contains('grid') || g.classList.contains('th-row') || g.classList.contains('th-grid'))) return null;
     const k = g.children, i = Array.prototype.indexOf.call(k, cur); if (i < 0) return null;
     return Array.prototype.slice.call(k, Math.max(0, i - 40), i + 41);
   },
@@ -164,6 +164,12 @@ const SpatialNav = {
     let best = null;
     // 0) inside a poster grid: look only at the neighbouring rows (fast on huge lists)
     const near = this.nearby(cur); if (near) best = this.pick(dir, cur, near, r, true);
+    // big-screen rows: up/down only looks at the row just above/below (not every card of every row)
+    if (!best && (dir === 'up' || dir === 'down') && cur.parentElement && cur.parentElement.classList.contains('th-row')) {
+      let sec = cur.closest('.th-sec'); const nx = x => dir === 'down' ? x.nextElementSibling : x.previousElementSibling;
+      sec = sec && nx(sec); while (sec && !$('.th-row', sec)) sec = nx(sec);
+      if (sec) { best = this.pick(dir, cur, Array.from($('.th-row', sec).children), r, true); if (best) { best.focus({ preventScroll: true }); this.reveal(best); return true; } }
+    }
     // end of a big-screen row: stay there (only the start side leads out, to the icon rail)
     if (!best && near && cur.parentElement.classList.contains('th-row') && dir === (document.documentElement.dir === 'rtl' ? 'left' : 'right')) return true;
     // 1) up/down: stay inside the same list first, including the rows that are below or above the screen

@@ -504,7 +504,7 @@ body.tv .chip-btn:focus { outline: 3px solid #fff; outline-offset: 2px; }
 /* ===================== big-screen home (TVs) ===================== */
 .home-btn { display: none !important; } body.hv-tv .home-btn { display: grid !important; }
 .th { position: fixed; inset: 0; z-index: 60; display: flex; overflow: hidden; background: #070b18; color: #fff; }
-.th.hidden { display: none; } body.th-on .shell { visibility: hidden; }
+.th.hidden { display: none; } body.th-on .shell { display: none; }   /* not just invisible: the hidden layout still cost work on every move */
 .th-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .th-bgi { position: absolute; inset: 0; background-size: cover; background-position: center 22%; background-repeat: no-repeat; opacity: 0; transition: opacity .9s ease; }
 .th-bgi.on { opacity: 1; }
@@ -609,3 +609,14 @@ body.tv .chip-btn:focus { outline: 3px solid #fff; outline-offset: 2px; }
 .th-tab.on { background: rgba(255,255,255,.16); }
 .th[data-mode=search] .th-hero, .th[data-mode=cat] .th-hero { display: none; }
 body.tv .th-img.pc .amb { filter: none; opacity: .22; } body.tv .th-bgi.poster { filter: blur(18px) brightness(.5); }
+/* big-screen: the moving focus frame (one composited layer); cards stay untouched on focus */
+.th .th-card { transition: none; }
+.th .th-card:focus, .th .th-card:hover { transform: none; outline: none !important; box-shadow: none; }
+.th-ring { position: absolute; left: 0; top: 0; z-index: 6; pointer-events: none; border: 3px solid #fff; border-radius: 15px; box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 0 18px rgba(255,255,255,.25); opacity: 0; will-change: transform; }
+.th-ring.on { opacity: 1; }   /* jumps straight to the card: a sliding animation costs a repaint per frame on TV boxes */
+/* the two background layers stay on their own layers: cross-fading them never repaints the page */
+.th-bgi { will-change: opacity; }
+
+/* rows and grid cards that are off screen are not laid out or painted until they come close */
+.th-sec { content-visibility: auto; contain-intrinsic-size: auto 232px; }
+.th-grid > .th-card { content-visibility: auto; contain-intrinsic-size: auto 136px; }
