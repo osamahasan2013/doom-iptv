@@ -582,3 +582,30 @@ body.tv .chip-btn:focus { outline: 3px solid #fff; outline-offset: 2px; }
   .th-hero { padding: 4px 0 18px; min-height: 40vh; } .th-hero-in { max-width: 100%; } .th-title { font-size: 30px; } .th-car { display: none; }
   .th-card { width: 200px; }
 }
+/* big-screen: framed poster in the hero when a title has no wide picture */
+.th-bgi.poster { background-size: cover; background-position: center 30%; filter: blur(28px) brightness(.5) saturate(1.2); transform: scale(1.12); }
+.th-pst { position: absolute; top: 4px; bottom: 30px; inset-inline-end: 9%; display: flex; align-items: center; opacity: 0; transform: translateY(10px) scale(.97); transition: opacity .6s ease, transform .6s ease; pointer-events: none; }
+.th-pst.on { opacity: 1; transform: none; }
+.th-pst img { height: 100%; max-height: 360px; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.12); }
+.th.compact .th-hero { min-height: 36vh; } .th.compact .th-pst img { max-height: 280px; }
+/* cards without a wide picture: the whole poster on the side over a dimmed copy */
+.th-img.pc { background: #111a33; overflow: hidden; }
+.th-img.pc .amb { position: absolute; inset: -10%; width: 120%; height: 120%; object-fit: cover; opacity: .35; filter: blur(6px); }
+.th-img.pc > img:not(.amb), .th-img.pc > .ph { position: absolute; top: 0; bottom: 0; inset-inline-end: 0; width: auto; height: 100%; aspect-ratio: 2 / 3; object-fit: cover; object-position: center; box-shadow: 0 0 24px rgba(0,0,0,.6); }
+.th-card.pcard .th-cap { inset-inline-end: 34%; padding-inline-end: 6px; } .th-card.pcard .marks { inset-inline-end: calc(34% + 6px); }
+/* "see all" card, grid view, search */
+.th-more { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(255,255,255,.06); border-style: dashed; }
+.th-more .mi { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.12); } .th-more .mi .ic { width: 22px; height: 22px; } [dir=rtl] .th-more .mi .ic { transform: scaleX(-1); }
+.th-more b { font-size: 16px; } .th-more small { opacity: .7; }
+.th-sec h3 small, .th-gt small { font-size: 13px; font-weight: 600; opacity: .55; margin-inline-start: 8px; }
+.th-gt { margin: 6px 0 14px; font-size: 26px; font-weight: 800; }
+.th-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px 18px; padding: 6px 4px 30px; }
+.th-grid .th-card { width: auto; }
+.th-sent { height: 2px; }
+.th-sbar { display: flex; align-items: center; gap: 12px; max-width: 760px; margin: 4px 0 22px; padding: 6px 18px; border-radius: 14px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); }
+.th-sbar .ic { width: 22px; height: 22px; opacity: .8; } .th-sin { flex: 1; background: none; border: 0; color: #fff; font-size: 20px; padding: 10px 0; outline: none; }
+.th-sbar:focus-within { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.4); }
+.th-empty { opacity: .7; font-size: 18px; padding: 20px 0; }
+.th-tab.on { background: rgba(255,255,255,.16); }
+.th[data-mode=search] .th-hero, .th[data-mode=cat] .th-hero { display: none; }
+body.tv .th-img.pc .amb { filter: none; opacity: .22; } body.tv .th-bgi.poster { filter: blur(18px) brightness(.5); }

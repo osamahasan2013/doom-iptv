@@ -164,6 +164,8 @@ const SpatialNav = {
     let best = null;
     // 0) inside a poster grid: look only at the neighbouring rows (fast on huge lists)
     const near = this.nearby(cur); if (near) best = this.pick(dir, cur, near, r, true);
+    // end of a big-screen row: stay there (only the start side leads out, to the icon rail)
+    if (!best && near && cur.parentElement.classList.contains('th-row') && dir === (document.documentElement.dir === 'rtl' ? 'left' : 'right')) return true;
     // 1) up/down: stay inside the same list first, including the rows that are below or above the screen
     const sc = cur.closest(this.SCROLLERS);
     if (!best && (dir === 'up' || dir === 'down') && sc && root.contains(sc)) {
@@ -231,7 +233,8 @@ const App = {
   applyTheme() {
     document.documentElement.style.setProperty('--accent', Settings.get('accent') || '#5b8cff');
     const mode = Settings.get('theme') || 'auto'; const mq = window.matchMedia && matchMedia('(prefers-color-scheme: light)');
-    const light = mode === 'light' || (mode === 'auto' && mq && mq.matches);
+    // the big-screen mode is always dark, also in the pages it opens (settings, player lists …)
+    const light = Settings.get('homeView') !== 'tv' && (mode === 'light' || (mode === 'auto' && mq && mq.matches));
     document.body.classList.toggle('light', light);
     const meta = $('meta[name=theme-color]'); if (meta) meta.content = light ? '#f3f5fa' : '#0a0f1e';
     $$('.theme-btn').forEach(tb => { tb.innerHTML = ic(light ? 'moon' : 'sun'); });
@@ -482,7 +485,7 @@ const App = {
       if (this.section !== 'free') { this.go('free'); return true; }
       LS.del('freeOnly'); document.body.classList.remove('free-only'); this.welcome(); return true;
     }
-    if (window.TvHome && TvHome.open_) return false;
+    if (window.TvHome && TvHome.open_) return TvHome.back();
     if (this.isRoot()) { if (window.TvHome && TvHome.enabled()) { TvHome.open(); return true; } return false; }
     this.go(Settings.get('lastSection') || 'movies'); return true;
   },
@@ -1134,7 +1137,7 @@ const App = {
 
     section(t('appearance'),
       row(t('themeMode'), sel('theme', [['auto', t('auto')], ['light', '☀️ ' + t('day')], ['dark', '🌙 ' + t('night')]], () => this.applyTheme())),
-      row(t('homeView'), sel('homeView', [['classic', t('hvClassic')], ['tv', t('hvTv')]], () => { const v = Settings.get('homeView'); document.body.classList.toggle('hv-tv', v === 'tv'); if (v === 'tv') TvHome.open(); else TvHome.close(); }), t('homeViewHint')),
+      row(t('homeView'), sel('homeView', [['classic', t('hvClassic')], ['tv', t('hvTv')]], () => { const v = Settings.get('homeView'); document.body.classList.toggle('hv-tv', v === 'tv'); this.applyTheme(); if (v === 'tv') TvHome.open(); else TvHome.close(); }), t('homeViewHint')),
       row(t('tvKeyboard'), sel('tvKeyboard', [['system', t('kbSystem')], ['app', t('kbApp')]], () => TvKeyboard.guard()), t('tvKeyboardHint')),
       row(t('posterStyle'), sel('posterStyle', [['classic', t('pstClassic')], ['overlay', t('pstOverlay')]], () => { this.applyTheme(); this._memo && this._memo.clear(); }), t('posterStyleHint')),
       row(t('longPress'), sel('longPress', [['menu', t('lpMenu')], ['fav', t('lpFav')]]), t('longPressHint')),
