@@ -1,6 +1,7 @@
 /* Inline SVG icons (stroke style) */
 'use strict';
 const ICON_PATHS = {
+  funnel: '<path d="M4 5h16l-6 7.5V19l-4 1.5v-8z"/>', home: '<path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"/>', chevRight: '<path d="M9 6l6 6-6 6"/>', swap: '<path d="M7 4L3 8l4 4M3 8h14M17 12l4 4-4 4M21 16H7"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>', series: '<rect x="3" y="6" width="14" height="13" rx="2"/><path d="M7 3h14v13"/><path d="M9 10.5v5l4-2.5z"/>', trend: '<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>',
   menu: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/>',
   burger: '<path d="M4 7h16M4 12h16M4 17h16"/>', grip: '<circle cx="9" cy="6" r="1.4" fill="currentColor"/><circle cx="15" cy="6" r="1.4" fill="currentColor"/><circle cx="9" cy="12" r="1.4" fill="currentColor"/><circle cx="15" cy="12" r="1.4" fill="currentColor"/><circle cx="9" cy="18" r="1.4" fill="currentColor"/><circle cx="15" cy="18" r="1.4" fill="currentColor"/>', shuffle: '<path d="M4 7h3c4 0 6 10 10 10h3M4 17h3c1.6 0 2.8-1.6 3.9-3.6M14 9.6C15 8 16 7 17 7h3M17 4l3 3-3 3M17 14l3 3-3 3"/>', dots: '<circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/>', home: '<path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/>',
   history: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/>',

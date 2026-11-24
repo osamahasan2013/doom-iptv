@@ -94,7 +94,7 @@ const UI = {
 
 /* ====================== TV / remote spatial navigation ====================== */
 const SpatialNav = {
-  SEL: 'button:not([disabled]),a[href],input:not([type=hidden]):not(.hidden),select,textarea,[tabindex]:not([tabindex="-1"])',
+  SEL: 'button:not([disabled]):not([tabindex="-1"]),a[href],input:not([type=hidden]):not(.hidden),select,textarea,[tabindex]:not([tabindex="-1"])',
   /* what is on screen. Poster grids can hold thousands of cards, so only the visible rows are measured (binary search) */
   focusables(root) {
     const vis = el => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth; };
@@ -109,7 +109,7 @@ const SpatialNav = {
   },
   /* the cards around the focused one in its grid (a few rows up and down) — enough to find the neighbour */
   nearby(cur) {
-    const g = cur.parentElement; if (!g || !g.classList.contains('grid')) return null;
+    const g = cur.parentElement; if (!g || !(g.classList.contains('grid') || g.classList.contains('th-row'))) return null;
     const k = g.children, i = Array.prototype.indexOf.call(k, cur); if (i < 0) return null;
     return Array.prototype.slice.call(k, Math.max(0, i - 40), i + 41);
   },
@@ -117,10 +117,11 @@ const SpatialNav = {
     const m = UI.top(); if (m) return m.box;
     const ctx = $('.ctx'); if (ctx) return ctx;
     if (Player.open_) { for (const s of ['.p-menu', '.p-side', '.p-err', '.p-next']) { const x = $(s, Player.el); if (x && !x.classList.contains('hidden')) return x; } return Player.el; }
+    if (window.TvHome && TvHome.open_ && TvHome.el) return TvHome.el;
     return document.body;
   },
   /* scroll areas that keep their own list (the grid, the categories, dialogs) */
-  SCROLLERS: '.content, .cats, .modal-body, .ps-list, .p-side, .sidebar',
+  SCROLLERS: '.content, .cats, .modal-body, .ps-list, .p-side, .sidebar, .th-main',
   rect: el => el.getBoundingClientRect(),
   pick(dir, cur, items, r, sameRow) {
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2; let best = null, bestScore = Infinity; const cands = [];
@@ -166,7 +167,7 @@ const SpatialNav = {
     // 1) up/down: stay inside the same list first, including the rows that are below or above the screen
     const sc = cur.closest(this.SCROLLERS);
     if (!best && (dir === 'up' || dir === 'down') && sc && root.contains(sc)) {
-      const own = $$('button:not([disabled]),a[href],input:not([type=hidden]),select,textarea,[tabindex]:not([tabindex="-1"])', sc).filter(el => !el.closest('.hidden'));
+      const own = $$('button:not([disabled]):not([tabindex="-1"]),a[href],input:not([type=hidden]),select,textarea,[tabindex]:not([tabindex="-1"])', sc).filter(el => !el.closest('.hidden'));
       best = this.pick(dir, cur, own, r, true);
       if (!best && sc.scrollHeight > sc.clientHeight + 2) {     // more items are still being loaded below → scroll to load them, then try again
         const before = sc.scrollTop; sc.style.scrollBehavior = 'auto'; sc.scrollTop += dir === 'down' ? 320 : -320; sc.style.scrollBehavior = '';
@@ -208,6 +209,7 @@ const App = {
     this.renderShell();
     this.section = Settings.get('lastSection') || 'movies'; if (!['movies', 'series', 'live'].includes(this.section)) this.section = 'movies';
     await this.loadCatalog();
+    if (window.TvHome && TvHome.enabled()) TvHome.open();
     Accounts.refreshAll().then(() => { this.renderExpiryBanner(); if (this.section === 'settings') this.render(); });
     if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !isNative()) navigator.serviceWorker.register('sw.js').catch(() => {});
     window.addEventListener('online', () => this.renderExpiryBanner()); window.addEventListener('offline', () => this.renderExpiryBanner());
@@ -234,7 +236,7 @@ const App = {
     const meta = $('meta[name=theme-color]'); if (meta) meta.content = light ? '#f3f5fa' : '#0a0f1e';
     $$('.theme-btn').forEach(tb => { tb.innerHTML = ic(light ? 'moon' : 'sun'); });
     if (mq && !this._mqBound) { this._mqBound = true; (mq.addEventListener ? mq.addEventListener('change', () => this.applyTheme()) : mq.addListener(() => this.applyTheme())); }
-    const tv = Settings.get('tvMode'); document.body.classList.toggle('tv', tv === 'on' || (tv === 'auto' && (isTV() || LS.get('tvSeen', false)))); document.body.classList.toggle('pst-overlay', Settings.get('posterStyle') === 'overlay'); this.applyScale(); if (document.body.classList.contains('tv')) TvKeyboard.watch(); TvKeyboard._mo && TvKeyboard.guard();
+    const tv = Settings.get('tvMode'); document.body.classList.toggle('tv', tv === 'on' || (tv === 'auto' && (isTV() || LS.get('tvSeen', false)))); document.body.classList.toggle('pst-overlay', Settings.get('posterStyle') === 'overlay'); document.body.classList.toggle('hv-tv', Settings.get('homeView') === 'tv'); this.applyScale(); if (document.body.classList.contains('tv')) TvKeyboard.watch(); TvKeyboard._mo && TvKeyboard.guard();
   },
 
   /* ---------- welcome / add subscription ---------- */
@@ -312,6 +314,7 @@ const App = {
       <div class="scrim"></div>
       <main class="main">
         <header class="topbar">
+          <button class="icon-btn home-btn" data-act="home" aria-label="${t('home')}" title="${t('home')}">${ic('home')}</button>
           <button class="icon-btn back-btn hidden" data-act="back" aria-label="${t('back')}" title="${t('back')}">${ic('chevLeft')}</button>
           <button class="icon-btn side-toggle" aria-label="menu"><span class="desk-ic">${ic('menu')}</span><span class="mob-ic">${ic('burger')}</span></button>
           <h2 class="top-title"></h2>
@@ -323,7 +326,7 @@ const App = {
               <option value="default">${t('sortDefault')}</option><option value="added">${t('sortAdded')}</option><option value="az">${t('sortAZ')}</option><option value="za">${t('sortZA')}</option><option value="rating">${t('sortRating')}</option><option value="year">${t('sortYear')}</option></select></label>
             <button class="pill-select add-sub-btn hidden" data-act="addSub">${ic('plus')}<span>${t('addSub').replace('+ ', '')}</span></button>
             <label class="pill-select sub-pill" title="${t('subscriptions')}">${ic('user')}<select class="sub-sel"></select>${ic('chevUpDown')}</label>
-            <div class="search">${ic('search')}<input type="search" class="search-in" placeholder="${t('search')}" autocomplete="off"></div>
+            <div class="search">${ic('search')}<input type="search" class="search-in" placeholder="${t('search')}" autocomplete="off"><button class="sf-btn" data-act="sfilters" title="${t('searchFilters')}">${ic('funnel')}<i class="sf-dot hidden"></i></button></div>
           </div>
         </header>
         <section class="content" tabindex="-1"></section>
@@ -338,6 +341,8 @@ const App = {
         else this.refreshLibrary();
       }
       if (a.dataset.act === 'back') this.goBack();
+      if (a.dataset.act === 'sfilters') this.searchFilters();
+      if (a.dataset.act === 'home' && window.TvHome) TvHome.open();
       if (a.dataset.act === 'addSub') this.addSubscription();
       if (a.dataset.act === 'theme') { Settings.set('theme', document.body.classList.contains('light') ? 'dark' : 'light'); this.applyTheme(); }
       if (a.dataset.act === 'closeSide') document.body.classList.remove('side-open');
@@ -359,6 +364,7 @@ const App = {
     Downloads.listeners.add(() => { this.updateBadges(); if (this.section === 'downloads') this.renderDownloads(true); });
     Recorder.listeners.add(() => { this.updateBadges(); if (this.section === 'recordings') this.renderRecordings(true); });
     this.updateSubSelect();
+    this.updSfDot();
   },
   updateSubSelect() {
     const sel = $('.sub-sel', this.el); if (!sel) return; const all = Playlists.all();
@@ -446,7 +452,7 @@ const App = {
       const bad = new Set(data[sec].cats.filter(c => ADULT_RX.test(c.name || '')).map(c => c.id));
       data[sec] = { cats: data[sec].cats.filter(c => !bad.has(c.id)), items: data[sec].items.filter(it => !bad.has(it.cat) && !ADULT_RX.test(it.name || '')) };
     }
-    this.data = data; this.dataTs = ts; setTimeout(() => this.updLib(), 0); this.idx = {}; this.catsBySec = {}; this._memo = new Map(); this.dataVer = (this.dataVer || 0) + 1;
+    this.data = data; this.dataTs = ts; setTimeout(() => { this.updLib(); window.TvHome && TvHome.refresh(); }, 0); this.idx = {}; this.catsBySec = {}; this._memo = new Map(); this.dataVer = (this.dataVer || 0) + 1;
     for (const sec of ['movies', 'series', 'live']) {
       const m = new Map(); const counts = {};
       for (const it of data[sec].items) { it._q = null; it._n = (it.name || '').toLowerCase().replace(/^\s*(hq|4k|fhd|uhd|hd|sd|vip)\s*[|:-]\s*/, '').trim(); m.set((it.pl || '') + ':' + it.id, it); counts[it.cat] = (counts[it.cat] || 0) + 1; }
@@ -476,7 +482,8 @@ const App = {
       if (this.section !== 'free') { this.go('free'); return true; }
       LS.del('freeOnly'); document.body.classList.remove('free-only'); this.welcome(); return true;
     }
-    if (this.isRoot()) return false;
+    if (window.TvHome && TvHome.open_) return false;
+    if (this.isRoot()) { if (window.TvHome && TvHome.enabled()) { TvHome.open(); return true; } return false; }
     this.go(Settings.get('lastSection') || 'movies'); return true;
   },
   /* Android back button / remote Back / Esc */
@@ -603,10 +610,62 @@ const App = {
     }
     return res.sort((a, b) => a[0] - b[0]).map(r => r[1]);   // Array.sort is stable: same score keeps the list order
   },
+  /* search filters: where to search (this section / everything), content type, category, order of results */
+  sf() { return this._sf || (this._sf = Object.assign({ scope: 'here', type: 'all', cat: 'all', sort: 'best' }, LS.get('searchFilters', {}))); },
+  setSf(v) { this._sf = Object.assign(this.sf(), v); LS.set('searchFilters', this._sf); this.updSfDot(); },
+  updSfDot() { const d = this.el && $('.sf-dot', this.el); if (d) { const f = this.sf(); d.classList.toggle('hidden', f.type === 'all' && f.cat === 'all' && f.sort === 'best'); } },
+  /* which sections (and category) a search looks in */
+  searchPlan() {
+    const f = this.sf(), here = ['movies', 'series', 'live'].includes(this.section) ? this.section : null;
+    if (f.scope === 'here' && here) return { secs: [here], cat: f.type === here ? f.cat : 'all', label: t(here) };
+    if (f.type !== 'all') return { secs: [f.type], cat: f.cat, label: t(f.type) };
+    return { secs: ['movies', 'series', 'live'], cat: 'all', label: t('everything') };
+  },
+  sortResults(items, how) {
+    if (how === 'best') return items;
+    const a = items.slice();
+    if (how === 'added') a.sort((x, y) => (y.added || 0) - (x.added || 0));
+    else if (how === 'az') a.sort((x, y) => (x._n < y._n ? -1 : x._n > y._n ? 1 : 0));
+    else if (how === 'year') a.sort((x, y) => (+y.year || 0) - (+x.year || 0));
+    else if (how === 'rating') a.sort((x, y) => (+y.rating || 0) - (+x.rating || 0));
+    return a;
+  },
+  searchFilters() {
+    const f = Object.assign({}, this.sf());
+    const body = h('div', { class: 'stack sfm' });
+    const selBox = (label, opts, val, on) => { const s = h('select', { class: 'input' }, opts.map(([v, l]) => h('option', { value: v, selected: v === val }, l))); s.addEventListener('change', () => on(s.value)); return h('label', { class: 'field' }, h('span', {}, label), s); };
+    const draw = () => {
+      body.innerHTML = '';
+      body.appendChild(h('div', { class: 'seg sf-scope' },
+        h('button', { class: 'seg-btn' + (f.scope === 'here' ? ' on' : ''), onclick: () => { f.scope = 'here'; draw(); } }, t('searchHere')),
+        h('button', { class: 'seg-btn' + (f.scope === 'all' ? ' on' : ''), onclick: () => { f.scope = 'all'; draw(); } }, t('searchAll'))));
+      body.appendChild(selBox(t('contentType'), [['all', t('all')], ['movies', t('movies')], ['series', t('series')], ['live', t('live')]], f.type, v => { f.type = v; f.cat = 'all'; if (v !== 'all') f.scope = 'all'; draw(); }));
+      const cats = f.type !== 'all' && this.data ? this.visibleCats(f.type) : [];
+      const cs = selBox(t('category'), [['all', t('allCats')], ...cats.map(c => [c.id, c.name])], f.cat, v => { f.cat = v; });
+      if (f.type === 'all') { $('select', cs).disabled = true; }
+      body.appendChild(cs);
+      body.appendChild(selBox(t('sortResults'), [['best', t('sortBest')], ['added', t('sortAdded')], ['az', t('sortAZ')], ['year', t('sortYear')], ['rating', t('sortRating')]], f.sort, v => { f.sort = v; }));
+      if (f.type === 'all') body.appendChild(h('p', { class: 'muted small' }, t('pickTypeForCat')));
+      body.appendChild(h('div', { class: 'row gap sf-acts' },
+        h('button', { class: 'btn', onclick: () => { Object.assign(f, { scope: 'here', type: 'all', cat: 'all', sort: 'best' }); draw(); } }, t('reset')),
+        h('button', { class: 'btn primary', onclick: () => { this.setSf(f); m.close(); if (this.q) this.render(); else { const si = $('.search-in', this.el); si && si.focus(); } } }, t('apply')),
+        h('button', { class: 'btn', onclick: () => m.close() }, t('back'))));
+    };
+    draw();
+    const m = UI.modal(t('searchFilters'), body);
+  },
   renderSearch() {
+    const plan = this.searchPlan(), f = this.sf();
     this.setTitle(t('results') + ': “' + this.q + '”'); this.content.innerHTML = ''; let any = false;
-    for (const sec of ['movies', 'series', 'live']) {
-      const q = this.q; const items = this.search(this.listFor(sec, 'all'), q);
+    const here = ['movies', 'series', 'live'].includes(this.section) ? this.section : null;
+    // quick switches above the results: this section / everything / filters
+    this.content.appendChild(h('div', { class: 'sf-bar' },
+      here ? h('button', { class: 'chip-btn' + (f.scope === 'here' ? ' on' : ''), onclick: () => { this.setSf({ scope: 'here' }); this.render(); } }, t('searchIn', { s: t(here) })) : null,
+      h('button', { class: 'chip-btn' + (f.scope === 'all' || !here ? ' on' : ''), onclick: () => { this.setSf({ scope: 'all' }); this.render(); } }, t('searchAll')),
+      h('button', { class: 'chip-btn', onclick: () => this.searchFilters() }, h('span', { html: ic('funnel') }), t('filters')),
+      h('span', { class: 'muted small sf-where' }, plan.label + (plan.cat !== 'all' ? ' › ' + ((this.data[plan.secs[0]].cats.find(c => c.id === plan.cat) || {}).name || '') : ''))));
+    for (const sec of plan.secs) {
+      const q = this.q; const items = this.sortResults(this.search(this.listFor(sec, plan.cat), q), f.sort);
       if (!items.length) continue; any = true;
       this.content.appendChild(h('h3', { class: 'sec-h' }, t(sec), h('small', { class: 'muted' }, ' ' + items.length)));
       const grid = h('div', { class: sec === 'live' ? 'grid live' : 'grid' }); this.content.appendChild(grid);
@@ -1075,6 +1134,7 @@ const App = {
 
     section(t('appearance'),
       row(t('themeMode'), sel('theme', [['auto', t('auto')], ['light', '☀️ ' + t('day')], ['dark', '🌙 ' + t('night')]], () => this.applyTheme())),
+      row(t('homeView'), sel('homeView', [['classic', t('hvClassic')], ['tv', t('hvTv')]], () => { const v = Settings.get('homeView'); document.body.classList.toggle('hv-tv', v === 'tv'); if (v === 'tv') TvHome.open(); else TvHome.close(); }), t('homeViewHint')),
       row(t('tvKeyboard'), sel('tvKeyboard', [['system', t('kbSystem')], ['app', t('kbApp')]], () => TvKeyboard.guard()), t('tvKeyboardHint')),
       row(t('posterStyle'), sel('posterStyle', [['classic', t('pstClassic')], ['overlay', t('pstOverlay')]], () => { this.applyTheme(); this._memo && this._memo.clear(); }), t('posterStyleHint')),
       row(t('longPress'), sel('longPress', [['menu', t('lpMenu')], ['fav', t('lpFav')]]), t('longPressHint')),

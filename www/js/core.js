@@ -142,7 +142,7 @@ const LS = {
 
 const DEFAULT_SETTINGS = {
   lang: 'auto', liveFormat: 'm3u8', seekStep: 10, aspect: 'fit', speed: 1, autoNext: true, refreshHours: 12,
-  proxy: '', accent: '#5b8cff', tvMode: 'auto', uiSize: 'm', longPress: 'menu', posterStyle: 'classic', tvKeyboard: 'system', theme: 'auto', freeBase: '', sort: 'default', lastSection: 'movies'
+  proxy: '', accent: '#5b8cff', tvMode: 'auto', uiSize: 'm', longPress: 'menu', posterStyle: 'classic', tvKeyboard: 'system', homeView: 'classic', theme: 'auto', freeBase: '', sort: 'default', lastSection: 'movies'
 };
 const Settings = {
   data: Object.assign({}, DEFAULT_SETTINGS, LS.get('settings', {})),
@@ -252,7 +252,7 @@ class XtreamProvider {
     const arr = a => Array.isArray(a) ? a : Object.values(a || {});
     return {
       movies: { cats: cats(vc, 'movies'), items: arr(vs).map(o => ({ type: 'movie', id: String(o.stream_id), name: o.name || o.title || '', cat: String(o.category_id), img: o.stream_icon || '', year: yearOf(o, o.name), rating: ratingOf(o), added: +o.added || 0, ext: o.container_extension || 'mp4' })) },
-      series: { cats: cats(sc, 'series'), items: arr(ss).map(o => ({ type: 'series', id: String(o.series_id), name: o.name || '', cat: String(o.category_id), img: o.cover || '', year: yearOf(o, o.name), rating: ratingOf(o), added: +(o.last_modified || 0), plot: o.plot || '', genre: o.genre || '' })) },
+      series: { cats: cats(sc, 'series'), items: arr(ss).map(o => ({ type: 'series', id: String(o.series_id), name: o.name || '', cat: String(o.category_id), img: o.cover || '', year: yearOf(o, o.name), rating: ratingOf(o), added: +(o.last_modified || 0), plot: o.plot || '', genre: o.genre || '', bd: (Array.isArray(o.backdrop_path) ? o.backdrop_path[0] : o.backdrop_path) || '' })) },
       live: { cats: cats(lc, 'live'), items: arr(ls).map(o => ({ type: 'live', id: String(o.stream_id), name: o.name || '', cat: String(o.category_id), img: o.stream_icon || '', num: +o.num || 0, epgId: o.epg_channel_id || '', archive: +o.tv_archive === 1, archiveDays: +o.tv_archive_duration || 0, added: +o.added || 0 })) }
     };
   }
