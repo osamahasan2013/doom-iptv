@@ -14,6 +14,28 @@ const TvKeyboard = {
     en: ['q w e r t y u i o p', 'a s d f g h j k l', 'z x c v b n m'],
     sym: ['1 2 3 4 5 6 7 8 9 0', '. : / - _ @ ? = & #', '% + ( ) \' ! , ; ~ *']
   },
+  /* the app keyboard is used on TV unless "TV keyboard" is chosen in the settings */
+  active() { return document.body.classList.contains('tv') && Settings.get('tvKeyboard') !== 'system'; },
+  /* some TVs pop up their own keyboard the moment a text box gets focus (before OK is pressed).
+     inputmode=none stops that, so the app keyboard (with Arabic built in) is the one that opens. */
+  guard(root) {
+    const on = this.active();
+    for (const el of (root || document).querySelectorAll('input,textarea')) {
+      if (!this.supports(el) || el.dataset.syskb) continue;
+      if (on) { if (el.getAttribute('inputmode') !== 'none') { if (el.hasAttribute('inputmode')) el.dataset.im = el.getAttribute('inputmode'); el.setAttribute('inputmode', 'none'); } }
+      else if (el.getAttribute('inputmode') === 'none') { if (el.dataset.im) el.setAttribute('inputmode', el.dataset.im); else el.removeAttribute('inputmode'); }
+    }
+  },
+  watch() {
+    if (this._mo) return; let q = false;
+    this._mo = new MutationObserver(() => { if (q) return; q = true; requestAnimationFrame(() => { q = false; this.guard(); }); });
+    this._mo.observe(document.body, { childList: true, subtree: true }); this.guard();
+  },
+  useSystem(input) {   // one-time: open the TV's own keyboard for this box, back to the app keyboard afterwards
+    input.dataset.syskb = '1'; if (input.dataset.im) input.setAttribute('inputmode', input.dataset.im); else input.removeAttribute('inputmode');
+    input.addEventListener('blur', () => { delete input.dataset.syskb; this.guard(); }, { once: true });
+    setTimeout(() => { input.focus(); input.click(); }, 60);
+  },
   supports(el) { return el && el.matches && el.matches('input:not([type]),input[type=text],input[type=search],input[type=password],input[type=number],input[type=url],input[type=email],textarea') && !el.readOnly && !el.disabled; },
 
   open(input) {
@@ -56,7 +78,7 @@ const TvKeyboard = {
       }
     };
     const box = h('div', { class: 'tvkb' },
-      h('div', { class: 'tvkb-top' }, shown, key('⌨ ' + t('kbSystem'), () => { m.close(); input.dataset.syskb = '1'; setTimeout(() => { input.focus(); input.click(); }, 60); }, 'fn sys')),
+      h('div', { class: 'tvkb-top' }, shown, key('⌨ ' + t('kbSystem'), () => { m.close(); this.useSystem(input); }, 'fn sys')),
       keys);
     const back = h('div', { class: 'modal-back tvkb-back' }, box);
     back.addEventListener('mousedown', e => { if (e.target === back) close(); });

@@ -234,7 +234,7 @@ const App = {
     const meta = $('meta[name=theme-color]'); if (meta) meta.content = light ? '#f3f5fa' : '#0a0f1e';
     $$('.theme-btn').forEach(tb => { tb.innerHTML = ic(light ? 'moon' : 'sun'); });
     if (mq && !this._mqBound) { this._mqBound = true; (mq.addEventListener ? mq.addEventListener('change', () => this.applyTheme()) : mq.addListener(() => this.applyTheme())); }
-    const tv = Settings.get('tvMode'); document.body.classList.toggle('tv', tv === 'on' || (tv === 'auto' && (isTV() || LS.get('tvSeen', false)))); document.body.classList.toggle('pst-overlay', Settings.get('posterStyle') === 'overlay'); this.applyScale();
+    const tv = Settings.get('tvMode'); document.body.classList.toggle('tv', tv === 'on' || (tv === 'auto' && (isTV() || LS.get('tvSeen', false)))); document.body.classList.toggle('pst-overlay', Settings.get('posterStyle') === 'overlay'); this.applyScale(); if (document.body.classList.contains('tv')) TvKeyboard.watch(); TvKeyboard._mo && TvKeyboard.guard();
   },
 
   /* ---------- welcome / add subscription ---------- */
@@ -1075,6 +1075,7 @@ const App = {
 
     section(t('appearance'),
       row(t('themeMode'), sel('theme', [['auto', t('auto')], ['light', '☀️ ' + t('day')], ['dark', '🌙 ' + t('night')]], () => this.applyTheme())),
+      row(t('tvKeyboard'), sel('tvKeyboard', [['app', t('kbApp')], ['system', t('kbSystem')]], () => TvKeyboard.guard()), t('tvKeyboardHint')),
       row(t('posterStyle'), sel('posterStyle', [['classic', t('pstClassic')], ['overlay', t('pstOverlay')]], () => { this.applyTheme(); this._memo && this._memo.clear(); }), t('posterStyleHint')),
       row(t('longPress'), sel('longPress', [['menu', t('lpMenu')], ['fav', t('lpFav')]]), t('longPressHint')),
       row(t('uiSize'), sel('uiSize', [['xs', t('sizeXs')], ['s', t('sizeS')], ['m', t('sizeM')], ['l', t('sizeL')], ['xl', t('sizeXl')]], () => this.applyScale()), t('uiSizeHint')),
@@ -1166,7 +1167,7 @@ const App = {
   },
   enableTvMode() {
     if (Settings.get('tvMode') === 'off' || document.body.classList.contains('tv')) return;
-    document.body.classList.add('tv'); LS.set('tvSeen', true); this.applyScale(); setTimeout(() => this.ensureFocus(), 50);
+    document.body.classList.add('tv'); LS.set('tvSeen', true); this.applyScale(); TvKeyboard.watch(); TvKeyboard.guard(); setTimeout(() => this.ensureFocus(), 50);
   },
   /* UI size. A TV WebView reports a small CSS screen (e.g. 960x540 for 1080p), which made everything look zoomed in.
      On TV the page is laid out on a wider virtual screen and scaled down to fit; elsewhere CSS zoom is used. */
@@ -1205,7 +1206,7 @@ const App = {
         if (a.matches('select')) { try { a.showPicker ? a.showPicker() : a.click(); } catch { a.click(); } }
         else if (a.matches('input[type=checkbox]')) a.click();
         else if (!textInput(a)) a.click();
-        else if (document.body.classList.contains('tv') && TvKeyboard.supports(a) && !a.dataset.syskb) TvKeyboard.open(a);
+        else if (TvKeyboard.active() && TvKeyboard.supports(a) && !a.dataset.syskb) TvKeyboard.open(a);
         else { a.focus(); return; }   // let the system keyboard open normally
         e.preventDefault(); return;
       }
@@ -1217,7 +1218,7 @@ const App = {
         if (!textInput(tgt) && this.el && document.body.contains(this.el) && this.goBack()) e.preventDefault();
         return;
       }
-      if (k === 'Enter' && document.body.classList.contains('tv') && TvKeyboard.supports(tgt) && !tgt.dataset.syskb) { e.preventDefault(); TvKeyboard.open(tgt); return; }
+      if (k === 'Enter' && TvKeyboard.active() && TvKeyboard.supports(tgt) && !tgt.dataset.syskb) { e.preventDefault(); TvKeyboard.open(tgt); return; }
       if (k === 'Enter' && tgt && tgt.matches && tgt.matches('select')) { try { tgt.showPicker && tgt.showPicker(); } catch {} return; }
       if (dirs[k]) {
         const d = dirs[k]; const a = document.activeElement;
