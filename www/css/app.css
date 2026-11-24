@@ -474,3 +474,17 @@ body.pst-overlay .card .c-meta { display: none; }
 body.pst-overlay .card .prog { bottom: 0; z-index: 3; }
 @media (max-width: 700px) { body.pst-overlay .grid:not(.live) { grid-template-columns: repeat(3, 1fr); gap: 10px 8px; } body.pst-overlay .card .c-title { font-size: 12px; padding: 26px 5px 6px; } }
 .fav-ic .ic { width: 20px; height: 20px; fill: #ff3b4f; stroke: none; }
+/* "smaller posters" style: the side menu gets wider and its text bigger, so it reads more clearly */
+body.pst-overlay { --side-w: 350px; }
+body.pst-overlay .sidebar { padding: 16px 16px 12px; }
+body.pst-overlay .brand { font-size: 21px; } body.pst-overlay .brand .logo-img { width: 38px; height: 38px; }
+body.pst-overlay .seg-btn { font-size: 16.5px; padding: 8px 10px; }
+body.pst-overlay .nav-item { font-size: 17px; padding: 10px 13px; gap: 13px; }
+body.pst-overlay .nav-item .ic, body.pst-overlay .fav-ic .ic { width: 22px; height: 22px; }
+body.pst-overlay .nav-item.tool { font-size: 13.5px; padding: 10px 2px 8px; gap: 5px; }
+body.pst-overlay .cats-label { font-size: 14.5px; padding: 14px 10px 6px; }
+body.pst-overlay .cat { font-size: 17px; padding: 10px 13px; }
+body.pst-overlay .cat .ic { width: 20px; height: 20px; }
+body.pst-overlay .lib-upd b { font-size: 15px; } body.pst-overlay .lib-upd small { font-size: 13px; }
+body.pst-overlay .side-foot .switch-row { font-size: 15px; }
+@media (max-width: 900px) { body.pst-overlay .sidebar { width: min(350px, 88vw); } }
