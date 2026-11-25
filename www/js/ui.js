@@ -1113,7 +1113,8 @@ const App = {
       row(t('seekStep'), sel('seekStep', [[5, '5'], [10, '10'], [15, '15'], [30, '30'], [60, '60']])),
       row(t('defaultAspect'), sel('aspect', ASPECTS.map(a => [a, t(a) !== a ? t(a) : a]))),
       row(t('defaultSpeed'), sel('speed', SPEEDS.map(s => [s, s + 'x']))),
-      row(t('autoNextAll'), sw(Settings.get('autoNext'), v => Settings.set('autoNext', v))));
+      row(t('autoNextAll'), sw(Settings.get('autoNext'), v => Settings.set('autoNext', v))),
+      row(t('nextLead'), sel('nextLead', [['0', t('nextLead0')], ['5', '5 ' + t('secs')], ['10', '10 ' + t('secs')], ['15', '15 ' + t('secs')]]), t('nextLeadHint')));
 
     /* parental */
     const P = Parental.d;

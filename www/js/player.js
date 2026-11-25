@@ -120,6 +120,7 @@ const Player = {
         <div class="p-titles"><div class="p-title"></div><div class="p-sub"></div></div>
         <div class="p-right">
           <span class="p-rec hidden">● REC</span>
+          <button class="pbtn p-restart" data-a="restart" title="${t('restartVid')}" aria-label="${t('restartVid')}">${ic('restart')}</button>
           <button class="pbtn" data-a="stats" title="${t('stats')}">${ic('info')}</button>
           <button class="pbtn" data-a="fav" title="${t('addToList')}">${ic('star')}</button>
           <button class="pbtn" data-a="pip" title="${t('pip')}">${ic('pip')}</button>
@@ -285,7 +286,7 @@ const Player = {
     SubSync.cancelled = true; SubSync.load(item); $('.p-sync', this.el) && $('.p-sync', this.el).classList.add('hidden');
     this.item = item; this.ctx = ctx; this.epg = []; this.opts = opts;
     this.open_ = true; this.el.classList.remove('hidden'); document.body.classList.add('playing');
-    this.hidePanels(); $('.p-err', this.el).classList.add('hidden'); $('.p-next', this.el).classList.add('hidden');
+    this.hidePanels(); $('.p-err', this.el).classList.add('hidden'); $('.p-next', this.el).classList.add('hidden'); this._nextShown = false; this._nextCancel = false;
     const live = item.type === 'live' && !opts.catchup;
     this.el.classList.toggle('is-live', live);
     this.el.classList.toggle('has-ctx', !!ctx);
@@ -403,6 +404,29 @@ const Player = {
     try { const s = this.v.seekable; if (s && s.length) return s.end(s.length - 1); } catch {}
     return 0;
   },
+  /* auto-play next: the "next" card appears N seconds before the end (setting 0 / 5 / 10 / 15; 0 = straight after the end) */
+  canNext() {
+    const listCtx = this.ctx && this.ctx.kind === 'list';
+    return !!(this.item && (this.item.type === 'episode' || listCtx) && Settings.get('autoNext') && this.ctx && this.ctx.index < this.ctx.list.length - 1);
+  },
+  nextCheck(cur, d, live) {
+    const lead = +Settings.get('nextLead') || 0;
+    if (live || !lead || !d || !isFinite(d) || d < 60 || this._nextCancel || !this.canNext()) return;
+    const left = d - cur;
+    if (left > lead + .3) { if (this._nextShown) this.hideNext(); return; }   // seeked back
+    if (left > 0) this.showNext(Math.ceil(left));
+  },
+  showNext(n) {
+    const box = $('.p-next', this.el), listCtx = this.ctx.kind === 'list', nx = this.ctx.list[this.ctx.index + 1];
+    if (!this._nextShown) {
+      this._nextShown = true; box.classList.remove('hidden');
+      const label = nx.type === 'episode' ? `${esc(nx.seriesName || '')} ${t('sShort')}${nx.season} ${t('epShort')}${nx.episode}` : esc(nx.name);
+      box.innerHTML = `<div>${listCtx ? t('nextUp') : t('nextEp')}: <b>${label}</b> — <span class="nx-n"></span></div><div class="row gap"><button class="btn primary" data-a="next">${t('play')}</button><button class="btn" data-a="cancelNext">${t('cancel')}</button></div>`;
+      if (document.body.classList.contains('tv')) $('[data-a=next]', box).focus();
+    }
+    const s = $('.nx-n', box); if (s) s.textContent = n + 's';
+  },
+  hideNext() { this._nextShown = false; clearInterval(this._nextIv); $('.p-next', this.el).classList.add('hidden'); },
   isLive() { return this.item && this.item.type === 'live' && !(this.opts && this.opts.catchup); },
   paused() { return this.engine instanceof DemoEngine ? this.engine.paused : this.v.paused; },
   seekTo(s) {
@@ -505,6 +529,7 @@ const Player = {
       $('.p-cur', el).textContent = live ? '' : fmtTime(cur); $('.p-dur', el).textContent = live ? '' : fmtTime(d);
       if (d) $('.p-seek', el).value = Math.round(cur / d * 1000);
     }
+    this.nextCheck(cur, d, live);
     if (!paused) {
       this.usageAcc += 0.25;
       if (this.usageAcc >= 1) { Parental.addUsage(Math.floor(this.usageAcc)); this.usageAcc %= 1; }
@@ -529,8 +554,11 @@ const Player = {
   },
   onEnded() {
     this.saveProgress(true);
+    if (this._nextCancel || !this.canNext()) return;
+    // countdown already ran before the end, or the setting is 0: go straight to the next one
+    if (this._nextShown || !(+Settings.get('nextLead'))) { this.hideNext(); return this.step(1); }
     const listCtx = this.ctx && this.ctx.kind === 'list';
-    if ((this.item.type === 'episode' || listCtx) && Settings.get('autoNext') && this.ctx && this.ctx.index < this.ctx.list.length - 1) {
+    {
       const box = $('.p-next', this.el); let n = 8; box.classList.remove('hidden');
       const nx = this.ctx.list[this.ctx.index + 1];
       const label = nx.type === 'episode' ? `${esc(nx.seriesName || '')} ${t('sShort')}${nx.season} ${t('epShort')}${nx.episode}` : esc(nx.name);
@@ -568,7 +596,8 @@ const Player = {
       case 'fwd': return this.skip(1);
       case 'prev': return this.step(-1);
       case 'next': return this.step(1);
-      case 'cancelNext': clearInterval(this._nextIv); return $('.p-next', this.el).classList.add('hidden');
+      case 'cancelNext': this._nextCancel = true; return this.hideNext();
+      case 'restart': this._nextCancel = false; this.hideNext(); this.seekTo(0); if (this.paused()) this.togglePlay(); this.osd(t('restartVid')); this.showUI(); return;
       case 'retry': $('.p-err', this.el).classList.add('hidden'); this.attemptIdx = 0; return this.startAttempt();
       case 'fromStart': return this.reconnect(true);
       case 'reconnect': return this.reconnect(false);

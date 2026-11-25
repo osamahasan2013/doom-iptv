@@ -620,3 +620,4 @@ body.tv .th-img.pc .amb { filter: none; opacity: .22; } body.tv .th-bgi.poster {
 /* rows and grid cards that are off screen are not laid out or painted until they come close */
 .th-sec { content-visibility: auto; contain-intrinsic-size: auto 232px; }
 .th-grid > .th-card { content-visibility: auto; contain-intrinsic-size: auto 136px; }
+.player.is-live .p-restart { display: none; }
