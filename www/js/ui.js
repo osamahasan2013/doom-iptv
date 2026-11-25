@@ -107,6 +107,14 @@ const SpatialNav = {
     }
     return grids.length ? out.sort((a, b) => (a.compareDocumentPosition(b) & 4 ? -1 : 1)) : out;
   },
+  /* number of columns of a grid: measured once, again only when its width changes */
+  cols(g) {
+    const w = g.clientWidth;
+    if (g._cols && g._colsW === w) return g._cols;
+    const k = g.children; let n = 1; const top = k[0] ? k[0].offsetTop : 0;
+    while (n < k.length && k[n].offsetTop === top) n++;
+    g._colsW = w; g._cols = Math.max(1, n); return g._cols;
+  },
   /* the cards around the focused one in its grid (a few rows up and down) — enough to find the neighbour */
   nearby(cur) {
     const g = cur.parentElement; if (!g || !(g.classList.contains('grid') || g.classList.contains('th-row') || g.classList.contains('th-grid'))) return null;
@@ -162,6 +170,39 @@ const SpatialNav = {
     if (!cur) { const f = this.focusables(root)[0]; f && f.focus(); return true; }
     const r = this.rect(cur);
     let best = null;
+    // grid fast path: the next card is found by position in the list (columns are measured once per grid),
+    // no measuring of every card on each press
+    const g = cur.parentElement;
+    if (g && (g.classList.contains('grid') || g.classList.contains('th-grid'))) {
+      const k = g.children, i = Array.prototype.indexOf.call(k, cur), cols = this.cols(g), rtl = document.documentElement.dir === 'rtl';
+      const start = rtl ? 'right' : 'left', end = rtl ? 'left' : 'right';
+      let j = -1;
+      if (dir === 'down' && i + cols < k.length) j = i + cols;
+      else if (dir === 'down' && Math.floor(i / cols) < Math.floor((k.length - 1) / cols)) j = k.length - 1;   // short last row
+      else if (dir === 'up' && i - cols >= 0) j = i - cols;
+      else if (dir === end && i % cols < cols - 1 && i + 1 < k.length) j = i + 1;
+      else if (dir === end) return true;                                   // end of a row: stay
+      else if (dir === start && i % cols > 0) j = i - 1;
+      if (j >= 0 && k[j] && k[j].tabIndex >= 0) { k[j].focus({ preventScroll: true }); this.reveal(k[j]); return true; }
+    }
+    // big-screen rows fast path: left/right = neighbour card; up/down = the card under the same spot in the next row
+    if (g && g.classList.contains('th-row')) {
+      const rtl = document.documentElement.dir === 'rtl', start = rtl ? 'right' : 'left', end = rtl ? 'left' : 'right';
+      const go = el => { el.focus({ preventScroll: true }); this.reveal(el); return true; };
+      if (dir === end) { const n = cur.nextElementSibling; return n ? go(n) : true; }
+      if (dir === start) { const pv = cur.previousElementSibling; if (pv) return go(pv); }
+      else {
+        let sec = cur.closest('.th-sec'); const nx = x => dir === 'down' ? x.nextElementSibling : x.previousElementSibling;
+        sec = sec && nx(sec); while (sec && !$('.th-row', sec)) sec = nx(sec);
+        const row = sec && $('.th-row', sec);
+        if (row && row.children.length) {
+          const k = row.children, f = k[0].getBoundingClientRect(), c = cur.getBoundingClientRect();
+          const step = row._step || (row._step = k.length > 1 ? Math.abs(k[1].getBoundingClientRect().left - f.left) || f.width : f.width);
+          const j = Math.max(0, Math.min(k.length - 1, Math.round((rtl ? f.right - c.right : c.left - f.left) / step)));
+          return go(k[j]);
+        }
+      }
+    }
     // 0) inside a poster grid: look only at the neighbouring rows (fast on huge lists)
     const near = this.nearby(cur); if (near) best = this.pick(dir, cur, near, r, true);
     // big-screen rows: up/down only looks at the row just above/below (not every card of every row)
@@ -191,6 +232,26 @@ const SpatialNav = {
 
 /* ====================== the application ====================== */
 const HEART = "<svg viewBox='0 0 24 24' class='ic'><path d='M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.1 5.3 3 1.7-1.9 3.2-3 5.3-3 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z'/></svg>";
+/* classic layout on TV: one highlight frame on its own layer follows the focused poster/channel,
+   so moving the focus doesn't restyle cards (no zoom/outline repaint, no forced layout while navigating) */
+const FocusRing = {
+  el: null, cur: null,
+  init() {
+    this.el = h('div', { class: 'fring' }); document.body.appendChild(this.el);
+    document.addEventListener('focusin', e => { const c = e.target.closest && e.target.closest('.content .card, .content .ch-card'); this.to(document.body.classList.contains('tv') ? c : null); });
+    document.addEventListener('focusout', e => { if (!e.relatedTarget) this.to(null); });
+    let q = 0; const follow = () => { if (q) return; q = requestAnimationFrame(() => { q = 0; if (this.cur && this.cur === document.activeElement) this.place(); else this.to(null); }); };
+    document.addEventListener('scroll', follow, true); addEventListener('resize', follow);
+  },
+  to(c) { this.cur = c; if (!c) { this.el.classList.remove('on'); return; } this.place(); this.el.classList.add('on'); requestAnimationFrame(() => requestAnimationFrame(() => { if (this.cur === c) this.place(); })); },
+  place() {
+    const c = this.cur; if (!c || !c.isConnected) return this.to(null);
+    const t = c.querySelector('.poster') || c, b = t.getBoundingClientRect(), pad = c.classList.contains('ch-card') ? 0 : 5;
+    const w = Math.round(b.width + pad * 2), hh = Math.round(b.height + pad * 2);
+    if (this._w !== w || this._h !== hh) { this.el.style.width = w + 'px'; this.el.style.height = hh + 'px'; this._w = w; this._h = hh; }
+    this.el.style.transform = `translate3d(${Math.round(b.left - pad)}px, ${Math.round(b.top - pad)}px, 0)`;
+  }
+};
 const App = {
   data: null, idx: null, section: 'movies', cat: 'all', q: '', showHidden: false, refreshing: false, catsBySec: {},
   account: null, provider: null,
@@ -216,6 +277,7 @@ const App = {
     LS.del('freeOnly'); document.body.classList.remove('free-only');
     this.renderShell();
     this.section = Settings.get('lastSection') || 'movies'; if (!['movies', 'series', 'live'].includes(this.section)) this.section = 'movies';
+    FocusRing.el || FocusRing.init();
     await this.loadCatalog();
     if (window.TvHome && TvHome.enabled()) TvHome.open();
     Accounts.refreshAll().then(() => { this.renderExpiryBanner(); if (this.section === 'settings') this.render(); });
@@ -363,7 +425,7 @@ const App = {
     $('.hid-toggle', shell).addEventListener('change', e => { this.showHidden = e.target.checked; this.renderCats(); this.render(); });
     const si = $('.search-in', shell);
     const runSearch = () => { const q = si.value.trim(); if (q === this.q) return; this.q = q; this.render(); this.content.scrollTop = 0; };
-    const soon = debounce(runSearch, 250);
+    const soon = debounce(runSearch, 180);
     ['input', 'compositionend', 'keyup', 'change', 'search'].forEach(ev => si.addEventListener(ev, e => { if (e.key === 'Enter') { si.blur(); runSearch(); } else soon(); }));
     $('.sub-sel', shell).addEventListener('change', e => {
       const v = e.target.value; if (v === '__add') { this.updateSubSelect(); return this.addSubscription(); }
@@ -461,7 +523,7 @@ const App = {
       const bad = new Set(data[sec].cats.filter(c => ADULT_RX.test(c.name || '')).map(c => c.id));
       data[sec] = { cats: data[sec].cats.filter(c => !bad.has(c.id)), items: data[sec].items.filter(it => !bad.has(it.cat) && !ADULT_RX.test(it.name || '')) };
     }
-    this.data = data; this.dataTs = ts; setTimeout(() => { this.updLib(); window.TvHome && TvHome.refresh(); }, 0); this.idx = {}; this.catsBySec = {}; this._memo = new Map(); this.dataVer = (this.dataVer || 0) + 1;
+    this.data = data; this.dataTs = ts; this._sm = null; setTimeout(() => { this.updLib(); window.TvHome && TvHome.refresh(); this.prepSearch(); }, 0); this.idx = {}; this.catsBySec = {}; this._memo = new Map(); this.dataVer = (this.dataVer || 0) + 1;
     for (const sec of ['movies', 'series', 'live']) {
       const m = new Map(); const counts = {};
       for (const it of data[sec].items) { it._q = null; it._n = (it.name || '').toLowerCase().replace(/^\s*(hq|4k|fhd|uhd|hd|sd|vip)\s*[|:-]\s*/, '').trim(); m.set((it.pl || '') + ':' + it.id, it); counts[it.cat] = (counts[it.cat] || 0) + 1; }
@@ -601,7 +663,10 @@ const App = {
   search(items, q) {
     const fq = fold(q); if (!fq) return [];
     const toks = fq.split(' '), compact = fq.replace(/ /g, ''), res = [];
-    for (const it of items) {
+    // still typing the same word (fam → fami → famil): look only inside the previous matches
+    const memo = this._sm || (this._sm = new WeakMap()), last = memo.get(items);
+    const pool = last && last.fq.length >= 2 && fq.startsWith(last.fq) ? last.hit : items;
+    for (const it of pool) {
       const s = this.skey(it); let sc = -1;
       if (s.startsWith(' ' + fq + ' ')) sc = s.trim() === fq ? 0 : 1;
       else if (s.startsWith(' ' + fq)) sc = 1.5;
@@ -611,14 +676,29 @@ const App = {
       else if (compact.length > 3 && (it._qc || (it._qc = s.replace(/ /g, ''))).includes(compact)) sc = 5;
       if (sc >= 0) res.push([sc, it]);
     }
-    if (res.length < 4 && fq.length >= 4) {   // typo-tolerant pass
+    memo.set(items, { fq, hit: res.map(r => r[1]) });
+    if (res.length < 4 && fq.length >= 4) {   // typo-tolerant pass (one mistake per word, two for long words)
       const got = new Set(res.map(r => r[1]));
       const near = (a, b, max) => { if (Math.abs(a.length - b.length) > max) return false; let prev = Array.from({ length: b.length + 1 }, (_, j) => j); for (let i = 1; i <= a.length; i++) { const cur = [i]; let best = i; for (let j = 1; j <= b.length; j++) { cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); best = Math.min(best, cur[j]); } if (best > max) return false; prev = cur; } return prev[b.length] <= max; };
-      const wordOk = (tk, words) => tk.length < 4 ? words.some(w => w.startsWith(tk)) : words.some(w => { const m = tk.length >= 8 ? 2 : 1; return near(tk, w, m) || (w.length > tk.length && near(tk, w.slice(0, tk.length), m)) || (w.startsWith('ال') && near(tk, w.slice(2), m)); });
-      for (const it of items) { if (got.has(it)) continue; const words = this.skey(it).trim().split(' '); if (toks.every(tk => wordOk(tk, words))) res.push([6, it]); }
+      // cheap check first: a word within reach of the typed one shares its first or second letter
+      const could = (tk, w) => w[0] === tk[0] || w[1] === tk[1] || w[0] === tk[1] || w[1] === tk[0];
+      const wordOk = (tk, words) => tk.length < 4 ? words.some(w => w.startsWith(tk)) : words.some(w => {
+        if (w.startsWith('ال') && w.length > 3 && could(tk, w.slice(2))) { const m = tk.length >= 8 ? 2 : 1; if (near(tk, w.slice(2), m) || (w.length - 2 > tk.length && near(tk, w.slice(2, 2 + tk.length), m))) return true; }
+        if (!could(tk, w)) return false; const m = tk.length >= 8 ? 2 : 1;
+        return near(tk, w, m) || (w.length > tk.length && near(tk, w.slice(0, tk.length), m));
+      });
+      for (const it of items) { if (got.has(it)) continue; const words = it._qw || (it._qw = this.skey(it).trim().split(' ')); if (toks.every(tk => wordOk(tk, words))) res.push([6, it]); }
     }
     return res.sort((a, b) => a[0] - b[0]).map(r => r[1]);   // Array.sort is stable: same score keeps the list order
   },
+  /* prepare search text for the whole library in the background (small slices while the app is idle) */
+  prepSearch() {
+    if (!this.data) return; const all = [...(this.data.movies || { items: [] }).items, ...(this.data.series || { items: [] }).items, ...(this.data.live || { items: [] }).items];
+    let i = 0; const idle = window.requestIdleCallback || (f => setTimeout(() => f({ timeRemaining: () => 8 }), 30));
+    const step = dl => { const end = performance.now() + Math.min(12, dl.timeRemaining()); while (i < all.length && performance.now() < end) { const it = all[i++]; this.skey(it); } if (i < all.length) idle(step, { timeout: 500 }); };
+    idle(step, { timeout: 500 });
+  },
+
   /* search filters: where to search (this section / everything), content type, category, order of results */
   sf() { return this._sf || (this._sf = Object.assign({ scope: 'here', type: 'all', cat: 'all', sort: 'best' }, LS.get('searchFilters', {}))); },
   setSf(v) { this._sf = Object.assign(this.sf(), v); LS.set('searchFilters', this._sf); this.updSfDot(); },

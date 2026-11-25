@@ -31,7 +31,8 @@ const TvKeyboard = {
   },
   watch() {
     if (this._mo) return; let q = false;
-    this._mo = new MutationObserver(() => { if (q) return; q = true; requestAnimationFrame(() => { q = false; this.guard(); }); });
+    const hasInput = ms => ms.some(m => Array.prototype.some.call(m.addedNodes, n => n.nodeType === 1 && (n.matches('input,textarea') || n.querySelector('input,textarea'))));
+    this._mo = new MutationObserver(ms => { if (q || !hasInput(ms)) return; q = true; requestAnimationFrame(() => { q = false; this.guard(); }); });
     this._mo.observe(document.body, { childList: true, subtree: true }); this.guard();
   },
   useSystem(input) {   // this box only: hand it to the TV keyboard (press OK on it), back to the app keyboard afterwards

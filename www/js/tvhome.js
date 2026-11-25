@@ -92,7 +92,7 @@ const TvHome = {
     // the background and the hero follow the card you STOP on (not every card you pass); rows scroll sideways
     this.el.addEventListener('focusin', e => {
       const c = e.target.closest('.th-card');
-      if (c) { this.reveal(c); this.ringTo(c); } else this.ringTo(null);
+      if (c) { const b = c.getBoundingClientRect(), dx = this.reveal(c, b); this.ringAt(c, b.left - dx, b.top, b.width, b.height); } else this.ringTo(null);   // one measurement per move
       if (c && c._it) { clearInterval(this._rot); this._rot = 0; clearTimeout(this._fT); this._fT = setTimeout(() => this.show(c._it, false, c), 550); this.maybeMore(c); }
       else if (e.target.closest('.th-hero') && !this._rot) this.startRotate();
     });
@@ -101,6 +101,12 @@ const TvHome = {
     const follow = () => { if (this._rf) return; this._rf = requestAnimationFrame(() => { this._rf = 0; const a = document.activeElement; if (a && a.classList && a.classList.contains('th-card') && this.el.contains(a)) this.ringTo(a, true); }); };
     this.el.addEventListener('scroll', follow, true); addEventListener('resize', follow);
     this.el.addEventListener('mouseover', e => { const c = e.target.closest('.th-card'); if (c && c._it && c._it !== this.cur) { clearTimeout(this._fT); this._fT = setTimeout(() => this.show(c._it), 400); } });
+  },
+  ringAt(c, x, y, w, hh) {
+    const r = this.ring; if (!r) return; w = Math.round(w); hh = Math.round(hh);
+    if (r._w !== w || r._h !== hh) { r.style.width = w + 'px'; r.style.height = hh + 'px'; r._w = w; r._h = hh; }
+    r.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0)`; r.classList.add('on');
+    requestAnimationFrame(() => requestAnimationFrame(() => { if (document.activeElement === c) this.ringTo(c, true); }));   // after a page scroll
   },
   ringTo(c, now) {
     const r = this.ring; if (!r) return;
@@ -113,11 +119,16 @@ const TvHome = {
     if (!now) requestAnimationFrame(() => requestAnimationFrame(() => { if (document.activeElement === c) this.ringTo(c, true); }));
   },
   /* keep the focused card inside its row (scroll only the row, never the page sideways) */
-  reveal(c) {
-    const row = c.parentElement, main = $('.th-main', this.el); if (main) main.scrollLeft = 0;
-    const r = c.getBoundingClientRect(), w = row.getBoundingClientRect(), pad = 40;
-    if (r.left < w.left + pad) row.scrollLeft -= (w.left + pad - r.left); else if (r.right > w.right - pad) row.scrollLeft += (r.right - w.right + pad);
-    if (row.classList.contains('th-grid')) { const mm = $('.th-main', this.el), mr = mm.getBoundingClientRect(), q = c.getBoundingClientRect(); if (q.top < mr.top + 30) mm.scrollTop -= mr.top + 30 - q.top; else if (q.bottom > mr.bottom - 30) mm.scrollTop += q.bottom - mr.bottom + 30; }
+  reveal(c, r) {   // returns how far the row moved (so the caller needn't measure again)
+    const row = c.parentElement; r = r || c.getBoundingClientRect(); let dx = 0;
+    const w = row._box && row._boxW === innerWidth ? row._box : (row._box = row.getBoundingClientRect(), row._boxW = innerWidth, row._box), pad = 40;
+    if (!row.classList.contains('th-grid')) {
+      if (r.left < w.left + pad) dx = r.left - w.left - pad; else if (r.right > w.right - pad) dx = r.right - w.right + pad;
+      if (dx) { const before = row.scrollLeft; row.scrollLeft += dx; dx = row.scrollLeft - before; }
+      return dx;
+    }
+    { const mm = $('.th-main', this.el), mr = mm.getBoundingClientRect(), q = r; if (q.top < mr.top + 30) mm.scrollTop -= mr.top + 30 - q.top; else if (q.bottom > mr.bottom - 30) mm.scrollTop += q.bottom - mr.bottom + 30; }
+    return 0;
   },
   scrollTop() { const m = $('.th-main', this.el); if (m) m.scrollTop = 0; const b = $('.th-play', this.el); b && b.focus({ preventScroll: true }); this.startRotate(); },
   tick() {
@@ -310,7 +321,15 @@ const TvHome = {
       // treat anything that is not clearly landscape (or too small to fill a TV) as a poster
       const isWide = im.naturalWidth >= 1.25 * im.naturalHeight && im.naturalWidth >= 640;
       const [a, b] = $$('.th-bgi', this.el); const on = a.classList.contains('on') ? a : b, off = on === a ? b : a;
-      off.style.backgroundImage = `url("${src.replace(/"/g, '%22')}")`; off.classList.toggle('poster', !isWide);
+      off.textContent = '';
+      if (isWide) { off.style.backgroundImage = `url("${src.replace(/"/g, '%22')}")`; }
+      else {
+        // soft poster background without a blur filter: the poster drawn into a tiny canvas, stretched over the screen
+        off.style.backgroundImage = 'none';
+        const cv = document.createElement('canvas'); cv.width = 32; cv.height = 48; cv.className = 'th-soft';
+        try { const g = cv.getContext('2d'); g.drawImage(im, 0, 0, 32, 48); g.fillStyle = 'rgba(7,11,24,.45)'; g.fillRect(0, 0, 32, 48); off.appendChild(cv); } catch { off.style.backgroundImage = `url("${src.replace(/"/g, '%22')}")`; }
+      }
+      off.classList.toggle('poster', !isWide);
       on.classList.remove('on'); off.classList.add('on');
       const pst = $('.th-pst', this.el), pi = $('img', pst);
       if (!isWide) { pi.src = src; pst.classList.add('on'); } else pst.classList.remove('on');

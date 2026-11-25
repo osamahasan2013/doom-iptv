@@ -621,3 +621,14 @@ body.tv .th-img.pc .amb { filter: none; opacity: .22; } body.tv .th-bgi.poster {
 .th-sec { content-visibility: auto; contain-intrinsic-size: auto 232px; }
 .th-grid > .th-card { content-visibility: auto; contain-intrinsic-size: auto 136px; }
 .player.is-live .p-restart { display: none; }
+
+/* classic layout on TV: cards don't change on focus — the frame shows it */
+body.tv .content .card:focus, body.tv .content .card:hover { transform: none; outline: none !important; }
+body.tv .content .ch-card:focus { transform: none; outline: none !important; }
+.fring { position: fixed; left: 0; top: 0; z-index: 50; pointer-events: none; border: 4px solid var(--accent); border-radius: 14px; box-shadow: 0 0 0 2px rgba(0,0,0,.35), 0 0 22px rgba(91,140,255,.45); opacity: 0; will-change: transform; }
+.fring.on { opacity: 1; }
+body.th-on .fring, body:not(.tv) .fring { display: none; }
+
+/* soft poster background: tiny canvas scaled up (no blur filter to draw on every change) */
+.th-bgi.poster, body.tv .th-bgi.poster { filter: none; transform: none; background: none; }
+.th-soft { position: absolute; inset: -4%; width: 108%; height: 108%; image-rendering: auto; }
