@@ -97,8 +97,6 @@ https://eu.streamjo.com/eetlive/eettv.m3u8
 https://directes-tv-cat.3catdirectes.cat/live-content/c33-super3-hls/master.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/frKCBTN.png" group-title="Culture",El 33 Originals
 https://directes-tv-int.3catdirectes.cat/live-content/c33-super3-hls/master.m3u8
-#EXTINF:-1 tvg-logo="https://i.imgur.com/aKvPd4g.jpg" group-title="Culture",El Sonorense
-https://s5.mexside.net:1936/elsonorense/elsonorense/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/uBBZR1X.png" group-title="Culture",Encuentro
 http://138.59.227.20:8000/play/a05s/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/fUjGHDa.png" group-title="Kids",ETV2
@@ -203,6 +201,8 @@ https://viewmedia7219.bozztv.com/wmedia/viewmedia100/web_023/Stream/playlist.m3u
 https://i.mjh.nz/.r/sbs-5nsw.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/pUcV46F.png" group-title="Culture",NTV Mir
 https://streaming.thestream.cyou/live/213.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/7kuluji.png" group-title="Culture",NYXT
+https://reflect-stream-bronxnet.cablecast.tv/live-10/live/live.m3u8
 #EXTINF:-1 tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/OTV_Odisha_TV.png" group-title="Culture",Odisha TV
 https://livetv.tarangplus.in/otv-origin/live/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/xDuUrj9.png" group-title="Culture",Olelo Community Media Channel 53

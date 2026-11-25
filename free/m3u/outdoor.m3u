@@ -10,7 +10,7 @@ https://live-evg8.tv360.bitel.com.pe/bitel/agroSRT/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/S7X1PiC.png" group-title="Outdoor",Agro TV
 https://agrotv.streamnet.ro/mobile_tv/agrotv.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/5XyopHf.png" group-title="Education",AgroCanal
-http://170.83.49.66:8083/AGROCANALHD/index.m3u8
+http://186.219.52.187/agro_canal/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/frd60hR.png" group-title="Outdoor",Agrotendencia TV
 https://5fc584f3f19c9.streamlock.net/agrotendencia/videoagrotendencia_hls1/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/XRTfoSp.png" group-title="Outdoor",AKC TV
@@ -29,6 +29,8 @@ http://186.219.52.187/canal_rural/index.m3u8
 http://74.91.26.218:82/live/cctv17hd.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/XMsoHut.png" group-title="Outdoor",CCTV-17 农业农村
 http://74.91.26.218:82/live/cctv17hd.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/gy7AEfO.png" group-title="Outdoor",Chacra TV
+https://media.cdnvid.com/public/1tgsjc7hs1kv.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/ZIS2ZQ1.png" group-title="Outdoor",Chasse & Peche
 https://r.eu.cdn-redge.media/livehls/oeu/mt/live/chasse_et_peche/live.livx/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_DD_KISAN/images/LOGO_HD/image.png" group-title="Education",DD Kisan

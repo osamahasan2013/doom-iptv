@@ -81,8 +81,6 @@ https://kanal75xto-llhls.akamaized.net/live/Data/atg-kanal-15-02a-rr/HLS-Legacy-
 http://170.83.16.50/BAND_SPORTS/index.m3u8
 #EXTINF:-1 tvg-logo="https://experiencersinternational.github.io/tvsetup/tvg-ico/bbcrd5s-epg.png" group-title="Sports",BBC Radio 5 Sports Extra
 https://lsn.lv/bbcradio.m3u8?station=bbc_radio_five_live_sports_extra&bitrate=320000
-#EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/2/27/BeinSports1.svg/revision/latest?cb=20230910184457" group-title="Sports",beIN Sports 1 Turk
-https://vuvuu-geil-m3u8.yaskar661.workers.dev/?url=https%3A%2F%2Fvavoo.to%2Fvavoo-iptv%2Fplay%2F300113394ceebba66c8ad
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/BeIN_Sports_logo_%28vertical_version%29.svg/500px-BeIN_Sports_logo_%28vertical_version%29.svg.png" group-title="Sports",beIN Sports USA
 https://tvsen6.aynaott.com/beinsports/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/uJosqHh.png" group-title="Sports",beIN SPORTS XTRA
@@ -159,6 +157,12 @@ https://stmv2.voxtvhd.com.br/crtvchile/crtvchile/playlist.m3u8
 http://23.237.104.106:8080/DAZN_3/index.m3u8
 #EXTINF:-1 tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_DD_SPORTS/images/LOGO_HD/image.png" group-title="Sports",DD Sports
 https://mumbai-edge.smartplaytv.in/DDSportsHD/index.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/KWDUi3v.png" group-title="Sports",Digi Sport 2
+https://rundle.tv/proxy5.php?src=https%3A%2F%2Fkuruk1.xn--okq6e.shop%2Fkuk2%2Fusergendx0ul1ltsDx9lgcdwqrnd-got.htm
+#EXTINF:-1 tvg-logo="https://i.imgur.com/T1ci5UK.png" group-title="Sports",Digi Sport 3
+https://rundle.tv/proxy5.php?src=https%3A%2F%2Fpulse1.sanseny001.shop%2Fkuk3%2Fusergendxt1v7slq2rnd-got.htm
+#EXTINF:-1 tvg-logo="https://i.imgur.com/Knj9I6f.png" group-title="Sports",Digi Sport 4
+https://rundle.tv/proxy5.php?src=https%3A%2F%2Fpulse1.sanseny001.shop%2Fkuk4%2Fusergendk9g3ks42t3n-got.htm
 #EXTINF:-1 tvg-logo="https://i.logos-download.com/114030/29915-s5120-904df224e4c030fefcc45adda448b6e8.png/DiviSport_Logo_2023-s5120.png" group-title="Sports",DiviSport
 http://stream.mcquack.net/457/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/tNKPSkO.png" group-title="Sports",Dong Nai TV 2
@@ -198,7 +202,7 @@ http://85.237.89.160:9590/usa-s/ESPN-2-HD/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/ESPN2_logo.svg/960px-ESPN2_logo.svg.png" group-title="Sports",ESPN 2 Latin America
 https://barinaslive1.boldmss.com/ESPN_2/ESPN_2.isml/ESPN_2.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/ESPN2_logo.svg/960px-ESPN2_logo.svg.png" group-title="Sports",ESPN 2 Latin America Colombia
-http://190.61.47.54:8000/play/a005/index.m3u8
+http://38.211.118.56:50002/play/a0fa/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/ESPN3_Logo.png/960px-ESPN3_Logo.png" group-title="Sports",ESPN 3
 http://181.78.197.59:8000/play/a081/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/ESPN3_Logo.png/960px-ESPN3_Logo.png" group-title="Sports",ESPN 3 Latin America
@@ -219,8 +223,6 @@ http://85.237.89.160:9590/usa-s/ESPN-HD/index.m3u8
 https://barinaslive1.boldmss.com/ESPN/ESPN.isml/ESPN.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ESPN_wordmark.svg/960px-ESPN_wordmark.svg.png" group-title="Sports",ESPN Latin America Colombia
 http://181.78.211.244:8005/play/a08q/index.m3u8
-#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ESPN_wordmark.svg/960px-ESPN_wordmark.svg.png" group-title="Sports",ESPN Latin America Mexico
-http://168.228.44.241:9997/play/a06p/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/ESPN_Premium_logo.svg/960px-ESPN_Premium_logo.svg.png" group-title="Sports",ESPN Premium
 http://45.134.141.161:2200/ARG/ESPN_Premium_Argentina_HD/tracks-v1a1/mono.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/ESPN_Premium_logo.svg/960px-ESPN_Premium_logo.svg.png" group-title="Sports",ESPN Premium HD
@@ -273,10 +275,6 @@ https://s7.iptv-24.net/1452/playlist.m3u8
 http://45.134.141.161:2200/ARG/Eurosport_2_HD/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/f56dHgR.png" group-title="Sports",Eurosport 2 UK
 https://r.eu.cdn-redge.media/livehls/oeu/mt/live/eurosport_2_en/live.livx/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/d/da/Eurosport_3_2022.svg/revision/latest?cb=20220418054130" group-title="Sports",Eurosport 3 Polska
-https://vuvuu-geil-m3u8.yaskar661.workers.dev/?url=https%3A%2F%2Fvavoo.to%2Fvavoo-iptv%2Fplay%2F5121596371c5191ed9b35
-#EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/a/ae/Eurosport_4_2022.svg/revision/latest?cb=20220418053934" group-title="Sports",Eurosport 4 Polska
-https://vuvuu-geil-m3u8.yaskar661.workers.dev/?url=https%3A%2F%2Fvavoo.to%2Fvavoo-iptv%2Fplay%2F2896573317d9d69e0e2d72
 #EXTINF:-1 tvg-logo="https://web02.antik.sk/assets/img/channels/645a85b97a8257d6702639d6e540fe5b.svg" group-title="Sports",Eurosport 4K Romania
 https://vip-acasatv.online:25463/lrZuGxAuP3/6782859900/5449.m3u8
 #EXTINF:-1 tvg-logo="https://files.cdn.magio.tv/tv_logos/eurosport-1-hd.png" group-title="Sports",EuroSport1
@@ -325,12 +323,8 @@ https://amg02278-amg02278c2-flosports-worldwide-9916.playouts.now.amagi.tv/playl
 https://amg02278-amg02278c1-distrotv-us-7534.playouts.now.amagi.tv/playlist/amg02278-flosports-floracing24x7-distrotvus/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://a.jsrdn.com/hls/22883/floracing-247/logo_20231219_225054_24.png" group-title="Sports",FloRacing 24/7
 https://amg02278-amg02278c1-flosports-worldwide-7592.playouts.now.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://play-lh.googleusercontent.com/J0YeRB884koVfecR2mp43Y2mbNtRVTSSOiq2U1gkITJ9IxzIM4VA71Rqbh3UlREI4mCnlxGHm4wxoujt5ZH1AQ" group-title="Sports",FON TV
-https://fonstreams.mediacdn.ru/stream/fontvclear/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://assets.antenaplay.ro/2024/02/23/XUKfJwir4MxNeP4nHtG7.png" group-title="Sports",Formula 1 AntenaPlay
 https://stream1.antenaplay.ro/promo/formula-1-qatar-27-2911/chunklist.m3u8
-#EXTINF:-1 tvg-logo="https://assets.antenaplay.ro/2024/02/28/YW9VML2K4hpFUKMHme97.png" group-title="Sports",Formula 2 AntenaPlay
-https://stream1.antenaplay.ro/promo/formula-2-qatar/chunklist.m3u8
 #EXTINF:-1 tvg-logo="https://thumb.wikimedia.org/wikipedia/commons/thumb/2/25/FOX_wordmark.svg/960px-FOX_wordmark.svg.png?utm_source=es.wikipedia.org&utm_campaign=index&utm_content=thumbnail" group-title="Sports",FOX
 https://lilac19.pontiscloud.com/live/gt/FOX/index.m3u8
 #EXTINF:-1 tvg-logo="https://thumb.wikimedia.org/wikipedia/commons/thumb/2/25/FOX_wordmark.svg/960px-FOX_wordmark.svg.png?utm_source=es.wikipedia.org&utm_campaign=index&utm_content=thumbnail" group-title="Sports",FOX Central
@@ -386,7 +380,7 @@ https://d3uyzhwvmemdyf.cloudfront.net/v1/master/9d062541f2ff39b5c0f48b743c6411d2
 #EXTINF:-1 tvg-logo="https://i.imgur.com/TY6sx5W.png" group-title="Sports",HBCU-GO Sports
 https://a-cdn.klowdtv.com/live3/hbcugo_720p/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/nK4UUX4.png" group-title="Sports",Horse TV
-https://cdn78-at.azotosolutions.com/cdnedge39/Canale4/master.m3u8
+https://a-cdn.klowdtv.com/live2/horsetv_720p/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://www.htspor.com/images/manifest/social-share-logo.png" group-title="Sports",HTSpor TV
 https://ciner.daioncdn.net/ht-spor/ht-spor.m3u8?app=web
 #EXTINF:-1 tvg-logo="https://i.imgur.com/FUTqh2L.png" group-title="Sports",Inter TV
@@ -419,8 +413,6 @@ https://amg02703-amg02703c20-samsung-au-9093.playouts.now.amagi.tv/playlist.m3u8
 http://stream.mcquack.net/353/index.m3u8
 #EXTINF:-1 tvg-logo="https://msports.pk/wp-content/uploads/2026/02/m-sports-300.png" group-title="Sports",M Sports
 https://cdn.rabta.stream/M-Sports/index.m3u8
-#EXTINF:-1 tvg-logo="https://i.imgur.com/TQ4uJZk.png" group-title="Sports",M4 Sport
-http://141.94.193.53:80/M4_Sport_HD/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/47X44DD.png" group-title="Sports",MadeinBO TV
 https://srvx1.selftv.video/dmchannel/live/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/5/57/Maincast_%28HD_Logo%29_2024.png" group-title="Sports",Maincast Cybersport
@@ -470,7 +462,7 @@ https://d2a31kzot4f8t3.cloudfront.net/v1/amc_msgsportszone_1/samsungheadend_us/l
 #EXTINF:-1 tvg-logo="https://d2n0069hmnqmmx.cloudfront.net/epgdata/1.0/newchanlogos/512/512/skychb1834.png" group-title="Sports",MUTV
 https://fastly.live.brightcove.com/6374054671112/eu-west-1/6058004203001/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJob3N0IjoiYXplMnp5LmVncmVzcy55ODN1ZWIiLCJhY2NvdW50X2lkIjoiNjA1ODAwNDIwMzAwMSIsImVobiI6ImZhc3RseS5saXZlLmJyaWdodGNvdmUuY29tIiwiaXNzIjoiYmxpdmUtcGxheWJhY2stc291cmNlLWFwaSIsInN1YiI6InBhdGhtYXB0b2tlbiIsImF1ZCI6WyI2MDU4MDA0MjAzMDAxIl0sImp0aSI6IjYzNzQwNTQ2NzExMTIifQ.3FmuTna3DAmY7xlhK5fk6LMrosrtrR5VsU2QOgYO5y4/playlist-hls.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/2ByDyzL.png" group-title="Sports",Nautical Channel
-https://cdn78-at.azotosolutions.com/cdnedge39/Canale2/master.m3u8
+https://a-cdn.klowdtv.com/live2/nautical_720p/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://assets.antenaplay.ro/2024/10/25/HmBMStln2f1qwN0tAXpG.png" group-title="Sports",NBA AntenaPlay
 https://stream1.antenaplay.ro/promo/nba-meci/playlist.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Sports",NBA FAST Channel
@@ -483,6 +475,8 @@ https://d4whmvwm0rdvi.cloudfront.net/10007/99993008/hls/master.m3u8?ads.xumo_cha
 https://pb-we3ltka9xobj6.akamaized.net/master.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/en/thumb/8/8f/NFL_Network_logo.svg/960px-NFL_Network_logo.svg.png" group-title="Sports",NFL Network
 https://tvsen6.aynaott.com/nfl/index.m3u8
+#EXTINF:-1 tvg-logo="https://assets.antenaplay.ro/2024/10/25/SN0nevshXwKDcZ2Tw1jm.png" group-title="Sports",NHL AntenaPlay
+https://stream1.antenaplay.ro/promo/nhl-2911/chunklist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/UNZ8bef.png" group-title="Sports",NHL Network
 https://nhl-firetv.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/jZgcm4k.png" group-title="Sports",NHRA TV
@@ -515,10 +509,18 @@ https://amg27547-amg27547c1-amgplt0022.playout.now3.amagi.tv/playlist.m3u8
 https://amg19223-amg19223c3-amgplt0351.playout.now3.amagi.tv/playlist/amg19223-amg19223c3-amgplt0351/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/UQeXWd2.png" group-title="Sports",Premier Sports 2
 https://amg19223-amg19223c4-amgplt0351.playout.now3.amagi.tv/playlist/amg19223-amg19223c4-amgplt0351/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/tvfanon6528/images/5/52/Prima_Sport_1_%282022-.n.v.%29.png/revision/latest/scale-to-width-down/1000?cb=20240205121905" group-title="Sports",Prima Sport 1
+http://91.235.165.117:8001/play/a07x/index.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/hROcepe.png" group-title="Sports",Prima Sport 2
+http://91.235.165.117:8001/play/a07y/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/hROcepe.png" group-title="Sports",Prima Sport 2 HD
 https://rundle.tv/proxy5.php?src=https%3A%2F%2Firon1.xn--x2rw19a.space%2Fpuk2%2Fusergenrnd0clv03fyt-got.htm
+#EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/tvfanon6528/images/9/9a/Prima_Sport_3_%282022-.n.v.%29.png/revision/latest/scale-to-width-down/1000?cb=20240205122802" group-title="Sports",Prima Sport 3
+http://91.235.165.117:8001/play/a07z/index.m3u8
 #EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/tvfanon6528/images/9/9a/Prima_Sport_3_%282022-.n.v.%29.png/revision/latest/scale-to-width-down/1000?cb=20240205122802" group-title="Sports",Prima Sport 3 HD
 https://rundle.tv/proxy5.php?src=https%3A%2F%2Firon1.xn--x2rw19a.space%2Fpuk3%2Fusergenrx4t0l8sybkr-got.htm
+#EXTINF:-1 tvg-logo="https://i.imgur.com/lqaIIhc.png" group-title="Sports",Prima Sport 4
+http://91.235.165.117:8001/play/a080/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/lqaIIhc.png" group-title="Sports",Prima Sport 4 HD
 https://rundle.tv/proxy5.php?src=https%3A%2F%2Fpulse1.sanseny001.shop%2Fpuk4%2Fusergendx3j2x4tqrnd-got.htm
 #EXTINF:-1 tvg-logo="https://www.media-max.ro/wp-content/uploads/2022/11/Prima-Sport-5-HD-disponibil-in-grila-Vodafone.jpg" group-title="Sports",Prima Sport 5 HD
@@ -530,7 +532,7 @@ https://rundle.tv/proxy5.php?src=https%3A%2F%2Fpulse1.sanseny001.shop%2Fpuki1%2F
 #EXTINF:-1 tvg-logo="https://www.primaplay.ro/uploads/thumb/publisher/a8c4cd410038eab9d207fd2f15d4d1ce.png" group-title="Sports",Prima Sport PPV 2
 https://rundle.tv/proxy5.php?src=https%3A%2F%2Fpulse1.sanseny001.shop%2Fpuki2%2Fusergendxpk2s6utg0l-got.htm
 #EXTINF:-1 tvg-logo="https://i.imgur.com/UDJ0P5Q.png" group-title="Sports",QazSport
-http://stream.mcquack.net/72/index.m3u8
+https://qazsporttv-stream.qazcdn.com/qazsporttv/qazsporttv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://provider-static.plex.tv/epg/cms/production/dd4e5871-4347-49e3-9ea1-a8770ea9c518/RACER_Intl_logo_1500x1000.png" group-title="Sports",RACER International
 https://amg00378-mavtv-amg00378c2-rakuten-us-1048.playouts.now.amagi.tv/playlist/amg00378-mavtvfast-motorsportsnetwork-rakutenus/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://provider-static.plex.tv/epg/cms/production/dd4e5871-4347-49e3-9ea1-a8770ea9c518/RACER_Intl_logo_1500x1000.png" group-title="Sports",RACER International (1080p)
@@ -589,8 +591,6 @@ https://a-cdn.klowdtv.com/live2/ssl_720p/playlist.m3u8
 https://636ffd31f0e12.streamlock.net/RacingStream1/RacingStream1/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/TxQvFnQ.png" group-title="Sports",Sky Racing 2
 https://skylivetab-new.akamaized.net/hls/live/2038781/sky2/index.m3u8
-#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Sky_Sport_F1_-_Logo_2020.svg/960px-Sky_Sport_F1_-_Logo_2020.svg.png" group-title="Sports",Sky Sport F1
-https://vuvuu-geil-m3u8.yaskar661.workers.dev/?url=https%3A%2F%2Fvavoo.to%2Fvavoo-iptv%2Fplay%2F22890389722acc4573933d
 #EXTINF:-1 tvg-logo="https://i.imgur.com/9onSfMi.png" group-title="Sports",Sky Sports 1
 http://45.228.234.9:8000/play/a06b/index.m3u8
 #EXTINF:-1 tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/DISTROTV/LIVECHANNEL/66698903bac4421ebc533641/images/logo_20231219_221909_68.png" group-title="Sports",Slopes TV
@@ -603,8 +603,8 @@ https://linear-599.frequency.stream/dist/stirr/599/hls/master/playlist.m3u8
 http://rpprod.hbbtv.cdn.cra.cz:8080/hbbTV/cme-sk-sport1-sk/live_fullhd
 #EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/tvfanon6528/images/f/ff/Sport_2_%282020-.n.v.%29.png" group-title="Sports",Sport 2
 http://rpprod.hbbtv.cdn.cra.cz:8080/hbbTV/cme-sk-sport2-sk/live_fullhd
-#EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/f/fa/Sport_Extra_horizontal.svg/revision/latest/scale-to-width-down/1000?cb=20220425110755" group-title="Sports",Sport Extra HD
-http://92.180.26.103/stream/93/index.m3u8
+#EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/f/fa/Sport_Extra_horizontal.svg/revision/latest/scale-to-width-down/1000?cb=20220425110755" group-title="Sports",Sport Extra
+http://91.235.165.117:8001/play/a087/index.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Sports",Sport Fishing TV
 https://streams2.sofast.tv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/eea68b79-bfe2-451e-a227-d637a5b9548a/manifest.m3u8
 #EXTINF:-1 tvg-logo="https://sptfm.ro/wp-content/uploads/2021/05/logo-sport-total-fm-01.png" group-title="Sports",Sport Total FM
@@ -621,8 +621,6 @@ https://r.eu.cdn-redge.media/livehls/oeu/mt/live/sport1/live.livx/playlist.m3u8
 http://141.94.193.53:80/Sport_1_HD/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/X5X3tKC.png" group-title="Sports",Sport1 HD
 http://88.212.7.14/live/sport1_cz_avc_25p/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://www.tvmustra.hu/logok/csatikon/sport2.gif" group-title="Sports",Sport2
-http://141.94.193.53:80/Sport_2_HD/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/UxflVoU.png" group-title="Sports",Sport2 HD
 http://88.212.7.14/live/sport2_cz_avc_25p/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/WW0lNk1.png" group-title="Sports",Sport2U
@@ -631,6 +629,8 @@ https://stream9.xdevel.com/video0s976916-1685/stream/playlist_dvr.m3u8
 https://amg01370-italiansportcom-sportitalia-rakuten-3hmdb.amagi.tv/hls/amagi_hls_data_rakutenAA-sportitalia-rakuten/CDN/master.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/hu56Ya5.png" group-title="Sports",Sportitalia LIVE24
 https://di-g7ij0rwh.vo.lswcdn.net/sportitalia/silive24.smil/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/hu56Ya5.png" group-title="Sports",Sportitalia Motori
+https://di-yx2saj20.vo.lswcdn.net/sportitalia/smil:simotori.smil/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/hu56Ya5.png" group-title="Sports",Sportitalia Plus
 https://sportsitalia-samsungitaly.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/hu56Ya5.png" group-title="Sports",Sportitalia Solocalcio
@@ -641,8 +641,6 @@ https://live-3.otcnet.ru/sportivny/index.m3u8
 https://gto2000-sportoutdoortv-1-it.samsung.wurl.tv/playlist.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Sports",Sports First
 https://d4ddgdmj1cvnm.cloudfront.net/scheduler/scheduleMaster/409.m3u8
-#EXTINF:-1 tvg-logo="https://i.imgur.com/HvFpGeH.png" group-title="Sports",Sports Television
-https://live.koryocdn.org/sports/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/ulGKX30.png" group-title="Sports",SportsGrid
 https://sportsgrid-tribal.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/pBiUnb2.png" group-title="Sports",SporTV 2
@@ -772,7 +770,9 @@ http://46.53.200.153:7777/play/a01l/index.m3u8
 #EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/d/df/Voyo_2026.svg/revision/latest/scale-to-width-down/1000?cb=20261006171646" group-title="Sports",Voyo Events
 http://rpprod.hbbtv.cdn.cra.cz:8080/hbbTV/cme-ro-protv-plus5/live_fullhd?offsetSeconds=0
 #EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/a/a3/VoyoSport1.svg" group-title="Sports",Voyo Sport 1
-https://vip-acasatv.online:25463/lrZuGxAuP3/6782859900/16677.m3u8
+http://89.45.22.101:8011/play/1/index.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/5WNBFmp.png" group-title="Sports",WAPA-TV 4.2
+https://wapa.hostless.app/WAPA-TV-4-2.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/v7nSm7M.png" group-title="Sports",Willow
 https://tvsen5.aynaott.com/willowhd/index.m3u8
 #EXTINF:-1 tvg-logo="https://provider-static.plex.tv/epg/cms/production/acf3d1d8-c53e-49ca-86e9-0d9410b106b4/Willow_Sports_dark_Background_1500_1000_color.png" group-title="Sports",Willow Sports

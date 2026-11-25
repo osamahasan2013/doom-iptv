@@ -129,8 +129,6 @@ https://stream.ecable.tv/afrobeats/index.m3u8
 https://albportal.net/albkanalemusic.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/ymcWecA.png" group-title="Music",Alcance FM PLAY TV
 https://video.wilohosting.com:19360/alcancefmtv/alcancefmtv.m3u8
-#EXTINF:-1 tvg-logo="https://i.imgur.com/bRH34Rn.png" group-title="Music",Allegro HD
-http://158.172.155.130:8000/play/a0dn/index.m3u8
 #EXTINF:-1 tvg-logo="https://tv.alterna.ar/alternatv.png" group-title="Music",Alterna TV
 https://tv.alterna.ar/stream/hls/live.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/06zuf64.png" group-title="Music",AMusic Channel
@@ -381,12 +379,12 @@ https://www.streaming507.net:19360/videofabulosa/videofabulosa.m3u8
 https://rjrfame-ioriver-cdn.encoders.immergo.tv/master.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/bXWzstH.png" group-title="Music",Farra Play
 https://stream.farra.com.py/live/farra_low.m3u8
+#EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/a/a4/Favorit_TV_2_2026.png/revision/latest/scale-to-width-down/1000?cb=20260611201305" group-title="Music",Favorit TV2
+http://91.235.165.117:8002/play/a00o/index.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Music",Feva Music
 https://d2y0xw9ugf4if7.cloudfront.net/scheduler/scheduleMaster/417.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/42wImV2.png" group-title="Music",Fiesta TV
 https://panelvideo1.intermediahost.co:3286/live/ruzfpkqklive.m3u8
-#EXTINF:-1 tvg-logo="https://i.imgur.com/1uoP10V.png" group-title="Music",Finest TV
-https://media.finest.tv/hls/live.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/54CO2u9.png" group-title="Music",FM ITALIA
 https://stream2.xdevel.com/video0s975817-1183/stream/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/1nNnYQO.png" group-title="Music",FM Mundo
@@ -425,6 +423,8 @@ https://video.uitzending.tv:19360/gigantfm/gigantfm.m3u8
 https://rds3.desdeparaguay.net/gotv/gotv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/Ey7Htm8.png" group-title="Music",GugakTV 국악방송
 https://mgugaklive.nowcdn.co.kr/gugakvideo/gugakvideo.stream/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/8/88/H%21T_Music_Channel_%282013%29.svg/revision/latest?cb=20210206133912" group-title="Music",H!t Music Channel
+http://91.235.165.117:8001/play/a01e/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/PAw36qJ.png" group-title="Music",Happy Radio TV
 https://tv.mediacp.eu:8081/happyradio/index.m3u8
 #EXTINF:-1 tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Hare_Krsna_music.png" group-title="Religious",Hare Krsna Music
@@ -675,6 +675,8 @@ http://88.212.15.50/live/mb_dance/index.m3u8
 http://88.212.15.50/live/mb_hits/index.m3u8
 #EXTINF:-1 tvg-logo="http://media.boni-records.com/logo.png" group-title="Music",Music Channel
 http://media.boni-records.com/index.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/nadVCxM.png" group-title="Music",Music Channel SD
+http://91.235.165.117:8001/play/a01u/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/tTVOc31.png" group-title="Music",Music IL
 https://r.il.cdn-redge.media/livehls/oil/freetv/live/music_il/live.livx/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Music_India.png" group-title="Music",Music India
@@ -949,6 +951,8 @@ https://videoserver.tmcreativos.com:19360/radiomaster/radiomaster.m3u8
 https://radiolive.trm.md:8001/hls_rmm/muzical.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/t0I2Shi.jpg" group-title="Music",Radio Monte Kronio Tv (R.M.K.)
 https://648026e87a75e.streamlock.net/rmktv/rmktv/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/3TMMXmS.png" group-title="Music",Radio Montecarlo TV
+https://live02-seg.msr.cdn.mediaset.net/live/ch-bb/bb-clr.isml/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/a97MaV2.png" group-title="Music",Radio Monumental TV
 https://cloud37.ecuatel.com/monumentaltv/live/manifest.m3u8
 #EXTINF:-1 tvg-logo="https://hostux.pics/images/2026/09/11/13_radio_napoli_emme7a755fab8578a752.png" group-title="Music",Radio Napoli Emme
@@ -1527,8 +1531,6 @@ https://ocko-live.ssl.cdn.cra.cz/channels/ocko_gold/playlist.m3u8
 https://ocko-live.ssl.cdn.cra.cz/channels/ocko_gold/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/Puk1Bhx.png" group-title="Music",Муз союз
 https://hls-tvsoyuz.cdnvideo.ru/tvsoyuz2/muzsoyuz.6fw0-58xp-acts-esy0/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://i.imgur.com/Ml3qqOF.png" group-title="Music",Муз-ТВ
-https://streaming102.interskytech.com/live/618.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/DIKe5vA.png" group-title="Music",Музыка 1 International
 https://kino-1.catcast.tv/content/37745/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/2SG0Swa.png" group-title="Music",Музыка Кино International

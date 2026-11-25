@@ -101,8 +101,6 @@ https://qvcuk-live.akamaized.net/hls/live/2097112/qby/master.m3u8
 https://qvcuk-live.akamaized.net/hls/live/2097112/qex/master.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/6HZlLL3.png" group-title="Shopping",QVC UK Style
 https://qvcuk-live.akamaized.net/hls/live/2097112/qst/master.m3u8
-#EXTINF:-1 tvg-logo="https://i.imgur.com/I7yB176.png" group-title="Shopping",Red TV Shop
-https://master.tucableip.com/redtvshop/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/Hq3yjqA.png" group-title="Shopping",Shinsegae Shopping TV
 https://liveout.catenoid.net/live-02-shinsegaetvshopping/shinsegaetvshopping_720p/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://www.shopch.jp/com/images/common/logo_2021.png" group-title="Shopping",Shop Channel
