@@ -234,6 +234,70 @@ const SpatialNav = {
 const HEART = "<svg viewBox='0 0 24 24' class='ic'><path d='M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.1 5.3 3 1.7-1.9 3.2-3 5.3-3 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z'/></svg>";
 /* classic layout on TV: one highlight frame on its own layer follows the focused poster/channel,
    so moving the focus doesn't restyle cards (no zoom/outline repaint, no forced layout while navigating) */
+/* ---------- the remote's OK key: one physical press = one action ----------
+   Holding OK makes the TV repeat key-down (~every 50 ms) until key-up. Everything from the first
+   key-down to the key-up is ONE press: short → open the title, held ≥ 500 ms → the long-press action,
+   exactly once. While the key is still held, the repeats are swallowed here (capture phase, before
+   any other handler) so they can't re-trigger the card, nor "click" the menu / heart that opened under
+   the finger; the key-up and any click the TV synthesises right after it are swallowed too.
+   TVs that never send key-up: the press ends after 450 ms without repeats. */
+const OkHold = {
+  st: null, quiet: 0, LONG: 500,
+  isOk(e) { return e.key === 'Enter' || e.keyCode === 23 || e.keyCode === 13 || e.key === 'Select' || e.key === 'Accept'; },
+  eat(e) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); },
+  init() {
+    if (this._on) return; this._on = true;
+    this.keyup = LS.get('okKeyup', false);
+    window.addEventListener('keydown', e => this.down(e), true);
+    window.addEventListener('keyup', e => this.up(e), true);
+    const late = e => { if ((this.st && this.st.long) || Date.now() < this.quiet) this.eat(e); };
+    window.addEventListener('click', late, true); window.addEventListener('contextmenu', e => { if (this.st || Date.now() < this.quiet) this.eat(e); }, true);
+    window.addEventListener('blur', () => this.end(true));
+  },
+  card() { const a = document.activeElement; return a && a._press && !textField(a) ? a : null; },
+  down(e) {
+    if (!this.isOk(e) || e.altKey || e.ctrlKey || e.metaKey) return;
+    const s = this.st, now = Date.now();
+    if (s) {   // same press still held
+      this.eat(e); s.reps++; s.last = now;
+      if (!s.long && now - s.t0 >= this.LONG) this.fire();
+      this.idle(); return;
+    }
+    if (now < this.quiet && e.repeat) { this.eat(e); return; }
+    const c = this.card();
+    if (!c) {
+      // a repeat with no press of ours: the tail of a hold that began elsewhere → ignore it, don't click
+      if (e.repeat && this._held) { this.eat(e); return; }
+      return;
+    }
+    this.eat(e);
+    if (e.repeat) { this.st = { c, t0: now - this.LONG, reps: 1, long: true, last: now }; this.idle(); return; }
+    this.st = { c, t0: now, reps: 0, long: false, last: now };
+    clearTimeout(this._t);
+    this._t = setTimeout(() => {
+      const s = this.st; if (!s || s.long) return;
+      // still down after LONG: a hold — if this TV is known to send key-up, or repeats are arriving
+      if (s.reps > 0 || this.keyup) { this.fire(); this.idle(); }
+      else { this.st = null; s.c._press.open(); }   // TV that sends neither: treat as a normal OK
+    }, this.LONG + 40);
+  },
+  fire() { const s = this.st; if (!s || s.long) return; s.long = true; this._held = true; s.c._press.long(); },
+  idle() { clearTimeout(this._i); this._i = setTimeout(() => this.end(false), 450); },
+  end(cancel) {
+    const s = this.st; clearTimeout(this._t); clearTimeout(this._i); this.st = null; this._held = false;
+    if (s && s.long) this.quiet = Date.now() + 350;
+  },
+  up(e) {
+    if (!this.isOk(e)) return;
+    if (!this.keyup) { this.keyup = true; LS.set('okKeyup', true); }
+    const s = this.st;
+    if (!s) { if (Date.now() < this.quiet) this.eat(e); return; }
+    this.eat(e); this.end(false);
+    if (!s.long && document.body.contains(s.c)) s.c._press.open();
+  }
+};
+const textField = el => el && el.matches && el.matches('input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea,select');
+
 const FocusRing = {
   el: null, cur: null,
   init() {
@@ -277,7 +341,7 @@ const App = {
     LS.del('freeOnly'); document.body.classList.remove('free-only');
     this.renderShell();
     this.section = Settings.get('lastSection') || 'movies'; if (!['movies', 'series', 'live'].includes(this.section)) this.section = 'movies';
-    FocusRing.el || FocusRing.init();
+    FocusRing.el || FocusRing.init(); OkHold.init();
     Clock.detect().catch(() => {});
     await this.loadCatalog();
     if (window.TvHome && TvHome.enabled()) TvHome.open();
@@ -844,21 +908,9 @@ const App = {
   },
   /* OK / tap opens; holding OK on the remote, or a long press on the screen, opens "add to list" straight away */
   bindPress(card, it, open, opts) {
-    const isOk = e => e.key === 'Enter' || e.keyCode === 23 || e.key === 'Select' || e.key === 'Accept';
     const lists = () => { card._lp = true; try { navigator.vibrate && navigator.vibrate(25); } catch {} if (Settings.get('longPress') === 'fav') this.toggleFav(it, card); else this.itemSheet(it, card); };
-    // a held remote button repeats its key-down; a short press ends with key-up.
-    // If a TV never sends key-up (and no repeats either), the press still opens the item.
-    let kt = null, down = false, reps = 0;
-    card.addEventListener('keydown', e => {
-      if (!isOk(e)) return; e.preventDefault(); e.stopPropagation();
-      if (down) { reps++; return; } down = true; reps = 0; card._lp = false; clearTimeout(kt);
-      kt = setTimeout(() => { if (!down) return; down = false; if (reps > 0) lists(); else open(); }, 550);
-    });
-    card.addEventListener('keyup', e => {
-      if (!isOk(e)) return; e.preventDefault(); clearTimeout(kt);
-      if (down) open(); down = false;
-    });
-    card.addEventListener('blur', () => { clearTimeout(kt); down = false; });
+    // the remote's OK key is handled by OkHold (one physical press = one action, whatever gets focus meanwhile)
+    card._press = { open, long: () => { try { navigator.vibrate && navigator.vibrate(25); } catch {} if (Settings.get('longPress') === 'fav') this.toggleFav(it, card); else this.itemSheet(it, card); } };
     let pt = null, sx = 0, sy = 0, touchAt = 0;
     card.addEventListener('pointerdown', e => {
       if (e.pointerType === 'mouse') return; touchAt = Date.now(); sx = e.clientX; sy = e.clientY; card._lp = false;
