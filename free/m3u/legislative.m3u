@@ -246,7 +246,7 @@ https://reflect-thornton.cablecast.tv/live-4/live/live.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/eMguSjM.png" group-title="Legislative",TV Assembleia Piaui
 https://stmv1.srvstm.com/piaui8071/piaui8071/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/Sdou1Ab.png" group-title="Legislative",TV Camara
-http://186.219.52.187/tv_camara/index.m3u8
+http://170.83.49.66:8083/TVCAMARAHD/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/Mfypr0t.png" group-title="Legislative",TV Camara
 http://45.170.130.224:8000/play/a03x/index.m3u8?hls
 #EXTINF:-1 tvg-logo="https://i.imgur.com/UpV2PRk.png" group-title="Legislative",TV Câmara

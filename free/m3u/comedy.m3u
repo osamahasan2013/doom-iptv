@@ -85,6 +85,8 @@ https://d1c73nj8qxp55a.cloudfront.net/Mystery_Science_Theater_3000.m3u8
 https://xumo-xumoent-vc-105-z0vpm.fast.nbcuni.com/live/master.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/08ZUI9k.png" group-title="Comedy",Nick/Comedy Central +1
 http://90.183.52.46:4000/play/a046/index.m3u8
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/czech-republic/nova-fun-cz.png" group-title="Comedy",Nova Fun
+https://sktv.mxnticek.eu/new/stream.php?ch=NovaFun
 #EXTINF:-1 tvg-logo="https://i.imgur.com/DBZ3Pi5.png" group-title="Comedy",Persiana Comedy
 https://comedyhls.persiana.live/hls/stream.m3u8
 #EXTINF:-1 tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/PitaaraComedy.png" group-title="Comedy",Pitaara Comedy
@@ -106,7 +108,7 @@ https://aegis-cloudfront-1.tubi.video/e08080ff-3d87-4d9e-a156-91554fd2e39b/playl
 #EXTINF:-1 tvg-logo="https://i.imgur.com/rXORbti.png" group-title="Comedy",TVS Comedy Network
 https://rpn.bozztv.com/gusa/gusa-tvscomedy/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/YoNOFu7.png" group-title="Comedy",viju+ Comedy HD
-http://46.53.200.153:7777/play/Viju_Comedy_HD/index.m3u8
+http://stream.mcquack.net/201/index.m3u8
 #EXTINF:-1 tvg-logo="https://tvpnlogopus.samsungcloud.tv/platform/image/sourcelogo/vc/00/02/34/IN2100002GD_20260325T012327SQUARE.png" group-title="Comedy",Zee Comedy Nation
 https://amg00862-amg00862c5-amgplt0173.playout.now3.amagi.tv/playlist/amg00862-amg00862c5-amgplt0173/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://smotret.tv/images/tvoe-tv-yumor.webp" group-title="Comedy",Твое ТВ Юмор

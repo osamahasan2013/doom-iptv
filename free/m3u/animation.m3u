@@ -32,7 +32,7 @@ http://176.65.153.40:6002/play/a013/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network
 https://turnerlive.warnermediacdn.com/hls/live/2023160/tooneast/noslate/VIDEO_3_1928000.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network Asia Thailand
-http://103.253.74.210:7070/stream/118/index.m3u8
+http://103.148.210.190:8000/play/a14r
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network CEE
 http://193.33.39.108:9007/play/a00l
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network CEE Bulgary
@@ -91,8 +91,6 @@ https://cl-2.backend.energeek.cl/bkp/egretroweb/index.m3u8?token=IPTVgh26
 https://cl-2.backend.energeek.cl/bkp/egfan/mobile/index.m3u8?token=IPTVgh26
 #EXTINF:-1 tvg-logo="https://i.imgur.com/OprRgQN.png" group-title="Animation",eSports Max TV
 https://cdnlive.klicgo.net/esportsmax/live/playlist_dvr.m3u8
-#EXTINF:-1 tvg-logo="https://www.vivalivetv.com/public/files/shows/0/1/3027-294x165-FFFFFF.jpg" group-title="Animation",Extrema Kids TV
-https://627bb251f23c7.streamlock.net:444/ExtremaKids/ExtremaKids/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/mDeTbaF.png" group-title="Animation",FAN
 http://stream.mcquack.net/420/index.m3u8
 #EXTINF:-1 tvg-logo="https://provider-static.plex.tv/epg/cms/production/cff7361f-e0ba-4aeb-9251-9530f4eb1d80/FilmRise_Anime_1500x1000_Light_Logo.png" group-title="Animation",FilmRise Anime
@@ -103,8 +101,6 @@ https://pistream.ddns.net/hls/stream.m3u8
 https://amg01596-gongnetworks-gong-ono-vh5f2.amagi.tv/1080p-vtt/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/JDM9rEV.png" group-title="Animation",Hasbro Legends
 https://amg02713-amg02713c11-amgplt0852.playout.now3.amagi.tv/ts-us-e2-n2/playlist/amg02713-amg02713c11-amgplt0852/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://static-cdn.jtvnw.net/jtv_user_pictures/6b97e19f-4243-4d48-b794-ff8cf54d795f-profile_image-300x300.png" group-title="Animation",Japanim TV
-https://foxkidstv.be:3369/stream/play.m3u8
 #EXTINF:-1 tvg-logo="https://www.tvchinese.net/uploads/tv/jxtv6.jpg" group-title="Kids",Jiangxi Children's Channel
 https://play-live-hls.jxtvcn.com.cn/live-city/tv_jxtv6.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/SRX6EPY.png" group-title="Animation",Kuriakos Kids

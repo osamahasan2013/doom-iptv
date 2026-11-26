@@ -21,6 +21,8 @@ https://streamer1.connectto.com/AABC_WEB_1201/index.m3u8
 https://abaitv-stream.qazcdn.com/abaitv/abaitv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/nfur3FR.png" group-title="Culture",Access Media Productions Community Channel
 https://dlttx48mxf9m3.cloudfront.net/vod_clients/amp/live/ch2/video.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/bjaZ3kO.png" group-title="Culture",Afroculture TV
+https://streamtv.cmediahosthosting.net:3836/live/myafroculturelive.m3u8
 #EXTINF:-1 tvg-logo="https://tv.alterna.ar/alternatv.png" group-title="Music",Alterna TV
 https://tv.alterna.ar/stream/hls/live.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/rmCBD3e.png" group-title="Culture",Andy Haryana
@@ -73,6 +75,8 @@ https://cloud37.ecuatel.com/ciracutv/live/manifest.m3u8
 https://classicarts.akamaized.net/hls/live/1024257/CAS/master.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/N4pFVVF.png" group-title="Culture",Costa Rica Channel
 https://video0.rogohosting.com:19360/8006/8006.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/h0LxXsx.png" group-title="Culture",Cultura 24
+https://www.opencaster.com/resources/hls_stream/cultura24.m3u8
 #EXTINF:-1 tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_DD_BHARATI/images/LOGO_HD/image.png" group-title="Culture",DD Bharati
 https://d2lk5u59tns74c.cloudfront.net/out/v1/67cec794d8b14f9ba21f73924ac65797/index.m3u8
 #EXTINF:-1 tvg-logo="https://ltsk-cdn.s3.eu-west-1.amazonaws.com/jumpstart/Temp_Live/cdn/HLS/Channel/transparentImages/DD-Mizoram_2000_X_1125_transpharent.png" group-title="News",DD Mizoram
@@ -121,6 +125,8 @@ https://livefta.malimarcdn.com/ftaedge00/hmongstartv.sdp/playlist.m3u8
 https://livefta.malimarcdn.com/ftaedge00/cvabroadcasting.stream/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/9JKRO3R.png" group-title="Culture",Holvoet TV (Copiapó)
 https://unlimited1-us.dps.live/holvoettv/holvoettv.smil/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/YwNxANn.png" group-title="Culture",Hora TV
+http://91.235.165.117:8001/play/a02f/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/c/c3/HTV5_Bchannel.png" group-title="Culture",HTV5
 https://freem3u.xyz/api/live/play.m3u8?vid=151
 #EXTINF:-1 tvg-logo="https://i.imgur.com/reHjjRZ.png" group-title="Culture",Hyder TV

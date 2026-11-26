@@ -173,6 +173,8 @@ https://cdn3.wowza.com/5/OE5HREpIcEkySlNT/alhayat-live/ngrp:livestream_all/playl
 https://mn-nl.mncdn.com/alhiwar_live/smil:alhiwar.smil/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://alikhbariah.com/wp-content/themes/alekhbariah-custom-theme/img/logo.webp" group-title="News",Alikhbaria Syria
 http://185.9.2.18/chid_423/index.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/4WKQppG.png" group-title="Religious",Aliman TV
+https://svs.itworkscdn.net/alimanlive/imantv.smil/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/2FPtYZr.png" group-title="Religious",Alistiqama TV
 https://jmc-live.ercdn.net/alistiqama/alistiqama.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/90ykspa.png" group-title="Religious",Alkarma TV Australia
@@ -303,6 +305,8 @@ https://sw1.tanitweb.net/TunisiaTV/_definst_/watania2/playlist.m3u8?DVR
 http://media3.smc-host.com:1935/elbesharagtv.com/gtv.smil/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/8vmfZb5.png" group-title="General",Elsharq TV
 https://mn-nl.mncdn.com/elsharq_live/live/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://tv.elyssatv.com/logo.png" group-title="News",Elyssa TV
+https://tv.elyssatv.com/live/master.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/QmgaPSi.png" group-title="Family",EmanTv
 https://avr.host247.net/live/emantv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/bTR0Huw.png" group-title="General",ERi-TV 1
@@ -600,7 +604,7 @@ https://qatartv.akamaized.net/hls/live/20000612/qtvquran/master1080p.m3u8
 #EXTINF:-1 tvg-logo="https://www.qmc.qa/img/LiveChannels/1ca67a44-9290-4b2a-8a16-d8c6e2260816.jpg" group-title="Religious",Qatar TV The Holy Quran
 https://qatartv.akamaized.net/hls/live/20000612/qtvquran/master.m3u8
 #EXTINF:-1 tvg-logo="https://www.qbc.news/_next/static/media/logo.0~2x9wpd284~a.svg" group-title="Business",QBC
-https://googlecdn1.alkassdigital.net/livestream/qbc4/main.m3u8
+https://live.kwikmotion.com/qbusinesslive/qbusiness.smil/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/rzRs0ed.png" group-title="General",Qudsuna TV
 https://qudsunatv-live.cdnnew.com/qudsunatv/qudsuna.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/ut0kr4x.png" group-title="Religious",Quran Radio
@@ -729,6 +733,8 @@ http://176.65.153.26:6004/play/a02s/index.m3u8
 http://185.9.2.18/chid_347/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/iBBpBx4.png" group-title="General",Türkmenistan
 https://alpha.tv.online.tm/hls/ch007.m3u8
+#EXTINF:-1 tvg-logo="" group-title="News",UNews
+https://cdn.catiacast.video/abr/9436b5ab3c1171ab04a59af11951292f/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/9qFHjnu.png" group-title="General",UTV
 https://utviraqi-live.lg.mncdn.com/utviraqi-live/64c80359/index.m3u8
 #EXTINF:-1 tvg-logo="https://vilayet.tv/wp-content/uploads/elementor/thumbs/logo-q3w2md1u47q39x7d0004wqzz74xdv1glw356ex6ph0.png" group-title="General",Vilayet TV
@@ -741,8 +747,6 @@ https://hlspackager.akamaized.net/live/DB/WAAR_HD/HLS/WAAR_HD.m3u8
 https://shd-gcp-live.edgenextcdn.net/live/bitmovin-wanasah/13e82ea6232fa647c43b26e8a41f173d/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/pZyKaUH.png" group-title="General",Watan TV
 https://rp.tactivemedia.com/watantv_source/live/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://sbauae.faulio.com/storage/mediagallery/d2/ad/fullhd_48adf2291d08266c05ed1b0c24f326c86b1095b7.png" group-title="Music",Watar Radio
-https://svs.itworkscdn.net/smcwatarlive/smcwatar/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/jdr22Sk.jpeg" group-title="General",Watar TV
 http://htvint.mada.ps:8889/orient/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/sf2A9vT.png" group-title="General",Wattan TV
