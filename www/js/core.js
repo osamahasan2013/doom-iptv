@@ -142,12 +142,76 @@ const LS = {
 
 const DEFAULT_SETTINGS = {
   lang: 'auto', liveFormat: 'm3u8', seekStep: 10, aspect: 'fit', speed: 1, autoNext: true, nextLead: 10, refreshHours: 12,
-  proxy: '', accent: '#5b8cff', tvMode: 'auto', uiSize: 'm', longPress: 'menu', posterStyle: 'classic', tvKeyboard: 'system', homeView: 'classic', theme: 'auto', freeBase: '', sort: 'default', lastSection: 'movies'
+  proxy: '', accent: '#5b8cff', tvMode: 'auto', uiSize: 'm', longPress: 'menu', posterStyle: 'classic', tvKeyboard: 'system', homeView: 'classic', theme: 'auto', clockTz: 'auto', freeBase: '', sort: 'default', lastSection: 'movies'
 };
 const Settings = {
   data: Object.assign({}, DEFAULT_SETTINGS, LS.get('settings', {})),
   get(k) { return this.data[k]; },
   set(k, v) { this.data[k] = v; LS.set('settings', this.data); }
+};
+
+/* ---------------- clock: the time shown follows a chosen city / the place the device is in ----------------
+   Many TVs ship with the wrong time zone (often UTC), so "device time" is not trusted by default:
+   'auto' finds the zone from the internet connection's location (cached), falling back to the
+   device zone only when it is a real one, else Riyadh. The same lookup also corrects a device
+   clock that is off by minutes. */
+const CLOCK_CITIES = [
+  ['Asia/Riyadh', 'Riyadh · Makkah · Jeddah', 'الرياض · مكة · جدة'], ['Africa/Cairo', 'Cairo', 'القاهرة'], ['Asia/Dubai', 'Dubai · Abu Dhabi', 'دبي · أبوظبي'],
+  ['Asia/Kuwait', 'Kuwait', 'الكويت'], ['Asia/Qatar', 'Doha', 'الدوحة'], ['Asia/Bahrain', 'Bahrain', 'البحرين'], ['Asia/Muscat', 'Muscat', 'مسقط'],
+  ['Asia/Amman', 'Amman', 'عمّان'], ['Asia/Beirut', 'Beirut', 'بيروت'], ['Asia/Damascus', 'Damascus', 'دمشق'], ['Asia/Baghdad', 'Baghdad', 'بغداد'],
+  ['Asia/Gaza', 'Gaza · Jerusalem', 'غزة · القدس'], ['Asia/Aden', 'Sanaa · Aden', 'صنعاء · عدن'], ['Africa/Khartoum', 'Khartoum', 'الخرطوم'],
+  ['Africa/Tripoli', 'Tripoli', 'طرابلس'], ['Africa/Tunis', 'Tunis', 'تونس'], ['Africa/Algiers', 'Algiers', 'الجزائر'], ['Africa/Casablanca', 'Casablanca · Rabat', 'الدار البيضاء · الرباط'],
+  ['Europe/Istanbul', 'Istanbul', 'إسطنبول'], ['Europe/London', 'London', 'لندن'], ['Europe/Paris', 'Paris', 'باريس'], ['Europe/Berlin', 'Berlin', 'برلين'],
+  ['Europe/Moscow', 'Moscow', 'موسكو'], ['America/New_York', 'New York · Toronto', 'نيويورك · تورنتو'], ['America/Chicago', 'Chicago', 'شيكاغو'],
+  ['America/Los_Angeles', 'Los Angeles', 'لوس أنجلوس'], ['Asia/Karachi', 'Karachi', 'كراتشي'], ['Asia/Kolkata', 'Delhi · Mumbai', 'دلهي · مومباي'],
+  ['Asia/Dhaka', 'Dhaka', 'دكا'], ['Asia/Kuala_Lumpur', 'Kuala Lumpur', 'كوالالمبور'], ['Asia/Jakarta', 'Jakarta', 'جاكرتا'], ['Australia/Sydney', 'Sydney', 'سيدني']
+];
+const Clock = {
+  _f: new Map(),
+  deviceTz() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch { return ''; } },
+  valid(z) { if (!z) return false; try { new Intl.DateTimeFormat('en', { timeZone: z }); return true; } catch { return false; } },
+  geo() { return LS.get('geoTz', null); },
+  /* the zone to show, or undefined for the device's own */
+  tz() {
+    const s = Settings.get('clockTz') || 'auto';
+    if (s === 'device') return undefined;
+    if (s !== 'auto') return this.valid(s) ? s : 'Asia/Riyadh';
+    const g = this.geo(); if (g && this.valid(g.tz)) return g.tz;
+    const d = this.deviceTz(); return d && !/^(UTC|GMT|Etc\/)/i.test(d) && d !== 'UTC' ? d : 'Asia/Riyadh';
+  },
+  /* corrects a device clock that is clearly wrong (only from 'auto' lookups, only if off by more than 2 minutes) */
+  offset() { const g = this.geo(); return (Settings.get('clockTz') || 'auto') !== 'device' && g && Math.abs(g.off || 0) > 120000 ? g.off : 0; },
+  now() { return new Date(Date.now() + this.offset()); },
+  fmt(loc, o) {
+    const z = this.tz(), k = loc + '|' + z + '|' + JSON.stringify(o);
+    let f = this._f.get(k); if (!f) { f = new Intl.DateTimeFormat(loc || undefined, z ? Object.assign({ timeZone: z }, o) : o); this._f.set(k, f); }
+    return f;
+  },
+  loc() { return LANG === 'ar' ? 'ar-EG' : 'en-GB'; },
+  time(d, loc) { return this.fmt(loc || this.loc(), { hour: '2-digit', minute: '2-digit' }).format(new Date(d)); },
+  date(d, loc, o) { return this.fmt(loc || (LANG === 'ar' ? 'ar-EG' : 'en-US'), o || { weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(d)); },
+  /* minutes since midnight in the shown zone (parental hours use this) */
+  minutes(d) { const p = this.fmt('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(d || this.now())); const g = t => +(p.find(x => x.type === t) || {}).value || 0; return (g('hour') % 24) * 60 + g('minute'); },
+  label(z) { const c = CLOCK_CITIES.find(x => x[0] === z); return c ? (LANG === 'ar' ? c[2] : c[1]) : (z || '').split('/').pop().replace(/_/g, ' '); },
+  changed() { this._f.clear(); try { window.dispatchEvent(new Event('doom:clock')); } catch {} },
+  /* find the zone from the connection's location; several free services in turn */
+  async detect(force) {
+    if ((Settings.get('clockTz') || 'auto') !== 'auto') return null;
+    const g = this.geo(); if (!force && g && Date.now() - g.ts < 6 * 3600000) return g;
+    const t0 = Date.now(); let out = null;
+    const tries = [
+      async () => { const j = await fetchJSON('https://ipwho.is/', { timeout: 8000, direct: true }); if (j && j.success !== false && j.timezone && j.timezone.id) return { tz: j.timezone.id, city: j.city, cc: j.country_code, time: j.timezone.current_time }; },
+      async () => { const j = await fetchJSON('https://get.geojs.io/v1/ip/geo.json', { timeout: 8000, direct: true }); if (j && j.timezone) return { tz: j.timezone, city: j.city, cc: j.country_code }; },
+      async () => { const j = await fetchJSON('https://ipapi.co/json/', { timeout: 8000, direct: true }); if (j && j.timezone) return { tz: j.timezone, city: j.city, cc: j.country_code }; }
+    ];
+    for (const f of tries) { try { out = await f(); } catch {} if (out && this.valid(out.tz)) break; out = null; }
+    if (!out) return g;
+    let off = 0; if (out.time) { const srv = Date.parse(out.time); if (!isNaN(srv)) off = srv - (t0 + Date.now()) / 2; }
+    const rec = { tz: out.tz, city: out.city || '', cc: (out.cc || '').toLowerCase(), off: Math.abs(off) > 120000 ? Math.round(off) : 0, ts: Date.now() };
+    const prev = g && g.tz + '|' + g.off; LS.set('geoTz', rec);
+    if (prev !== rec.tz + '|' + rec.off) this.changed();
+    return rec;
+  }
 };
 
 /* ---------------- IndexedDB (catalog cache + media chunks) ---------------- */
@@ -609,7 +673,7 @@ const Parental = {
     if (!this.d.enabled || Date.now() < this.overrideUntil) return null;
     if (this.d.dailyMin > 0 && this.usedToday() >= this.d.dailyMin * 60) return 'timeUp';
     if (this.d.from && this.d.to) {
-      const now = new Date(); const m = now.getHours() * 60 + now.getMinutes();
+      const m = Clock.minutes();
       const [fh, fm] = this.d.from.split(':').map(Number), [th, tm] = this.d.to.split(':').map(Number);
       const a = fh * 60 + fm, b = th * 60 + tm;
       const ok = a <= b ? (m >= a && m < b) : (m >= a || m < b);

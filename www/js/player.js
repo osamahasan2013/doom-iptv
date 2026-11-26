@@ -583,7 +583,7 @@ const Player = {
     try {
       const list = await provOf(it).shortEpg(it.id, 3); if (this.item !== it) return; this.epg = list;
       const now = Date.now(); const cur = list.find(e => e.start <= now && e.end > now) || list[0];
-      if (cur) $('.p-sub', this.el).textContent = `${t('nowPlaying')}: ${cur.title}  ${new Date(cur.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(cur.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      if (cur) $('.p-sub', this.el).textContent = `${t('nowPlaying')}: ${cur.title}  ${Clock.time(cur.start)}–${Clock.time(cur.end)}`;
     } catch {}
   },
 
@@ -728,7 +728,7 @@ const Player = {
     try { const p = provOf(it); rows = p.epgTable ? await p.epgTable(it.id) : await p.shortEpg(it.id, 20); } catch {}
     const box = $('.ps-list', side); box.innerHTML = '';
     if (!rows.length) { box.innerHTML = `<div class="muted pad">${t('noEpg')}</div>`; return; }
-    const now = Date.now(); const tf = d => new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const now = Date.now(); const tf = d => Clock.time(d);
     let curEl = null;
     for (const r of rows) {
       const past = r.end < now, cur = r.start <= now && r.end > now;

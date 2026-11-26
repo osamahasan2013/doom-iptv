@@ -7,6 +7,7 @@ const IPTV_ORG_FALLBACK = 'https://iptv-org.github.io/iptv/index.category.m3u';
 const ARAB_CC = new Set(['sa', 'ae', 'eg', 'qa', 'kw', 'bh', 'om', 'jo', 'lb', 'sy', 'iq', 'ye', 'ps', 'ly', 'tn', 'dz', 'ma', 'sd', 'so', 'mr', 'dj', 'km']);
 
 Object.assign(I18N.en, {
+  clockTz: 'Clock time', clockAuto: 'Automatic — where I am', clockDevice: 'Device time', clockHint: 'Now: {t} · {z}', clockFound: 'found from your internet location', clockDetecting: 'finding your location…', clockFallback: 'location not found yet',
   free: 'Free IPTV', freeLive: 'Live', freeArabic: 'Arabic', freeIntl: 'International', allCountries: 'All countries', allCats: 'All',
   freeChecked: 'Checked daily · updated {d}', freeWorking: '{n} working links', freeSources: 'Sources',
   freeNotReady: 'The daily-checked list isn’t published yet, so channels come straight from iptv-org (not checked yet).',
@@ -23,6 +24,7 @@ Object.assign(I18N.en, {
   uiSize: 'Interface size', uiSizeHint: 'Icons, text and lists on the screen (on a TV the whole screen is scaled)', sizeXs: 'Very small', sizeS: 'Small', sizeM: 'Medium', sizeL: 'Large', sizeXl: 'Very large'
 });
 Object.assign(I18N.ar, {
+  clockTz: 'توقيت الساعة', clockAuto: 'تلقائي — حسب مكاني', clockDevice: 'توقيت الجهاز', clockHint: 'الآن: {t} · {z}', clockFound: 'حسب موقع الإنترنت', clockDetecting: 'جاري تحديد مكانك…', clockFallback: 'لم يتم تحديد المكان بعد',
   free: 'IPTV مجاني', freeLive: 'مباشر', freeArabic: 'عربي', freeIntl: 'عالمي', allCountries: 'كل الدول', allCats: 'الكل',
   freeChecked: 'فحص يومي · آخر تحديث {d}', freeWorking: '{n} رابط شغال', freeSources: 'المصادر',
   freeNotReady: 'القائمة المفحوصة يومياً لم تُنشر بعد، لذلك القنوات معروضة مباشرة من iptv-org (بدون فحص).',

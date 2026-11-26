@@ -278,6 +278,7 @@ const App = {
     this.renderShell();
     this.section = Settings.get('lastSection') || 'movies'; if (!['movies', 'series', 'live'].includes(this.section)) this.section = 'movies';
     FocusRing.el || FocusRing.init();
+    Clock.detect().catch(() => {});
     await this.loadCatalog();
     if (window.TvHome && TvHome.enabled()) TvHome.open();
     Accounts.refreshAll().then(() => { this.renderExpiryBanner(); if (this.section === 'settings') this.render(); });
@@ -1229,6 +1230,19 @@ const App = {
       row(t('posterStyle'), sel('posterStyle', [['classic', t('pstClassic')], ['overlay', t('pstOverlay')]], () => { this.applyTheme(); this._memo && this._memo.clear(); }), t('posterStyleHint')),
       row(t('longPress'), sel('longPress', [['menu', t('lpMenu')], ['fav', t('lpFav')]]), t('longPressHint')),
       row(t('uiSize'), sel('uiSize', [['xs', t('sizeXs')], ['s', t('sizeS')], ['m', t('sizeM')], ['l', t('sizeL')], ['xl', t('sizeXl')]], () => this.applyScale()), t('uiSizeHint')),
+      (() => {
+        const hint = h('small', { class: 'muted block' });
+        const draw = () => {
+          const z = Clock.tz(), g = Clock.geo(), mode = Settings.get('clockTz') || 'auto';
+          const where = mode === 'device' ? (Clock.deviceTz() || '—') : mode === 'auto' ? (g ? (g.city || Clock.label(z)) + ' · ' + t('clockFound') : Clock.label(z) + ' · ' + t('clockFallback')) : Clock.label(z);
+          hint.textContent = t('clockHint').replace('{t}', Clock.time(Clock.now())).replace('{z}', where);
+        };
+        const s = sel('clockTz', [['auto', t('clockAuto')], ['device', t('clockDevice')], ...CLOCK_CITIES.map(c => [c[0], LANG === 'ar' ? c[2] : c[1]])], async v => {
+          Clock.changed(); draw();
+          if (v === 'auto') { hint.textContent = t('clockDetecting'); await Clock.detect(true); Clock.changed(); draw(); }
+        });
+        draw(); const r = h('label', { class: 'set-row' }, h('span', {}, t('clockTz'), hint), s); return r;
+      })(),
       row(t('language'), sel('lang', [['auto', t('auto')], ['en', 'English'], ['ar', 'العربية']], () => { this.applyLang(); this.renderShell(); this.setData(this.data, this.dataTs); this.section = 'settings'; this.renderCats(); this.render(); })),
       row(t('theme'), h('div', { class: 'swatches' }, ...['#5b8cff', '#8b5cf6', '#ec4899', '#f97316', '#10b981', '#06b6d4', '#eab308'].map(c => h('button', { class: 'swatch' + (Settings.get('accent') === c ? ' on' : ''), style: { background: c }, 'aria-label': c, onclick: () => { Settings.set('accent', c); this.applyTheme(); this.renderSettings(); } })))),
       row(t('tvMode'), sel('tvMode', [['auto', t('auto')], ['on', t('yes')], ['off', t('no')]], () => this.applyTheme())));

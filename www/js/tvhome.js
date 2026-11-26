@@ -26,12 +26,12 @@ const TvHome = {
     if (!this.el) this.build();
     this.open_ = true; document.body.classList.add('th-on'); this.el.classList.remove('hidden');
     this.view = { mode: 'home' }; this.stack = []; this.render(); this.pickFeatured(); this.show(this.feat[0] || null, true); this.startRotate(); this.tick();
-    clearInterval(this._clk); this._clk = setInterval(() => this.tick(), 20000);
+    clearInterval(this._clk); if (!this._clkL) { this._clkL = 1; window.addEventListener('doom:clock', () => this.tick()); }
     setTimeout(() => { const b = $('.th-play', this.el); if (document.body.classList.contains('tv') && b) b.focus({ preventScroll: true }); }, 80);
   },
   close() {
     if (!this.el) return; this.open_ = false; document.body.classList.remove('th-on'); this.el.classList.add('hidden');
-    clearInterval(this._rot); clearInterval(this._clk);
+    clearInterval(this._rot); clearInterval(this._clk); clearTimeout(this._clkT);
   },
   refresh() { if (this.open_) { this.render(true); this.pickFeatured(); } },
   /* inside the big-screen mode: home → a section (rows per category) → one category (grid); also search, my lists, continue */
@@ -132,9 +132,11 @@ const TvHome = {
   },
   scrollTop() { const m = $('.th-main', this.el); if (m) m.scrollTop = 0; const b = $('.th-play', this.el); b && b.focus({ preventScroll: true }); this.startRotate(); },
   tick() {
-    if (!this.el) return; const d = new Date();
-    $('.th-clock b', this.el).textContent = d.toLocaleTimeString(LANG === 'ar' ? 'ar-EG' : 'en-GB', { hour: '2-digit', minute: '2-digit' });
-    $('.th-clock small', this.el).textContent = d.toLocaleDateString(LANG === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    if (!this.el) return; const d = Clock.now();
+    $('.th-clock b', this.el).textContent = Clock.time(d);
+    $('.th-clock small', this.el).textContent = Clock.date(d);
+    /* re-tick right on the minute so the clock never lags behind */
+    clearTimeout(this._clkT); this._clkT = setTimeout(() => this.tick(), 60000 - (d.getSeconds() * 1000 + d.getMilliseconds()) + 50);
   },
 
   /* ---------- content ---------- */
