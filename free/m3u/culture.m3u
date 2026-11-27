@@ -101,8 +101,6 @@ https://eu.streamjo.com/eetlive/eettv.m3u8
 https://directes-tv-cat.3catdirectes.cat/live-content/c33-super3-hls/master.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/frKCBTN.png" group-title="Culture",El 33 Originals
 https://directes-tv-int.3catdirectes.cat/live-content/c33-super3-hls/master.m3u8
-#EXTINF:-1 tvg-logo="https://i.imgur.com/uBBZR1X.png" group-title="Culture",Encuentro
-http://138.59.227.20:8000/play/a05s/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/fUjGHDa.png" group-title="Kids",ETV2
 https://sb.err.ee/live/etv2.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/iBlXl2T.png" group-title="Culture",Ev-tele
@@ -200,7 +198,7 @@ http://play1-qk.nmtv.cn/live/1769652109096027.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/NHK_World-Japan_TV.svg/960px-NHK_World-Japan_TV.svg.png" group-title="News",NHK World-Japan
 https://cdn.pishow.tv/ott/live/455/master.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/NHK_World-Japan_TV.svg/960px-NHK_World-Japan_TV.svg.png" group-title="News",NHK World-Japan HD
-https://freem3u.xyz/api/live/play.m3u8?vid=106
+http://170.83.16.50/NHK_WORLD/index.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Culture",Nigbati
 https://viewmedia7219.bozztv.com/wmedia/viewmedia100/web_023/Stream/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/YR7sXaN.png" group-title="Culture",NITV
@@ -263,8 +261,6 @@ https://d11lnfpmek70tc.cloudfront.net/nlpo/clr-nlpo/bad78523/index.m3u8
 https://d2lk5u59tns74c.cloudfront.net/out/v1/bc57af15b4df4200af5fa4c1d6ab0a72/index.m3u8
 #EXTINF:-1 tvg-logo="https://sercemtv.com.tr/sercemlogo.jpg" group-title="Religious",Sercem TV
 https://canli.sercemtv.com.tr/hls/0/stream.m3u8
-#EXTINF:-1 tvg-logo="https://play-lh.googleusercontent.com/1ibQhkMCsnXaI9LOiZH-Iyw8rM8CMVJEZAlbFphWuZApSPIp-eZsjltDlN6rqJzIonQ" group-title="Culture",Shiksha TV
-http://103.89.46.106:8080/hls/shikshatvhd/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/AJIN8Dc.png" group-title="Culture",ShowVen TV
 https://cdnbarinas.tvzamora.com/showven/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/SeF2I7q.png" group-title="News",STZ TV
@@ -289,8 +285,6 @@ https://tv-trtgenc.medya.trt.com.tr/master.m3u8
 https://streaming.cloudecast.com/hls/tvlifeamerica/index.m3u8
 #EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/daniloroxette/tvufop/refs/heads/main/images/tvufop_logo.png" group-title="Public",TV UFOP
 https://app.tvufop.com.br/hls/tvufop.m3u8
-#EXTINF:-1 tvg-logo="https://i.imgur.com/Cx1GLbo.png" group-title="Culture",TV Vita
-https://dash3.antik.sk/live/test_vita/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/U9i70C9.png" group-title="Culture",TVR Cultural
 https://tvr-cultural.lg.mncdn.com/tvrcultural/smil:tvrcultural.smil/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/brCSiGh.png" group-title="Education",UAA TV

@@ -10,7 +10,7 @@ https://hls.dabangasudan.org/hls/stream.m3u8
 #EXTINF:-1 tvg-logo="https://platform-iuoamc.uk/storage/tv/branding/mca-tv-official-logo.png" group-title="Cooking",Master Chefs Academy TV
 https://platform-iuoamc.uk/iptv/mca-tv/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/5XyopHf.png" group-title="Education",AgroCanal
-http://170.83.49.66:8083/AGROCANALHD/index.m3u8
+http://186.219.52.187/agro_canal/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/MCbCSWv.png" group-title="Education",ALTV
 https://thaipbs-ujxrch.cdn.byteark.com/live/playlist_1080p/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/FM9FVAG.png" group-title="Education",Animaux
@@ -167,6 +167,8 @@ https://reflect-kcat-live.cablecast.tv/live-2/live/live.m3u8
 https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/VfofmZZ.png" group-title="Education",Knowledge Network
 https://d1wal6k3d7ssin.cloudfront.net/out/v1/ea91db0906c847a4931b46a9ec36e77b/index.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/PmD17UQ.png" group-title="Education",Kto est kto
+http://s7.merlive.am/ktoestkto/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Kunskapskanalen_2017.svg/960px-Kunskapskanalen_2017.svg.png" group-title="Education",Kunskapskanalen
 https://svt-live-channel.akamaized.net/l6/se/svtk/master-fmp4.m3u8?defaultSubLang=1&format=hls
 #EXTINF:-1 tvg-logo="https://i.imgur.com/Cy94oLl.png" group-title="Education",Leominster TV Educational
@@ -249,8 +251,6 @@ https://livestream.telvue.com/santamariactv2/f7b44cfafd5c52223d5498196c8a2e7b.sd
 https://tv91.hostingnuclear.com:19360/xhunestv/xhunestv.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/Lsy31iZ.jpeg" group-title="Education",Shams TV
 https://fflive-darya-educationtv.b-cdn.net/master.m3u8
-#EXTINF:-1 tvg-logo="https://play-lh.googleusercontent.com/1ibQhkMCsnXaI9LOiZH-Iyw8rM8CMVJEZAlbFphWuZApSPIp-eZsjltDlN6rqJzIonQ" group-title="Culture",Shiksha TV
-http://103.89.46.106:8080/hls/shikshatvhd/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/wnB0fWG.png" group-title="Education",St Lucie Public Schools
 https://reflect-stlucie-ps-fl.cablecast.tv/live-1/live/stream-1/WIFI-1896k-720p.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/nUsq67m.png" group-title="Education",STVE Telebasica

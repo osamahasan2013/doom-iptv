@@ -32,7 +32,9 @@ http://176.65.153.40:6002/play/a013/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network
 https://turnerlive.warnermediacdn.com/hls/live/2023160/tooneast/noslate/VIDEO_3_1928000.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network Asia Thailand
-http://103.148.210.190:8000/play/a14r
+http://103.253.74.210:7070/stream/118/index.m3u8
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network Asia Vietnam
+http://antm.dynu.net:14285/rtp/232.84.1.16:8070
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network CEE
 http://193.33.39.108:9007/play/a00l
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network CEE Bulgary
@@ -41,6 +43,10 @@ http://213.91.179.28:8000/play/a08g
 http://88.212.7.14/live/test_cartoon_network_tizen/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network CEE Poland
 http://92.114.85.87:8007/play/a009
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network CEE Romania
+https://rundle.tv/proxy5.php?src=https://saruman1.tharen001.cfd/cartun/usergenrx2xfzol0q.m3u8
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network CEE Russia
+http://s7.merlive.am/CartoonNetwork/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network CEE Ukraine
 http://45.132.87.69:8080/cartoon_network/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network HD
@@ -55,6 +61,8 @@ http://158.172.217.18:8000/play/a03a/index.m3u8
 http://45.167.1.138:8000/play/a00w
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network West
 http://212.5.144.156:8080/cartoon/index.m3u8
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network Western Europe Portugal
+https://vavoorender-vuzs.onrender.com/manifest.m3u8?url=https://vavoo.to/vavoo-iptv/play/2672740913728a31b548ec
 #EXTINF:-1 tvg-logo="https://i.imgur.com/oK2DcDJ.png" group-title="Animation",Cartoonito
 https://live02-seg.msf.cdn.mediaset.net/live/ch-la/la-clr.isml/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/6vYWCD0.png" group-title="Animation",Cartoonito HD
@@ -81,7 +89,7 @@ http://181.78.14.26:4000/play/a073/index.m3u8
 http://45.185.163.75:8000/play/a016/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/e/e3/2024_Disney_Jr._Logo.svg" group-title="Animation",Disney Jr. Latin America South HD
 http://bantel-cdn1.iptvperu.tv:1935/btnscrtn/disney_jr.stream/playlist.m3u8
-#EXTINF:-1 tvg-logo="" group-title="Animation",DreamWorks Channel Latin America
+#EXTINF:-1 tvg-logo="https://i.imgur.com/mZnH8ep.png" group-title="Animation",DreamWorks Channel Latin America
 http://138.121.15.230:9002/DREAMWORKS/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/k8U0e0b.png" group-title="Animation",Dreiko TV
 https://cloudvideo.servers10.com:8081/8020/index.m3u8
@@ -91,6 +99,8 @@ https://cl-2.backend.energeek.cl/bkp/egretroweb/index.m3u8?token=IPTVgh26
 https://cl-2.backend.energeek.cl/bkp/egfan/mobile/index.m3u8?token=IPTVgh26
 #EXTINF:-1 tvg-logo="https://i.imgur.com/OprRgQN.png" group-title="Animation",eSports Max TV
 https://cdnlive.klicgo.net/esportsmax/live/playlist_dvr.m3u8
+#EXTINF:-1 tvg-logo="https://www.vivalivetv.com/public/files/shows/0/1/3027-294x165-FFFFFF.jpg" group-title="Animation",Extrema Kids TV
+https://627bb251f23c7.streamlock.net:444/ExtremaKids/ExtremaKids/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/mDeTbaF.png" group-title="Animation",FAN
 http://stream.mcquack.net/420/index.m3u8
 #EXTINF:-1 tvg-logo="https://provider-static.plex.tv/epg/cms/production/cff7361f-e0ba-4aeb-9251-9530f4eb1d80/FilmRise_Anime_1500x1000_Light_Logo.png" group-title="Animation",FilmRise Anime
@@ -101,6 +111,8 @@ https://pistream.ddns.net/hls/stream.m3u8
 https://amg01596-gongnetworks-gong-ono-vh5f2.amagi.tv/1080p-vtt/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/JDM9rEV.png" group-title="Animation",Hasbro Legends
 https://amg02713-amg02713c11-amgplt0852.playout.now3.amagi.tv/ts-us-e2-n2/playlist/amg02713-amg02713c11-amgplt0852/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://static-cdn.jtvnw.net/jtv_user_pictures/6b97e19f-4243-4d48-b794-ff8cf54d795f-profile_image-300x300.png" group-title="Animation",Japanim TV
+https://foxkidstv.be:3369/stream/play.m3u8
 #EXTINF:-1 tvg-logo="https://www.tvchinese.net/uploads/tv/jxtv6.jpg" group-title="Kids",Jiangxi Children's Channel
 https://play-live-hls.jxtvcn.com.cn/live-city/tv_jxtv6.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/SRX6EPY.png" group-title="Animation",Kuriakos Kids
@@ -113,6 +125,8 @@ https://cdnlive.klicgo.net/maxanime/live/playlist.m3u8
 https://d18fcxaqfnwjhj.cloudfront.net/CDN_Ingest/MCN6_MUSIC.smil/Playlist.m3u8
 #EXTINF:-1 tvg-logo="https://www.newsfromme.com/wp-content/uploads/2024/05/metvtoons01.jpg" group-title="Animation",MeTV Toons
 https://sr-live-weigel1.akamaized.net/out/v1/0d1dbf29e64e47bc991796cc24fbeb97/index_2.m3u8
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/en/b/ba/Minimax_2021.svg" group-title="Animation",Minimax
+https://rundle.tv/proxy5.php?src=https://atlantida1.aquax001.shop/minimaxy/usergendxny9zrnd.m3u8
 #EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/2/25/Mr._Bean_Animated_Series_stacked_logo.png" group-title="Animation",Mr. Bean Animated
 https://amg00627-amg00627c23-samsung-au-4110.playouts.now.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/2/25/Mr._Bean_Animated_Series_stacked_logo.png" group-title="Animation",Mr. Bean Anime Italy
@@ -148,13 +162,9 @@ http://api.toonamiaftermath.com:3000/est/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/aSjhZK7.png" group-title="Animation",Toonami Aftermath West
 http://api.toonamiaftermath.com:3000/pst/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/3yXRbQy.png" group-title="Animation",Tooncast
-http://45.184.109.10/live/69393EAE6ADBC65A68F942022362A202/69.m3u8
-#EXTINF:-1 tvg-logo="https://i.imgur.com/3yXRbQy.png" group-title="Animation",Tooncast Argentina
 http://45.134.141.161:2200/ARG/Tooncast/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/3yXRbQy.png" group-title="Animation",Tooncast Brazil
 http://170.83.16.50/TOONCAST/index.m3u8
-#EXTINF:-1 tvg-logo="https://i.imgur.com/3yXRbQy.png" group-title="Animation",Tooncast SouthAmerica
-http://190.61.42.218:9000/play/a06i/index.m3u8
 #EXTINF:-1 tvg-logo="https://d229kpbsb5jevy.cloudfront.net/yupptvnew/content/common/channel/logos/mjvezt.png" group-title="Animation",WOW Kidz
 https://yuppparoriglin.akamaized.net/181224/smil:wowkidzhindi.smil/playlist.m3u8?hdnts=st=1735898689~exp=1835898688~acl=*~hmac=f5fe24724fe05481e3841f9eb5ab8efdee0a3dd83645ae9dcf45703f525bab7b
 #EXTINF:-1 tvg-logo="https://d229kpbsb5jevy.cloudfront.net/yupptvnew/content/common/channel/logos/mjvezt.png" group-title="Animation",WOW Kidz Tamil
