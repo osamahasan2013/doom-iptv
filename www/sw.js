@@ -1,5 +1,5 @@
 /* DOOM IPTV service worker: caches the app shell only (never video or provider API data) */
-const CACHE = 'doom-shell-v25';
+const CACHE = 'doom-shell-v26';
 const SHELL = ['./', './index.html', './css/app.css', './js/version.js', './js/icons.js', './js/core.js', './js/free.js', './js/qr.js', './js/speedtest.js', './js/tvkb.js', './js/subsync.js', './js/exo.js', './js/player.js', './js/features.js', './js/ui.js', './js/tvhome.js', './js/tvdetail.js', './manifest.webmanifest', './icons/logo-128.png', './icons/icon-512.png', './lib/hls.min.js', './lib/mpegts.js'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => Promise.allSettled(SHELL.map(u => c.add(u)))).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

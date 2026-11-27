@@ -36,6 +36,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -128,6 +129,26 @@ public class MainActivity extends BridgeActivity {
         goFullScreen();
         focusWebView();
         new Handler(Looper.getMainLooper()).postDelayed(this::markLan, 500);
+    }
+
+    // Holding OK on the remote repeats the key-down until the key is let go. Those repeats never reach the page:
+    // the page sees one key-down (and the key-up), and is told once when the press has become a long press.
+    // So a held OK can't click whatever opens under it (menus, the heart) again and again.
+    private boolean okLong;
+    private static boolean isOk(int k) { return k == KeyEvent.KEYCODE_DPAD_CENTER || k == KeyEvent.KEYCODE_ENTER || k == KeyEvent.KEYCODE_NUMPAD_ENTER || k == KeyEvent.KEYCODE_BUTTON_A; }
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent e) {
+        if (isOk(e.getKeyCode()) && e.getAction() == KeyEvent.ACTION_DOWN) {
+            if (e.getRepeatCount() == 0) okLong = false;
+            else {
+                if (!okLong && e.getEventTime() - e.getDownTime() >= 500 && getBridge() != null && getBridge().getWebView() != null) {
+                    okLong = true;
+                    getBridge().getWebView().evaluateJavascript("window.DOOM_OK_LONG&&window.DOOM_OK_LONG()", null);
+                }
+                return true;
+            }
+        }
+        return super.dispatchKeyEvent(e);
     }
 
     @Override

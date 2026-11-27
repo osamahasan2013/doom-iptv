@@ -247,7 +247,9 @@ const OkHold = {
   eat(e) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); },
   init() {
     if (this._on) return; this._on = true;
-    this.keyup = LS.get('okKeyup', false);
+    // Android app: the remote's repeats are held back natively; it tells us exactly when the press became long
+    window.DOOM_OK_LONG = () => { if (this.st && !this.st.long) { this.fire(); this.idle(); } };
+    this.keyup = LS.get('okKeyup', false) || !!(window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android');   // Android always sends key-up
     window.addEventListener('keydown', e => this.down(e), true);
     window.addEventListener('keyup', e => this.up(e), true);
     const late = e => { if ((this.st && this.st.long) || Date.now() < this.quiet) this.eat(e); };

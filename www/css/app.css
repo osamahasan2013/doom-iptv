@@ -688,3 +688,4 @@ body.exo-on > *:not(.player):not(.modal-back):not(#toasts):not(script) { visibil
 .p-xsub:empty { display: none; }
 .player[data-sub=s] .p-xsub { font-size: 24px; } .player[data-sub=l] .p-xsub { font-size: 38px; } .player[data-sub=xl] .p-xsub { font-size: 48px; }
 .player.ui .p-xsub { bottom: 20%; }
+.th-bgimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; }

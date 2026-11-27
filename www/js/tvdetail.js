@@ -9,7 +9,7 @@ Object.assign(I18N.en, {
 });
 Object.assign(I18N.ar, {
   trailers: 'عرض الإعلانات', trOff: 'إيقاف', trDetail: 'في صفحة التفاصيل فقط', trAll: 'في الرئيسية وصفحة التفاصيل', trailersHint: 'يشغّل إعلان الفيلم بدون صوت في الخلفية عند الوقوف عليه',
-  watchTrailer: 'الإعلان', startOver: 'من البداية', moreLike: 'محتوى مشابه', nSeasons: '{n} مواسم', oneSeason: 'موسم واحد', epsN: '{n} حلقة', noEpisodes: 'لا توجد حلقات بعد'
+  watchTrailer: 'الإعلان', startOver: 'من البداية', moreLike: 'محتوى مشابه', nSeasons: '{n} مواسم', oneSeason: 'موسم واحد', epsN: '{n} حلقات', noEpisodes: 'لا توجد حلقات بعد'
 });
 
 const Trailer = {

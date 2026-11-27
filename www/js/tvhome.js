@@ -348,27 +348,34 @@ const TvHome = {
     const big = u => String(u || '').replace(/(image\.tmdb\.org\/t\/p\/)(original|w\d{3,4})\//, '$1w1280/');
     const src = big(wide || poster); if (!src || src === this._bgSrc) return; this._bgSrc = src;
     const im = new Image(); im.referrerPolicy = 'no-referrer';
-    im.onload = () => {
-      if (this._bgSrc !== src) return;
-      // treat anything that is not clearly landscape (or too small to fill a TV) as a poster
-      const isWide = im.naturalWidth >= 1.25 * im.naturalHeight && im.naturalWidth >= 640;
-      const [a, b] = $$('.th-bgi', this.el); const on = a.classList.contains('on') ? a : b, off = on === a ? b : a;
-      off.textContent = '';
-      if (isWide) { off.style.backgroundImage = `url("${src.replace(/"/g, '%22')}")`; }
-      else {
-        // soft poster background without a blur filter: the poster drawn into a tiny canvas, stretched over the screen
-        off.style.backgroundImage = 'none';
-        const cv = document.createElement('canvas'); cv.width = 32; cv.height = 48; cv.className = 'th-soft';
-        try { const g = cv.getContext('2d'); g.drawImage(im, 0, 0, 32, 48); g.fillStyle = 'rgba(7,11,24,.45)'; g.fillRect(0, 0, 32, 48); off.appendChild(cv); } catch { off.style.backgroundImage = `url("${src.replace(/"/g, '%22')}")`; }
-      }
-      off.classList.toggle('poster', !isWide);
-      on.classList.remove('on'); off.classList.add('on');
-      const pst = $('.th-pst', this.el), pi = $('img', pst);
-      if (!isWide) { pi.src = src; pst.classList.add('on'); } else pst.classList.remove('on');
-      this.el.classList.toggle('has-pst', !isWide);
-    };
+    // the picture is decoded off the main thread BEFORE it is put on screen (no hitch when it swaps in)
+    im.onload = () => { const dec = im.decode ? im.decode().catch(() => {}) : Promise.resolve(); dec.then(() => this._bgSwap(im, src)); };
     im.onerror = () => { if (this._bgSrc === src && wide && poster) { this._bgSrc = ''; this.bg('', poster); } };
     im.src = src;
+  },
+  _bgSwap(im, src) {
+    if (this._bgSrc !== src || !this.el) return;
+    // treat anything that is not clearly landscape (or too small to fill a TV) as a poster
+    const isWide = im.naturalWidth >= 1.25 * im.naturalHeight && im.naturalWidth >= 640;
+    const [a, b] = $$('.th-bgi', this.el); const on = a.classList.contains('on') ? a : b, off = on === a ? b : a;
+    off.textContent = ''; off.style.backgroundImage = 'none';
+    if (isWide) { im.className = 'th-bgimg'; im.alt = ''; off.appendChild(im); }
+    else {
+      // soft poster background without a blur filter: the poster drawn into a tiny canvas, stretched over the screen
+      const cv = document.createElement('canvas'); cv.width = 32; cv.height = 48; cv.className = 'th-soft';
+      try { const g = cv.getContext('2d'); g.drawImage(im, 0, 0, 32, 48); g.fillStyle = 'rgba(7,11,24,.45)'; g.fillRect(0, 0, 32, 48); off.appendChild(cv); } catch { off.style.backgroundImage = `url("${src.replace(/"/g, '%22')}")`; }
+    }
+    const show = () => {
+      if (this._bgSrc !== src) return;
+      off.classList.toggle('poster', !isWide);
+      on.classList.remove('on'); off.classList.add('on');
+      const pst = $('.th-pst', this.el);
+      if (!isWide) pst.classList.add('on'); else pst.classList.remove('on');
+      this.el.classList.toggle('has-pst', !isWide);
+    };
+    if (isWide) return show();
+    const pi = $('.th-pst img', this.el); pi.src = src;
+    (pi.decode ? pi.decode().catch(() => {}) : Promise.resolve()).then(show);
   }
 };
 window.TvHome = TvHome;
