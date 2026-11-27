@@ -4,13 +4,13 @@
    rows of wide cards (Continue watching, recently added, top rated, favourites, live). */
 'use strict';
 Object.assign(I18N.en, {
-  homeView: 'Home screen', hvClassic: 'Classic (side menu)', hvTv: 'Big screen (TV home)', homeViewHint: 'For TVs and big screens: a home page with rows and a background that follows the content',
+  homeView: 'Home screen', hvClassic: 'Classic (side menu)', hvTv: 'Big screen (TV home)', hvCinema: 'Cinema (icon menu + posters)', srchShort: 'Search', homeViewHint: 'For TVs and big screens: a home page with rows and a background that follows the content',
   playNow: 'Play Now', moreInfo: 'More Info', myList: 'My List', inMyList: 'In My List', latest: 'Latest', accounts: 'Accounts', update: 'Update', home: 'Home',
   rowContinue: 'Continue Watching', rowNewMovies: 'Recently added movies', rowNewSeries: 'Recently added series', rowTop: 'Top rated', rowFav: 'My List', rowLive: 'Live TV',
   nothingHere: 'Nothing here yet', seeAll: 'See all', searchTv: 'Search movies, series, channels', noResults: 'Nothing found', minLeft: '{n}m left', hLeft: '{h}h {m}m left', movie: 'Movie', show: 'Series', channel: 'Channel', featured: 'Featured', resumeAt: 'Resume'
 });
 Object.assign(I18N.ar, {
-  homeView: 'الشاشة الرئيسية', hvClassic: 'الكلاسيكية (قائمة جانبية)', hvTv: 'الشاشات الكبيرة (رئيسية التلفزيون)', homeViewHint: 'للتلفزيونات والشاشات الكبيرة: صفحة رئيسية بصفوف وخلفية بتتغير مع المحتوى',
+  homeView: 'الشاشة الرئيسية', hvClassic: 'الكلاسيكية (قائمة جانبية)', hvTv: 'الشاشات الكبيرة (رئيسية التلفزيون)', hvCinema: 'سينما (قائمة أيقونات وبوسترات)', srchShort: 'بحث', homeViewHint: 'للتلفزيونات والشاشات الكبيرة: صفحة رئيسية بصفوف وخلفية بتتغير مع المحتوى',
   playNow: 'تشغيل', moreInfo: 'تفاصيل', myList: 'قائمتي', inMyList: 'في قائمتي', latest: 'الأحدث', accounts: 'الحسابات', update: 'تحديث', home: 'الرئيسية',
   rowContinue: 'متابعة المشاهدة', rowNewMovies: 'أفلام مضافة حديثاً', rowNewSeries: 'مسلسلات مضافة حديثاً', rowTop: 'الأعلى تقييماً', rowFav: 'قائمتي', rowLive: 'البث المباشر',
   nothingHere: 'لا يوجد محتوى هنا بعد', seeAll: 'عرض الكل', searchTv: 'ابحث عن فيلم أو مسلسل أو قناة', noResults: 'لا توجد نتائج', minLeft: 'متبقي {n} د', hLeft: 'متبقي {h}س {m}د', movie: 'فيلم', show: 'مسلسل', channel: 'قناة', featured: 'مميز', resumeAt: 'استكمال'
@@ -19,12 +19,13 @@ Object.assign(I18N.ar, {
 const TvHome = {
   el: null, open_: false, cur: null, feat: [], fi: 0, info: new Map(), _rot: 0, _fT: 0, _clk: 0, _bgSrc: '',
   view: { mode: 'home' }, stack: [], bdc: LS.get('bdCache', {}),
-  enabled() { return Settings.get('homeView') === 'tv'; },
+  enabled() { const v = Settings.get('homeView'); return v === 'tv' || v === 'cinema'; },
+  get cn() { return Settings.get('homeView') === 'cinema'; },   // the cinema look: icon menu that opens, poster cards, categories beside a grid
 
   open() {
     if (!App.data || !App.el) return;
     if (!this.el) this.build();
-    this.open_ = true; document.body.classList.add('th-on'); this.el.classList.remove('hidden');
+    this.open_ = true; document.body.classList.add('th-on'); this.el.classList.remove('hidden'); this.el.classList.toggle('cn', this.cn);
     this.view = { mode: 'home' }; this.stack = []; this.render(); this.pickFeatured(); this.show(this.feat[0] || null, true); this.startRotate(); this.tick();
     clearInterval(this._clk); if (!this._clkL) { this._clkL = 1; window.addEventListener('doom:clock', () => this.tick()); }
     setTimeout(() => { const b = $('.th-play', this.el); if (document.body.classList.contains('tv') && b) b.focus({ preventScroll: true }); }, 80);
@@ -38,6 +39,7 @@ const TvHome = {
   go(v) {
     Trailer.stop(); clearTimeout(this._fT); this.mark(); this.stack.push(this.view); this.view = v; this.render(); const m = $('.th-main', this.el); if (m) m.scrollTop = 0;
     if (v.mode === 'detail') return;   // the details page puts the focus on Play itself
+    if (this.cn && v.mode === 'sec') { setTimeout(() => { const c = $('.cn-cat.on', this.el); c && c.focus({ preventScroll: true }); }, 60); return; }
     setTimeout(() => { const f = v.mode === 'search' ? $('.th-sin', this.el) : $('.th-rows .th-card', this.el); if (f) { f.focus({ preventScroll: true }); if (f._it) this.show(f._it); } }, 60);
   },
   /* remember the focused button (which block, which button, scroll) so Back lands on it again */
@@ -46,8 +48,8 @@ const TvHome = {
     const a = document.activeElement; if (!this.el || !a || !this.el.contains(a)) return;
     const m = $('.th-main', this.el); if (a.closest('.th-hero')) { v.ret = { hero: true }; return; }
     const top = [...$('.th-rows', this.el).children].find(x => x.contains(a)); if (!top) return;
-    const row = a.closest('.th-row');
-    v.ret = { top: m ? m.scrollTop : 0, s: [...top.parentNode.children].indexOf(top), i: $$('button', top).indexOf(a), row: row ? row.scrollLeft : 0 };
+    const row = a.closest('.th-row'), gb = a.closest('.cn-gridbox, .th-rows');
+    v.ret = { top: m ? m.scrollTop : 0, s: [...top.parentNode.children].indexOf(top), i: $$('button', top).indexOf(a), row: row ? row.scrollLeft : 0, gtop: gb ? gb.scrollTop : 0 };
   },
   back() {
     if (!this.open_ || !this.stack.length) return false;
@@ -59,6 +61,9 @@ const TvHome = {
         const box = $('.th-rows', this.el);
         while (box.children.length <= r.s && this._pending && this._pending.length) this.moreRows(3);
         const sec = box.children[r.s], row = sec && $('.th-row', sec); if (row) row.scrollLeft = r.row;
+        const gb = sec && $('.cn-gridbox', sec);
+        if (gb) { while ($$('button', sec).length <= r.i && gb._more && gb._more()); gb.scrollTop = r.gtop; }
+        if (this.cn && this.view.mode === 'home') box.scrollTop = r.gtop;
         f = sec && $$('button', sec)[r.i];
         if (m) m.scrollTop = r.top;
       }
@@ -71,14 +76,14 @@ const TvHome = {
   leave(sec, then) { this.close(); if (sec) App.go(sec); then && then(); setTimeout(() => App.ensureFocus && App.ensureFocus(), 80); },
 
   build() {
-    const rb = (icon, label, run, cls = '') => { const b = h('button', { class: 'th-rb ' + cls, title: label, 'aria-label': label, html: icon }); b.addEventListener('click', run); return b; };
+    const rb = (icon, label, run, cls = '') => { const b = h('button', { class: 'th-rb ' + cls, title: label, 'aria-label': label, html: icon }); b.appendChild(h('span', { class: 'rl' }, label)); b.addEventListener('click', run); return b; };
     const tab = (cls, icon, label, run) => { const b = h('button', { class: 'th-tab' }, h('span', { class: 'th-ti ' + cls, html: icon }), h('span', {}, label)); b.addEventListener('click', run); return b; };
     this.el = h('div', { class: 'th hidden' },
       h('div', { class: 'th-bg' }, h('div', { class: 'th-bgi a on' }), h('div', { class: 'th-bgi b' }), h('div', { class: 'th-shade' })),
       h('nav', { class: 'th-rail' },
         rb(ic('user'), t('accounts'), () => this.leave('settings'), 'top'),
         h('div', { class: 'th-rail-mid' },
-          rb(ic('search'), t('search'), () => this.go({ mode: 'search', q: '' }), 'r-search'),
+          rb(ic('search'), t('srchShort'), () => this.go({ mode: 'search', q: '' }), 'r-search'),
           rb(ic('home'), t('home'), () => { this.stack = []; this.view = { mode: 'home' }; this.render(); this.scrollTop(); }, 'r-home'),
           rb(ic('tv'), t('live'), () => this.go({ mode: 'sec', sec: 'live' }), 'r-live'),
           rb(ic('film'), t('movies'), () => this.go({ mode: 'sec', sec: 'movies' }), 'r-movies'),
@@ -119,7 +124,9 @@ const TvHome = {
     // the background and the hero follow the card you STOP on (not every card you pass); rows scroll sideways
     this.el.addEventListener('focusin', e => {
       const c = e.target.closest('.th-card');
-      if (c) { const b = c.getBoundingClientRect(), dx = this.reveal(c, b); this.ringAt(c, b.left - dx, b.top, b.width, b.height); } else this.ringTo(null);   // one measurement per move
+      let dy = 0;
+      if (c && this.cn && this.view.mode === 'home') { const sec = c.closest('.th-sec'), rows = sec && sec.parentElement; if (rows && rows.classList.contains('th-rows') && rows.scrollTop !== sec.offsetTop) { const b0 = rows.scrollTop; rows.scrollTop = sec.offsetTop; dy = rows.scrollTop - b0; } }
+      if (c) { const b = c.getBoundingClientRect(), dx = this.reveal(c, b); this.ringAt(c, b.left - dx, b.top - dy, b.width, b.height); } else this.ringTo(null);   // one measurement per move
       if (c && c._it && this.view.mode !== 'detail') { clearInterval(this._rot); this._rot = 0; clearTimeout(this._fT); if (c._it !== this.cur) Trailer.stop(); this._fT = setTimeout(() => this.show(c._it, false, c), 550); this.maybeMore(c); }
       else if (e.target.closest('.th-hero') && !this._rot) this.startRotate();
     });
@@ -154,7 +161,7 @@ const TvHome = {
       if (dx) { const before = row.scrollLeft; row.scrollLeft += dx; dx = row.scrollLeft - before; }
       return dx;
     }
-    { const mm = $('.th-main', this.el), mr = mm.getBoundingClientRect(), q = r; if (q.top < mr.top + 30) mm.scrollTop -= mr.top + 30 - q.top; else if (q.bottom > mr.bottom - 30) mm.scrollTop += q.bottom - mr.bottom + 30; }
+    { const mm = row.closest('.cn-gridbox') || $('.th-main', this.el), mr = mm.getBoundingClientRect(), q = r; if (q.top < mr.top + 30) mm.scrollTop -= mr.top + 30 - q.top; else if (q.bottom > mr.bottom - 30) mm.scrollTop += q.bottom - mr.bottom + 30; }
     return 0;
   },
   scrollTop() { const m = $('.th-main', this.el); if (m) m.scrollTop = 0; const b = $('.th-play', this.el); b && b.focus({ preventScroll: true }); this.startRotate(); },
@@ -197,6 +204,7 @@ const TvHome = {
     $$('.th-rb', this.el).forEach(b => b.classList.toggle('on', b.classList.contains('r-' + rk)));
     box.innerHTML = ''; this._pending = []; if (this._io) { this._io.disconnect(); this._io = null; }
     if (v.mode === 'detail') return TvDetail.render(box, v);
+    if (this.cn && v.mode === 'sec') return this.renderCn(box, v);
     if (v.mode === 'search') return this.renderSearch(box);
     if (v.mode === 'cat') return this.renderGrid(box, v.title, v.items);
     this._pending = this.rowsFor(v); this.moreRows(8, box);
@@ -274,7 +282,62 @@ const TvHome = {
     }
   },
   stars(r) { r = Math.max(0, Math.min(10, +r || 0)) / 2; let s = ''; for (let i = 1; i <= 5; i++) s += r >= i - .25 ? '★' : r >= i - .75 ? '⯪' : '☆'; return s.replace(/⯪/g, '★'); },
+  /* cinema look: a poster card (the whole poster, title under it) */
+  pcard(it, list) {
+    const p = it._p, pst = it.img || (p && p.item.seriesImg) || '';
+    const title = p && p.item.seriesName ? p.item.seriesName : it.name;
+    const sub = p && p.item.seriesName ? t('sShort') + p.item.season + ' ' + t('epShort') + p.item.episode : (it.year || '');
+    const c = h('button', { class: 'th-card cn-p', 'aria-label': title },
+      h('div', { class: 'th-img' }, App.imgEl(pst, title)),
+      +it.rating > 0 ? h('span', { class: 'th-rate' }, h('em', {}, '★'), ' ' + (+it.rating).toFixed(1)) : null,
+      App.marks ? App.marks(it) : null,
+      h('div', { class: 'th-cap' }, p && p.dur ? h('div', { class: 'th-prog' }, h('i', { style: { width: Math.min(100, p.pos / p.dur * 100) + '%' } })) : null, h('b', {}, title), sub ? h('small', {}, String(sub)) : null));
+    c._it = it; c._list = list;
+    c.addEventListener('click', () => { if (c._lp) { c._lp = false; return; } this.play(it, true, list); });
+    App.bindPress && App.bindPress(c, it, () => this.play(it, true, list), {});
+    return c;
+  },
+  /* cinema look, a section: categories on the side, the chosen one as a poster grid (stopping on a category shows it) */
+  renderCn(box, v) {
+    const sec = v.sec, all = App.listFor(sec, 'all'), by = new Map();
+    for (const it of all) { let a = by.get(it.cat); if (!a) by.set(it.cat, a = []); a.push(it); }
+    const cats = [{ id: '__all', name: t('all'), items: all }];
+    if (sec !== 'live') {
+      const cont = Progress.continueList().filter(p => sec === 'series' ? !!p.item.seriesId : !p.item.seriesId).map(p => { const m = p.item.seriesId ? null : App.findItem('movies', p.item.id, p.item.pl); return Object.assign({}, m || p.item, { _p: p }); });
+      if (cont.length) cats.push({ id: '__cont', name: t('rowContinue'), items: cont });
+      cats.push({ id: '__new', name: t(sec === 'movies' ? 'rowNewMovies' : 'rowNewSeries'), items: this.list(sec, 'added', 400) });
+    }
+    const fav = (Lists.data.find(l => l.id === 'fav') || { items: [] }).items.filter(x => (sec === 'live' ? x.type === 'live' : sec === 'series' ? x.type === 'series' : x.type === 'movie'));
+    if (fav.length) cats.push({ id: '__fav', name: t('rowFav'), items: fav.slice().reverse().map(x => App.findItem(sec, x.id, x.pl) || x) });
+    for (const c of App.visibleCats(sec)) { const items = by.get(c.id); if (items && items.length) cats.push({ id: c.id, name: c.name, items }); }
+    const col = h('div', { class: 'cn-cats' }), gbox = h('div', { class: 'cn-gridbox' });
+    box.appendChild(h('div', { class: 'cn-sec' }, col, gbox));
+    let cur = cats.find(c => c.id === v.cat) || cats[0];
+    const show = c => {
+      cur = c; v.cat = c.id; $$('.cn-cat', col).forEach(b => b.classList.toggle('on', b._c === c));
+      gbox.innerHTML = ''; gbox.scrollTop = 0; this.gridInto(gbox, c.name, c.items);
+    };
+    for (const c of cats) {
+      const b = h('button', { class: 'cn-cat' }, h('span', {}, c.name), h('small', {}, String(c.items.length))); b._c = c;
+      b.addEventListener('focus', () => { clearTimeout(this._cT); this._cT = setTimeout(() => { if (document.activeElement === b && cur !== c) show(c); }, 320); });
+      b.addEventListener('click', () => { if (cur !== c) show(c); const f = $('.th-card', gbox); f && f.focus({ preventScroll: true }); });
+      col.appendChild(b);
+    }
+    show(cur);
+  },
+  gridInto(box, title, items) {
+    box.appendChild(h('h2', { class: 'th-gt' }, title, h('small', {}, String(items.length))));
+    if (!items.length) { box.appendChild(h('p', { class: 'th-empty' }, t('nothingHere'))); return; }
+    const g = h('div', { class: 'th-grid' }); box.appendChild(g); let n = 0;
+    const page = () => { const end = Math.min(items.length, n + 40); for (; n < end; n++) g.appendChild(this.card(items[n], items)); return n < items.length; };
+    page(); box._more = page;
+    const sent = h('div', { class: 'th-sent' }); box.appendChild(sent);
+    if (this._io) this._io.disconnect();
+    this._io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting) && n < items.length) page(); }, { root: box, rootMargin: '700px' });
+    this._io.observe(sent);
+  },
   card(it, list) {
+    if (this.cn && it.type !== 'live' && !it._more) return this.pcard(it, list);
     const p = it._p; const live = it.type === 'live';
     const bd = it.bd || this.bdc[keyOf(it)] || '';
     const sub = p ? (() => { const left = Math.max(0, (p.dur - p.pos) / 60); return left >= 60 ? t('hLeft', { h: Math.floor(left / 60), m: Math.round(left % 60) }) : t('minLeft', { n: Math.max(1, Math.round(left)) }); })()
@@ -332,7 +395,7 @@ const TvHome = {
     this.meta(it, info); if (info.plot) $('.th-plot', this.el).textContent = info.plot;
     if (info.backdrop && info.backdrop !== bd0) { this.bg(info.backdrop, ''); this.remember(it, info.backdrop, card); }
     // the trailer starts when you stay on the title for a moment (not while moving through a row)
-    if (info.trailer && Trailer.allowed('home')) this._trT = setTimeout(() => { if (this.cur === me && this.open_ && this.view.mode !== 'detail' && !UI.top()) Trailer.play($('.th-bg', this.el), info.trailer, 'home'); }, 1500);
+    if (info.trailer && Trailer.allowed('home') && (!this.cn || this.view.mode === 'home')) this._trT = setTimeout(() => { if (this.cur === me && this.open_ && this.view.mode !== 'detail' && !UI.top()) Trailer.play($('.th-bg', this.el), info.trailer, 'home'); }, 1500);
   },
   meta(it, info) {
     const genre = String(info.genre || it.genre || '').split(/[,/|]/)[0].trim();

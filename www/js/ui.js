@@ -129,7 +129,7 @@ const SpatialNav = {
     return document.body;
   },
   /* scroll areas that keep their own list (the grid, the categories, dialogs) */
-  SCROLLERS: '.content, .cats, .modal-body, .ps-list, .p-side, .sidebar, .th-main',
+  SCROLLERS: '.content, .cats, .modal-body, .ps-list, .p-side, .sidebar, .cn-cats, .cn-gridbox, .th-main',
   rect: el => el.getBoundingClientRect(),
   pick(dir, cur, items, r, sameRow) {
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2; let best = null, bestScore = Infinity; const cands = [];
@@ -369,12 +369,12 @@ const App = {
     document.documentElement.style.setProperty('--accent', Settings.get('accent') || '#5b8cff');
     const mode = Settings.get('theme') || 'auto'; const mq = window.matchMedia && matchMedia('(prefers-color-scheme: light)');
     // the big-screen mode is always dark, also in the pages it opens (settings, player lists …)
-    const light = Settings.get('homeView') !== 'tv' && (mode === 'light' || (mode === 'auto' && mq && mq.matches));
+    const light = !['tv', 'cinema'].includes(Settings.get('homeView')) && (mode === 'light' || (mode === 'auto' && mq && mq.matches));
     document.body.classList.toggle('light', light);
     const meta = $('meta[name=theme-color]'); if (meta) meta.content = light ? '#f3f5fa' : '#0a0f1e';
     $$('.theme-btn').forEach(tb => { tb.innerHTML = ic(light ? 'moon' : 'sun'); });
     if (mq && !this._mqBound) { this._mqBound = true; (mq.addEventListener ? mq.addEventListener('change', () => this.applyTheme()) : mq.addListener(() => this.applyTheme())); }
-    const tv = Settings.get('tvMode'); document.body.classList.toggle('tv', tv === 'on' || (tv === 'auto' && (isTV() || LS.get('tvSeen', false)))); document.body.classList.toggle('pst-overlay', Settings.get('posterStyle') === 'overlay'); document.body.classList.toggle('hv-tv', Settings.get('homeView') === 'tv'); this.applyScale(); if (document.body.classList.contains('tv')) TvKeyboard.watch(); TvKeyboard._mo && TvKeyboard.guard();
+    const tv = Settings.get('tvMode'); document.body.classList.toggle('tv', tv === 'on' || (tv === 'auto' && (isTV() || LS.get('tvSeen', false)))); document.body.classList.toggle('pst-overlay', Settings.get('posterStyle') === 'overlay'); document.body.classList.toggle('hv-tv', ['tv', 'cinema'].includes(Settings.get('homeView'))); this.applyScale(); if (document.body.classList.contains('tv')) TvKeyboard.watch(); TvKeyboard._mo && TvKeyboard.guard();
   },
 
   /* ---------- welcome / add subscription ---------- */
@@ -1282,7 +1282,7 @@ const App = {
     section(t('appearance'),
       row(t('themeMode'), sel('theme', [['auto', t('auto')], ['light', '☀️ ' + t('day')], ['dark', '🌙 ' + t('night')]], () => this.applyTheme())),
       row(t('trailers'), sel('trailers', [['all', t('trAll')], ['detail', t('trDetail')], ['off', t('trOff')]], () => { if (Settings.get('trailers') === 'off') Trailer.stop(); }), t('trailersHint')),
-      row(t('homeView'), sel('homeView', [['classic', t('hvClassic')], ['tv', t('hvTv')]], () => { const v = Settings.get('homeView'); document.body.classList.toggle('hv-tv', v === 'tv'); this.applyTheme(); if (v === 'tv') TvHome.open(); else TvHome.close(); }), t('homeViewHint')),
+      row(t('homeView'), sel('homeView', [['classic', t('hvClassic')], ['tv', t('hvTv')], ['cinema', t('hvCinema')]], () => { const v = Settings.get('homeView'), on = v === 'tv' || v === 'cinema'; document.body.classList.toggle('hv-tv', on); this.applyTheme(); TvHome.close(); if (on) TvHome.open(); }), t('homeViewHint')),
       row(t('tvKeyboard'), sel('tvKeyboard', [['system', t('kbSystem')], ['app', t('kbApp')]], () => TvKeyboard.guard()), t('tvKeyboardHint')),
       row(t('posterStyle'), sel('posterStyle', [['classic', t('pstClassic')], ['overlay', t('pstOverlay')]], () => { this.applyTheme(); this._memo && this._memo.clear(); }), t('posterStyleHint')),
       row(t('longPress'), sel('longPress', [['menu', t('lpMenu')], ['fav', t('lpFav')]]), t('longPressHint')),

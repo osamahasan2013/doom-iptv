@@ -689,3 +689,48 @@ body.exo-on > *:not(.player):not(.modal-back):not(#toasts):not(script) { visibil
 .player[data-sub=s] .p-xsub { font-size: 24px; } .player[data-sub=l] .p-xsub { font-size: 38px; } .player[data-sub=xl] .p-xsub { font-size: 48px; }
 .player.ui .p-xsub { bottom: 20%; }
 .th-bgimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; }
+
+/* ---------- cinema look (Home screen = Cinema): icon menu that opens, poster cards, categories beside a grid ---------- */
+.th-rb .rl { display: none; }
+.th.cn .th-rail { position: absolute; z-index: 6; inset-block: 0; inset-inline-start: 0; width: 86px; align-items: flex-start; padding: 22px 0 18px; padding-inline-start: 19px;
+  background: linear-gradient(90deg, rgba(4,7,16,.92) 40%, rgba(4,7,16,0)); transition: width .16s ease, background-color .16s; overflow: hidden; }
+[dir=rtl] .th.cn .th-rail { background: linear-gradient(270deg, rgba(4,7,16,.92) 40%, rgba(4,7,16,0)); }
+.th.cn .th-rail:focus-within { width: 270px; background: rgba(5,9,20,.96); box-shadow: 12px 0 40px rgba(0,0,0,.5); }
+.th.cn .th-rail-mid { margin: auto 0; gap: 10px; }
+.th.cn .th-rb { width: 48px; justify-content: flex-start; display: flex; align-items: center; gap: 16px; padding: 0 12px; transform: none !important; }
+.th.cn .th-rail:focus-within .th-rb { width: 230px; }
+.th.cn .th-rail:focus-within .th-rb .rl { display: inline; white-space: nowrap; font-size: 18px; font-weight: 600; }
+.th.cn .th-rb.on { background: none; color: #fff; box-shadow: inset 3px 0 0 var(--accent); }
+[dir=rtl] .th.cn .th-rb.on { box-shadow: inset -3px 0 0 var(--accent); }
+.th.cn .th-rb:focus { background: var(--accent); box-shadow: none; }
+.th.cn .th-main { padding-inline-start: 104px; }
+.th.cn .th-tabs, .th.cn .th-right .th-link:not(.th-upd), .th.cn .th-car { display: none; }
+.th.cn .th-top { height: 74px; } .th.cn .th-tabs + .th-right { margin-inline-start: auto; } .th.cn .th-right { margin-inline-start: auto; }
+.th.cn .th-logo img { width: 34px; height: 34px; } .th.cn .th-logo b, .th.cn .th-logo span { font-size: 22px; }
+.th.cn:not([data-mode=home]) .th-hero { display: none; }
+/* home: the hero stays, ONE row shows under it and the rows slide up/down */
+.th.cn[data-mode=home] .th-main { overflow: hidden; display: flex; flex-direction: column; height: 100%; padding-bottom: 0; }
+.th.cn[data-mode=home] .th-hero { flex: none; min-height: 0; height: 50vh; padding-bottom: 10px; }
+.th.cn[data-mode=home] .th-rows { position: relative; flex: 1; min-height: 0; overflow: hidden; padding-bottom: 40px; }
+.th.cn[data-mode=home] .th-sec { content-visibility: visible; }
+.th.cn .th-title { font-size: 46px; }
+/* poster cards */
+.th.cn .th-card.cn-p, .th.cn .th-card.th-more { width: 156px; aspect-ratio: 2 / 3; border-radius: 12px; }
+.th.cn .th-grid { grid-template-columns: repeat(auto-fill, 156px); justify-content: start; gap: 22px 18px; }
+.th.cn .th-grid .th-card.cn-p { width: auto; }
+.cn-p .th-img img, .cn-p .th-img .ph { object-position: center; }
+.cn-p .th-cap { padding: 30px 9px 8px; } .cn-p .th-cap b { font-size: 14px; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; } .cn-p .th-cap small { font-size: 12px; }
+.cn-p .th-rate { font-size: 11px; padding: 2px 6px; }
+.th.cn .th-sec h3 { font-size: 19px; }
+.th.cn .th-sec { contain-intrinsic-size: auto 290px; }
+/* a section: categories column + poster grid, each scrolls on its own */
+.cn-sec { display: flex; gap: 26px; height: calc(100vh - 86px); }
+.cn-cats { flex: none; width: 290px; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 4px; padding: 6px 6px 40px; }
+.cn-cats::-webkit-scrollbar, .cn-gridbox::-webkit-scrollbar { display: none; }
+.cn-cat { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; border-radius: 10px; font-size: 16.5px; color: #dfe6f5; text-align: start; background: rgba(255,255,255,.03); }
+.cn-cat span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cn-cat small { flex: none; font-size: 13px; opacity: .6; }
+.cn-cat.on { background: rgba(255,255,255,.13); color: #fff; font-weight: 700; }
+.cn-cat:focus { background: var(--accent); color: #fff; outline: none !important; } .cn-cat:focus small { opacity: .9; }
+.cn-gridbox { flex: 1; min-width: 0; overflow-y: auto; scrollbar-width: none; padding: 0 8px 30px; }
+.cn-gridbox .th-gt { margin-top: 4px; }
+.th.cn .th-rb .rl { overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
