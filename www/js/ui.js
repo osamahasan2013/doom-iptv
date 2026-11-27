@@ -1245,6 +1245,7 @@ const App = {
     section(t('playerSettings'),
       row(t('liveFormat'), sel('liveFormat', [['m3u8', 'HLS (.m3u8)'], ['ts', 'MPEG-TS (.ts)']])),
       row(t('seekStep'), sel('seekStep', [[5, '5'], [10, '10'], [15, '15'], [30, '30'], [60, '60']])),
+      window.Exo && Exo.available() ? row(t('playerEngine'), sel('playerEngine', [['web', t('peWeb')], ['exo', t('peExo')]]), t('playerEngineHint')) : null,
       row(t('defaultAspect'), sel('aspect', ASPECTS.map(a => [a, t(a) !== a ? t(a) : a]))),
       row(t('defaultSpeed'), sel('speed', SPEEDS.map(s => [s, s + 'x']))),
       row(t('autoNextAll'), sw(Settings.get('autoNext'), v => Settings.set('autoNext', v))),

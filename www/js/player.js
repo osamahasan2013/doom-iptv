@@ -111,7 +111,7 @@ const Player = {
   init() {
     this.el = h('div', { id: 'player', class: 'player hidden', role: 'dialog', 'aria-label': 'Player' });
     this.el.innerHTML = `
-      <div class="p-stage"><video playsinline webkit-playsinline preload="auto"></video></div>
+      <div class="p-stage"><video playsinline webkit-playsinline preload="auto"></video><div class="p-xsub"></div></div>
       <div class="p-gest"></div>
       <div class="p-spin hidden"><div class="spinner"></div></div>
       <div class="p-osd hidden"></div>
@@ -163,8 +163,7 @@ const Player = {
       <div class="p-resume hidden"></div>
       <input type="file" class="p-subfile hidden" accept=".srt,.vtt">`;
     document.body.appendChild(this.el);
-    this.v = $('video', this.el);
-    this.el.dataset.sub = Settings.get('subSize') || 'm';
+    this.v = this.hv = $('video', this.el);
     this.el.dataset.sub = Settings.get('subSize') || 'm';
     this.bind();
   },
@@ -202,6 +201,7 @@ const Player = {
   },
   /* Web Audio analyser on the playing video, without ever silencing it. */
   async audioAnalyser() {
+    if (this.v.isNative) return null;   // the Android player's sound doesn't pass through the page
     if (this.analyser && this._audioHooked) { try { await this.actx.resume(); } catch {} return this.analyser; }
     const v = this.v; const src = v.currentSrc || '';
     const sameOrigin = src.startsWith('blob:') || src.startsWith(location.origin) || src.startsWith('capacitor:') || src.startsWith('http://localhost');
@@ -282,8 +282,8 @@ const Player = {
     if (reason && !(await UI.pinPrompt(t(reason), t('timeUpSub')))) return;
     if (reason) Parental.overrideUntil = Date.now() + 3600000;
     if (!this.el) this.init();
-    clearInterval(this._nextIv); this.stopEngine();
-    if (this._audioHooked) this.freshVideo();
+    clearInterval(this._nextIv); this.stopEngine(); this._forceWeb = false;
+    if (this._audioHooked && !this.v.isNative) this.freshVideo();
     SubSync.cancelled = true; SubSync.load(item); $('.p-sync', this.el) && $('.p-sync', this.el).classList.add('hidden');
     this.item = item; this.ctx = ctx; this.epg = []; this.opts = opts;
     this.open_ = true; this.el.classList.remove('hidden'); document.body.classList.add('playing');
@@ -327,8 +327,10 @@ const Player = {
     $('.p-spin', this.el).classList.remove('hidden');
     Conn.open('main', 'main', a.pl);
     const myIdx = this.attemptIdx;
+    const exo = Exo.wanted() && !this._forceWeb && !/^demo:/.test(a.url); this.useEngine(exo);
     try {
-      this.engine = await attachStream(this.v, a.url, { live: a.live, mime: a.mime, startAt: this.startAt, onFatal: d => { if (this.attemptIdx === myIdx) this.fail(d); } });
+      const o = { live: a.live, mime: a.mime, startAt: this.startAt, onFatal: d => { if (this.attemptIdx === myIdx) this.fail(d); } };
+      this.engine = exo ? await this.v.attach(a.url, o) : await attachStream(this.v, a.url, o);
     } catch (e) { return this.fail(e.message); }
     if (this.engine.demo !== false && this.engine instanceof DemoEngine) this.engine.onended = () => this.onEnded();
     this.v.playbackRate = this.item.type === 'live' ? 1 : (Settings.get('speed') || 1);
@@ -363,10 +365,21 @@ const Player = {
     setTimeout(() => { if (this.open_) this.startAttempt(); }, 1500);   // give the server a moment to drop the old connection
   },
 
+  /* Android player (behind the page) or the built-in one (a <video> in the page) */
+  useEngine(native) {
+    if (native) {
+      if (!this.nv) { this.nv = new NativeVideo($('.p-stage', this.el)); this.bindVideo(this.nv); }
+      if (this.v !== this.nv) { try { this.hv.pause(); } catch {} this.nv._vol = this.hv.volume; this.nv._muted = this.hv.muted; this.v = this.nv; }
+    } else if (this.v === this.nv) { this.nv.release(); this.hv.volume = this.nv.volume; this.hv.muted = this.nv.muted; this.v = this.hv; }
+    this.el.classList.toggle('exo', native); document.documentElement.classList.toggle('exo-on', native); document.body.classList.toggle('exo-on', native);
+    if (!native) $('.p-xsub', this.el).textContent = '';
+  },
   fail(detail) {
     if (this._probing) return;
     console.warn('stream failed', detail);
     this.stopEngine(true);
+    // the Android player tried every address: try them all once more with the built-in player
+    if (this.v.isNative && !this._forceWeb && this.attemptIdx >= this.attempts.length - 1) { this._forceWeb = true; this.attemptIdx = 0; UI.toast(t('exoFallback')); this.startAttempt(); return; }
     if (this.attemptIdx < this.attempts.length - 1) { this.attemptIdx++; this.startAt = this.lastTime || this.startAt; this.startAttempt(); }
     else this.showError(detail);
   },
@@ -390,7 +403,7 @@ const Player = {
   close() {
     if (!this.open_) return;
     this.saveProgress(true); clearInterval(this._nextIv); $('.p-next', this.el).classList.add('hidden');
-    this.stopEngine(); clearInterval(this.tickIv); clearTimeout(this.sleepT); this.sleepT = 0; clearTimeout(this._ws1); clearTimeout(this._ws2); this._reconnected = false;
+    this.stopEngine(); if (this.v === this.nv) this.useEngine(false); clearInterval(this.tickIv); clearTimeout(this.sleepT); this.sleepT = 0; clearTimeout(this._ws1); clearTimeout(this._ws2); this._reconnected = false;
     this.open_ = false; this.el.classList.add('hidden'); document.body.classList.remove('playing');
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     try { this.wake && this.wake.release(); } catch {} this.wake = null;
@@ -460,6 +473,7 @@ const Player = {
     $('[data-a=speed]', this.el).textContent = r + 'x'; this.osd(r + 'x');
   },
   applyAspect() {
+    if (this.v.isNative) { Exo.call('aspect', { mode: this.aspect }); return; }
     const v = this.v, st = $('.p-stage', this.el); const a = this.aspect;
     v.style.width = '100%'; v.style.height = '100%';
     const fitMap = { fit: 'contain', fill: 'cover', stretch: 'fill', original: 'scale-down' };
@@ -520,6 +534,7 @@ const Player = {
   tick(force) {
     if (!this.open_) return;
     const el = this.el, cur = this.time(), d = this.dur(), live = this.isLive(), paused = this.paused();
+    if (this.v.isNative) { const tx = this.v.cueText(); if (tx !== this._xs) { this._xs = tx; $('.p-xsub', el).textContent = tx; } }
     if (cur) this.lastTime = cur;
     const pi = paused ? ic('play') : ic('pause');
     if (this._pi !== paused) { $('[data-a=toggle]', el).innerHTML = pi; $('[data-a=toggle2]', el).innerHTML = pi; this._pi = paused; }
@@ -646,7 +661,7 @@ const Player = {
     opts.push({ label: '📄 ' + t('loadSub'), run: () => $('.p-subfile', this.el).click() });
     opts.push({ label: '⏱ ' + t('subSync') + ' (' + SubSync.fmt(SubSync.offset) + ')', run: () => this.syncPanel() });
     const sz = Settings.get('subSize') || 'm';
-    opts.push({ label: '🔠 ' + t('subSize') + ': ' + t({ s: 'subSmall', m: 'subMedium', l: 'subLarge', xl: 'subXL' }[sz]), run: () => this.menu(t('subSize'), [['s', 'subSmall'], ['m', 'subMedium'], ['l', 'subLarge'], ['xl', 'subXL']].map(([k, l]) => ({ label: t(l), active: sz === k, run: () => { Settings.set('subSize', k); this.el.dataset.sub = k; } }))) });
+    opts.push({ label: '🔠 ' + t('subSize') + ': ' + t({ s: 'subSmall', m: 'subMedium', l: 'subLarge', xl: 'subXL' }[sz]), run: () => this.menu(t('subSize'), [['s', 'subSmall'], ['m', 'subMedium'], ['l', 'subLarge'], ['xl', 'subXL']].map(([k, l]) => ({ label: t(l), active: sz === k, run: () => { Settings.set('subSize', k); this.el.dataset.sub = k; if (this.v.isNative) Exo.call('subStyle', { scale: SUB_SCALE[k] || 1 }); } }))) });
     this.menu(t('audio') + ' / ' + t('subtitles'), opts);
   },
   nudgeSub(d) {

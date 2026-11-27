@@ -24,6 +24,7 @@ const mainJava = findMain(javaRoot);
 if (mainJava) {
   const pkg = (fs.readFileSync(mainJava, 'utf8').match(/^package\s+([\w.]+);/m) || [])[1];
   fs.writeFileSync(path.join(path.dirname(mainJava), 'PairServer.java'), fs.readFileSync(path.join(__dirname, 'android', 'PairServer.java'), 'utf8').replace(/^package\s+[\w.]+;/m, `package ${pkg};`));
+  fs.writeFileSync(path.join(path.dirname(mainJava), 'NativePlayer.java'), fs.readFileSync(path.join(__dirname, 'android', 'NativePlayer.java'), 'utf8').replace(/^package\s+[\w.]+;/m, `package ${pkg};`));
   fs.writeFileSync(path.join(path.dirname(mainJava), 'StreamProxy.java'), fs.readFileSync(path.join(__dirname, 'android', 'StreamProxy.java'), 'utf8').replace(/^package\s+[\w.]+;/m, `package ${pkg};`));
   fs.writeFileSync(mainJava, `package ${pkg};
 
@@ -51,6 +52,7 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(NativePlayer.class);   // Android's own video player (optional engine, see www/js/exo.js)
         super.onCreate(savedInstanceState);
         goFullScreen();
         focusWebView();
@@ -177,4 +179,16 @@ if (fs.existsSync(gradle)) {
   } else console.log('No signing key password: using a temporary debug key');
   fs.writeFileSync(gradle, g);
   console.log('Version', n);
+}
+
+// Android's own video player (Media3 / ExoPlayer) for the optional "native player" engine
+if (fs.existsSync(gradle)) {
+  let g = fs.readFileSync(gradle, 'utf8');
+  if (!g.includes('androidx.media3')) {
+  const M3 = '1.5.1';
+  g = g.replace(/dependencies\s*\{/, m => m + `\n    implementation "androidx.media3:media3-exoplayer:${M3}"\n    implementation "androidx.media3:media3-exoplayer-hls:${M3}"\n    implementation "androidx.media3:media3-exoplayer-dash:${M3}"\n    implementation "androidx.media3:media3-ui:${M3}"`);
+  g += '\nandroid {\n    lint {\n        checkReleaseBuilds false\n        abortOnError false\n    }\n}\n';
+  fs.writeFileSync(gradle, g);
+  console.log('build.gradle: Media3 (ExoPlayer) added');
+  }
 }

@@ -676,3 +676,15 @@ body.th-on .fring, body:not(.tv) .fring { display: none; }
 .trf-key { position: absolute; width: 1px; height: 1px; opacity: 0; bottom: 0; left: 0; }
 .trf-msg { position: absolute; inset: 0; display: grid; place-content: center; gap: 14px; text-align: center; color: #fff; background: #000; }
 .modal-back.trf-back { padding: 0; backdrop-filter: none; -webkit-backdrop-filter: none; background: #000; }
+
+/* ---------- Android player: the picture is behind the page, so the page is see-through while it plays ---------- */
+html.exo-on, html.exo-on body { background: transparent !important; }
+body.exo-on > *:not(.player):not(.modal-back):not(#toasts):not(script) { visibility: hidden !important; }
+.player.exo, .player.exo .p-stage { background: transparent !important; }
+.player.exo .p-stage video { display: none; }
+.xsub-host { display: none; }
+.p-xsub { position: absolute; inset-inline: 6%; bottom: 9%; text-align: center; white-space: pre-line; pointer-events: none; font-size: 30px; font-weight: 600; line-height: 1.3; color: #fff;
+  text-shadow: 0 0 4px #000, 0 0 4px #000, 0 2px 3px #000; }
+.p-xsub:empty { display: none; }
+.player[data-sub=s] .p-xsub { font-size: 24px; } .player[data-sub=l] .p-xsub { font-size: 38px; } .player[data-sub=xl] .p-xsub { font-size: 48px; }
+.player.ui .p-xsub { bottom: 20%; }
