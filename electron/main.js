@@ -10,6 +10,11 @@ function create() {
     webPreferences: { webSecurity: false, contextIsolation: true, nodeIntegration: false, backgroundThrottling: false }
   });
   Menu.setApplicationMenu(null);
+  // YouTube refuses embedded players that send no Referer (error 153); a page loaded from a file sends none
+  win.webContents.session.webRequest.onBeforeSendHeaders({ urls: ['https://www.youtube-nocookie.com/*', 'https://www.youtube.com/*'] }, (d, cb) => {
+    if (!d.requestHeaders.Referer) d.requestHeaders.Referer = 'https://osamahasan2013.github.io/doom-iptv/';
+    cb({ requestHeaders: d.requestHeaders });
+  });
   win.loadFile(path.join(__dirname, '..', 'www', 'index.html'));
   win.webContents.setWindowOpenHandler(({ url }) => { shell.openExternal(url); return { action: 'deny' }; });
   win.webContents.on('before-input-event', (e, input) => {

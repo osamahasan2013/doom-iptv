@@ -114,6 +114,7 @@ public class MainActivity extends BridgeActivity {
         // (its own focusable window) switched language — and pulled the focus out of the text box, so the
         // keyboard lost its connection. Turn that off and only ask for focus when the WebView does not have it.
         w.getSettings().setNeedInitialFocus(false);
+        w.getSettings().setMediaPlaybackRequiresUserGesture(false);   // muted trailer previews start by themselves
         w.setFocusable(true);
         w.setFocusableInTouchMode(true);
         if (!w.hasFocus()) w.requestFocus();

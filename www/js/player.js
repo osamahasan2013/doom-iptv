@@ -277,6 +277,7 @@ const Player = {
 
   /* ---------- open / close ---------- */
   async open(item, ctx = null, opts = {}) {
+    window.Trailer && Trailer.stop(true);
     const reason = Parental.blockReason();
     if (reason && !(await UI.pinPrompt(t(reason), t('timeUpSub')))) return;
     if (reason) Parental.overrideUntil = Date.now() + 3600000;

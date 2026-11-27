@@ -953,6 +953,7 @@ const App = {
   /* ---------- opening items ---------- */
   async openItem(it) {
     if (!this.itemAllowed(it) && !(await UI.pinPrompt(t('locked')))) return;
+    if ((it.type === 'movie' || it.type === 'series') && window.TvDetail && TvDetail.open(it)) return;
     if (it.type === 'movie') return this.movieModal(it);
     if (it.type === 'series') return this.seriesModal(it);
     if (it.type === 'live') return this.playLive(it, null);
@@ -1061,7 +1062,7 @@ const App = {
     });
   },
   refreshContinue() { if (this.section === 'continue') this.render(); },
-  onPlayerClosed() { if (['continue', 'movies', 'series', 'favorites', 'live'].includes(this.section) && !this.q) { const st = this.content.scrollTop; this.render(); this.content.scrollTop = st; } },
+  onPlayerClosed() { if (window.TvHome && TvHome.open_ && TvHome.view && TvHome.view.mode === 'detail') TvDetail.refresh(); if (['continue', 'movies', 'series', 'favorites', 'live'].includes(this.section) && !this.q) { const st = this.content.scrollTop; this.render(); this.content.scrollTop = st; } },
 
   /* ---------- favorites & custom lists ---------- */
   /* the playable version of a list entry (fresh data from the catalogue when available) */
@@ -1277,6 +1278,7 @@ const App = {
 
     section(t('appearance'),
       row(t('themeMode'), sel('theme', [['auto', t('auto')], ['light', '☀️ ' + t('day')], ['dark', '🌙 ' + t('night')]], () => this.applyTheme())),
+      row(t('trailers'), sel('trailers', [['all', t('trAll')], ['detail', t('trDetail')], ['off', t('trOff')]], () => { if (Settings.get('trailers') === 'off') Trailer.stop(); }), t('trailersHint')),
       row(t('homeView'), sel('homeView', [['classic', t('hvClassic')], ['tv', t('hvTv')]], () => { const v = Settings.get('homeView'); document.body.classList.toggle('hv-tv', v === 'tv'); this.applyTheme(); if (v === 'tv') TvHome.open(); else TvHome.close(); }), t('homeViewHint')),
       row(t('tvKeyboard'), sel('tvKeyboard', [['system', t('kbSystem')], ['app', t('kbApp')]], () => TvKeyboard.guard()), t('tvKeyboardHint')),
       row(t('posterStyle'), sel('posterStyle', [['classic', t('pstClassic')], ['overlay', t('pstOverlay')]], () => { this.applyTheme(); this._memo && this._memo.clear(); }), t('posterStyleHint')),

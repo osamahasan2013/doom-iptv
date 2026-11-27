@@ -30,16 +30,43 @@ const TvHome = {
     setTimeout(() => { const b = $('.th-play', this.el); if (document.body.classList.contains('tv') && b) b.focus({ preventScroll: true }); }, 80);
   },
   close() {
-    if (!this.el) return; this.open_ = false; document.body.classList.remove('th-on'); this.el.classList.add('hidden');
+    if (!this.el) return; Trailer.stop(true); this.open_ = false; document.body.classList.remove('th-on'); this.el.classList.add('hidden');
     clearInterval(this._rot); clearInterval(this._clk); clearTimeout(this._clkT);
   },
   refresh() { if (this.open_) { this.render(true); this.pickFeatured(); } },
   /* inside the big-screen mode: home → a section (rows per category) → one category (grid); also search, my lists, continue */
   go(v) {
-    this.stack.push(this.view); this.view = v; this.render(); const m = $('.th-main', this.el); if (m) m.scrollTop = 0;
+    Trailer.stop(); clearTimeout(this._fT); this.mark(); this.stack.push(this.view); this.view = v; this.render(); const m = $('.th-main', this.el); if (m) m.scrollTop = 0;
+    if (v.mode === 'detail') return;   // the details page puts the focus on Play itself
     setTimeout(() => { const f = v.mode === 'search' ? $('.th-sin', this.el) : $('.th-rows .th-card', this.el); if (f) { f.focus({ preventScroll: true }); if (f._it) this.show(f._it); } }, 60);
   },
-  back() { if (!this.open_ || !this.stack.length) return false; this.view = this.stack.pop(); this.render(); setTimeout(() => { const f = $('.th-rows .th-card', this.el) || $('.th-play', this.el); f && f.focus({ preventScroll: true }); }, 60); return true; },
+  /* remember the focused button (which block, which button, scroll) so Back lands on it again */
+  mark() {
+    const v = this.view; if (!v) return; v.ret = null;
+    const a = document.activeElement; if (!this.el || !a || !this.el.contains(a)) return;
+    const m = $('.th-main', this.el); if (a.closest('.th-hero')) { v.ret = { hero: true }; return; }
+    const top = [...$('.th-rows', this.el).children].find(x => x.contains(a)); if (!top) return;
+    const row = a.closest('.th-row');
+    v.ret = { top: m ? m.scrollTop : 0, s: [...top.parentNode.children].indexOf(top), i: $$('button', top).indexOf(a), row: row ? row.scrollLeft : 0 };
+  },
+  back() {
+    if (!this.open_ || !this.stack.length) return false;
+    Trailer.stop(); this.view = this.stack.pop(); this.render(); const r = this.view.ret;
+    setTimeout(() => {
+      let f = null; const m = $('.th-main', this.el);
+      if (r && r.hero) f = $('.th-play', this.el);
+      else if (r && r.s >= 0) {
+        const box = $('.th-rows', this.el);
+        while (box.children.length <= r.s && this._pending && this._pending.length) this.moreRows(3);
+        const sec = box.children[r.s], row = sec && $('.th-row', sec); if (row) row.scrollLeft = r.row;
+        f = sec && $$('button', sec)[r.i];
+        if (m) m.scrollTop = r.top;
+      }
+      f = f || $('.th-rows .th-card', this.el) || $('.th-play', this.el);
+      if (f) { f.focus({ preventScroll: true }); if (f._it) this.show(f._it, false, f); }
+    }, 60);
+    return true;
+  },
   /* leave the home page for a section of the classic layout */
   leave(sec, then) { this.close(); if (sec) App.go(sec); then && then(); setTimeout(() => App.ensureFocus && App.ensureFocus(), 80); },
 
@@ -93,14 +120,14 @@ const TvHome = {
     this.el.addEventListener('focusin', e => {
       const c = e.target.closest('.th-card');
       if (c) { const b = c.getBoundingClientRect(), dx = this.reveal(c, b); this.ringAt(c, b.left - dx, b.top, b.width, b.height); } else this.ringTo(null);   // one measurement per move
-      if (c && c._it) { clearInterval(this._rot); this._rot = 0; clearTimeout(this._fT); this._fT = setTimeout(() => this.show(c._it, false, c), 550); this.maybeMore(c); }
+      if (c && c._it && this.view.mode !== 'detail') { clearInterval(this._rot); this._rot = 0; clearTimeout(this._fT); if (c._it !== this.cur) Trailer.stop(); this._fT = setTimeout(() => this.show(c._it, false, c), 550); this.maybeMore(c); }
       else if (e.target.closest('.th-hero') && !this._rot) this.startRotate();
     });
     this.el.addEventListener('focusout', e => { if (!this.el.contains(e.relatedTarget)) this.ringTo(null); });
     // keep the frame on the card when a list scrolls (mouse wheel, touch, pages loading)
     const follow = () => { if (this._rf) return; this._rf = requestAnimationFrame(() => { this._rf = 0; const a = document.activeElement; if (a && a.classList && a.classList.contains('th-card') && this.el.contains(a)) this.ringTo(a, true); }); };
     this.el.addEventListener('scroll', follow, true); addEventListener('resize', follow);
-    this.el.addEventListener('mouseover', e => { const c = e.target.closest('.th-card'); if (c && c._it && c._it !== this.cur) { clearTimeout(this._fT); this._fT = setTimeout(() => this.show(c._it), 400); } });
+    this.el.addEventListener('mouseover', e => { const c = e.target.closest('.th-card'); if (c && c._it && c._it !== this.cur && this.view.mode !== 'detail') { clearTimeout(this._fT); this._fT = setTimeout(() => this.show(c._it), 400); } });
   },
   ringAt(c, x, y, w, hh) {
     const r = this.ring; if (!r) return; w = Math.round(w); hh = Math.round(hh);
@@ -169,6 +196,7 @@ const TvHome = {
     const rk = v.mode === 'sec' || v.mode === 'cat' ? v.sec : v.mode;
     $$('.th-rb', this.el).forEach(b => b.classList.toggle('on', b.classList.contains('r-' + rk)));
     box.innerHTML = ''; this._pending = []; if (this._io) { this._io.disconnect(); this._io = null; }
+    if (v.mode === 'detail') return TvDetail.render(box, v);
     if (v.mode === 'search') return this.renderSearch(box);
     if (v.mode === 'cat') return this.renderGrid(box, v.title, v.items);
     this._pending = this.rowsFor(v); this.moreRows(8, box);
@@ -291,7 +319,7 @@ const TvHome = {
   },
   dur(s) { if (!s) return ''; const m = String(s).match(/(\d+):(\d+)(?::(\d+))?/); let mins = m ? (m[3] != null ? +m[1] * 60 + +m[2] : +m[1]) : parseInt(s, 10); if (!mins) return ''; return mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm'; },
   async show(it, first, card) {
-    if (!it || !this.el) return; this.cur = it; const me = it;
+    if (!it || !this.el || this.view.mode === 'detail') return; if (this.cur !== it) Trailer.stop(); this.cur = it; const me = it; clearTimeout(this._trT);
     const p = it._p; const name = p && p.item.seriesName ? p.item.seriesName : it.name;
     $('.th-kicker', this.el).textContent = p ? t('resumeAt') : this.feat.includes(it) ? t('featured') : (it.type === 'movie' ? t('movie') : it.type === 'series' ? t('show') : t('channel'));
     $('.th-title', this.el).textContent = (name || '').replace(/^\s*((\[[^\]]{1,12}\]|[A-Za-z0-9+]{1,6})\s*[|:\-–]\s*)+/, '');
@@ -303,6 +331,8 @@ const TvHome = {
     const info = await this.details(it); if (this.cur !== me) return;
     this.meta(it, info); if (info.plot) $('.th-plot', this.el).textContent = info.plot;
     if (info.backdrop && info.backdrop !== bd0) { this.bg(info.backdrop, ''); this.remember(it, info.backdrop, card); }
+    // the trailer starts when you stay on the title for a moment (not while moving through a row)
+    if (info.trailer && Trailer.allowed('home')) this._trT = setTimeout(() => { if (this.cur === me && this.open_ && this.view.mode !== 'detail' && !UI.top()) Trailer.play($('.th-bg', this.el), info.trailer, 'home'); }, 1500);
   },
   meta(it, info) {
     const genre = String(info.genre || it.genre || '').split(/[,/|]/)[0].trim();
