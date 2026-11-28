@@ -506,7 +506,7 @@ body.tv .chip-btn:focus { outline: 3px solid #fff; outline-offset: 2px; }
 .th { position: fixed; inset: 0; z-index: 60; display: flex; overflow: hidden; background: #070b18; color: #fff; }
 .th.hidden { display: none; } body.th-on .shell { display: none; }   /* not just invisible: the hidden layout still cost work on every move */
 .th-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.th-bgi { position: absolute; inset: 0; background-size: cover; background-position: center 22%; background-repeat: no-repeat; opacity: 0; transition: opacity .9s ease; }
+.th-bgi { position: absolute; inset: 0; background-size: cover; background-position: center 22%; background-repeat: no-repeat; opacity: 0; transition: opacity .45s ease; }
 .th-bgi.on { opacity: 1; }
 .th-bgi.poster { background-size: auto 118%; background-position: right 6% top 18%; }
 [dir=rtl] .th-bgi.poster { background-position: left 6% top 18%; }
@@ -584,9 +584,9 @@ body.tv .chip-btn:focus { outline: 3px solid #fff; outline-offset: 2px; }
 }
 /* big-screen: framed poster in the hero when a title has no wide picture */
 .th-bgi.poster { background-size: cover; background-position: center 30%; filter: blur(28px) brightness(.5) saturate(1.2); transform: scale(1.12); }
-.th-pst { position: absolute; top: 4px; bottom: 30px; inset-inline-end: 9%; display: flex; align-items: center; opacity: 0; transform: translateY(10px) scale(.97); transition: opacity .6s ease, transform .6s ease; pointer-events: none; }
+.th-pst { position: absolute; top: 4px; bottom: 30px; inset-inline-end: 9%; display: flex; align-items: center; opacity: 0; transform: translateY(10px) scale(.97); transition: opacity .35s ease, transform .35s ease; pointer-events: none; }
 .th-pst.on { opacity: 1; transform: none; }
-.th-pst img { height: 100%; max-height: 360px; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.12); }
+.th-pst img { height: 100%; max-height: 360px; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 16px; box-shadow: 0 12px 28px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.12); }
 .th.compact .th-hero { min-height: 36vh; } .th.compact .th-pst img { max-height: 280px; }
 /* cards without a wide picture: the whole poster on the side over a dimmed copy */
 .th-img.pc { background: #111a33; overflow: hidden; }
@@ -693,7 +693,7 @@ body.exo-on > *:not(.player):not(.modal-back):not(#toasts):not(script) { visibil
 /* ---------- cinema look (Home screen = Cinema): icon menu that opens, poster cards, categories beside a grid ---------- */
 .th-rb .rl { display: none; }
 .th.cn .th-rail { position: absolute; z-index: 6; inset-block: 0; inset-inline-start: 0; width: 86px; align-items: flex-start; padding: 22px 0 18px; padding-inline-start: 19px;
-  background: linear-gradient(90deg, rgba(4,7,16,.92) 40%, rgba(4,7,16,0)); transition: width .16s ease, background-color .16s; overflow: hidden; }
+  background: linear-gradient(90deg, rgba(4,7,16,.92) 40%, rgba(4,7,16,0)); overflow: hidden; contain: layout paint; }
 [dir=rtl] .th.cn .th-rail { background: linear-gradient(270deg, rgba(4,7,16,.92) 40%, rgba(4,7,16,0)); }
 .th.cn .th-rail:focus-within { width: 270px; background: rgba(5,9,20,.96); box-shadow: 12px 0 40px rgba(0,0,0,.5); }
 .th.cn .th-rail-mid { margin: auto 0; gap: 10px; }
@@ -712,7 +712,6 @@ body.exo-on > *:not(.player):not(.modal-back):not(#toasts):not(script) { visibil
 .th.cn[data-mode=home] .th-main { overflow: hidden; display: flex; flex-direction: column; height: 100%; padding-bottom: 0; }
 .th.cn[data-mode=home] .th-hero { flex: none; min-height: 0; height: 50vh; padding-bottom: 10px; }
 .th.cn[data-mode=home] .th-rows { position: relative; flex: 1; min-height: 0; overflow: hidden; padding-bottom: 40px; }
-.th.cn[data-mode=home] .th-sec { content-visibility: visible; }
 .th.cn .th-title { font-size: 46px; }
 /* poster cards */
 .th.cn .th-card.cn-p, .th.cn .th-card.th-more { width: 156px; aspect-ratio: 2 / 3; border-radius: 12px; }

@@ -9,6 +9,16 @@ if (!x.includes('android.software.leanback')) {
 if (!x.includes('usesCleartextTraffic')) x = x.replace('<application', '<application android:usesCleartextTraffic="true" android:banner="@drawable/banner"');
 if (!x.includes('LEANBACK_LAUNCHER')) x = x.replace('<category android:name="android.intent.category.LAUNCHER" />', '<category android:name="android.intent.category.LAUNCHER" />\n                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />');
 x = x.replace(/android:screenOrientation="[^"]*"/g, '');
+// start on boot (optional, switched on in the app's settings)
+if (!x.includes('RECEIVE_BOOT_COMPLETED')) x = x.replace('<application', '<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />\n    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />\n    <application');
+if (!x.includes('BootStart$Receiver')) x = x.replace('</application>', `    <receiver android:name=".BootStart$Receiver" android:enabled="true" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+    </application>`);
 fs.writeFileSync(mf, x);
 const draw = path.join(root, 'res', 'drawable'); fs.mkdirSync(draw, { recursive: true });
 fs.copyFileSync(path.join(__dirname, '..', 'assets', 'banner.png'), path.join(draw, 'banner.png'));
@@ -24,6 +34,7 @@ const mainJava = findMain(javaRoot);
 if (mainJava) {
   const pkg = (fs.readFileSync(mainJava, 'utf8').match(/^package\s+([\w.]+);/m) || [])[1];
   fs.writeFileSync(path.join(path.dirname(mainJava), 'PairServer.java'), fs.readFileSync(path.join(__dirname, 'android', 'PairServer.java'), 'utf8').replace(/^package\s+[\w.]+;/m, `package ${pkg};`));
+  fs.writeFileSync(path.join(path.dirname(mainJava), 'BootStart.java'), fs.readFileSync(path.join(__dirname, 'android', 'BootStart.java'), 'utf8').replace(/^package\s+[\w.]+;/m, `package ${pkg};`));
   fs.writeFileSync(path.join(path.dirname(mainJava), 'NativePlayer.java'), fs.readFileSync(path.join(__dirname, 'android', 'NativePlayer.java'), 'utf8').replace(/^package\s+[\w.]+;/m, `package ${pkg};`));
   fs.writeFileSync(path.join(path.dirname(mainJava), 'StreamProxy.java'), fs.readFileSync(path.join(__dirname, 'android', 'StreamProxy.java'), 'utf8').replace(/^package\s+[\w.]+;/m, `package ${pkg};`));
   fs.writeFileSync(mainJava, `package ${pkg};
@@ -54,6 +65,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(NativePlayer.class);   // Android's own video player (optional engine, see www/js/exo.js)
+        registerPlugin(BootStart.class);   // start the app when the device turns on (optional)
         super.onCreate(savedInstanceState);
         goFullScreen();
         focusWebView();

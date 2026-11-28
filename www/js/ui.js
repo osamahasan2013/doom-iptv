@@ -166,8 +166,22 @@ const SpatialNav = {
     if (d) { const b = sc.style.scrollBehavior; sc.style.scrollBehavior = 'auto'; sc.scrollTop += d; sc.style.scrollBehavior = b; }
   },
   move(dir) {
+    if (!this.busy) { this.busy = true; requestAnimationFrame(() => requestAnimationFrame(() => { this.busy = false; })); }
     const root = this.root(); const cur = document.activeElement && root.contains(document.activeElement) ? document.activeElement : null;
     if (!cur) { const f = this.focusables(root)[0]; f && f.focus(); return true; }
+    // the big-screen icon menu: up/down = the next / previous icon in order (the gaps between the groups
+    // used to make the content beside it look "closer"); toward the content = back where you were
+    const rail = cur.closest('.th-rail');
+    if (rail) {
+      const all = $$('.th-rb', rail).filter(b => b.offsetParent !== null), i = all.indexOf(cur), out = document.documentElement.dir === 'rtl' ? 'left' : 'right';
+      if (dir === 'down' || dir === 'up') { const n = all[i + (dir === 'down' ? 1 : -1)]; if (n) n.focus({ preventScroll: true }); return true; }
+      if (dir === out) {
+        const T = window.TvHome, b = T && T.lastIn && T.lastIn.isConnected && root.contains(T.lastIn) && !T.lastIn.closest('.hidden') ? T.lastIn
+          : $('.th-main .cn-cat.on, .th-main .th-play, .th-main .th-card, .th-main button:not([tabindex="-1"])', root);
+        if (b) { b.focus({ preventScroll: true }); this.reveal(b); }
+      }
+      return true;
+    }
     const r = this.rect(cur);
     let best = null;
     // grid fast path: the next card is found by position in the list (columns are measured once per grid),
@@ -225,6 +239,8 @@ const SpatialNav = {
     }
     // 2) everything visible on screen
     if (!best) best = this.pick(dir, cur, this.focusables(root), r, false);
+    // into the icon menu: always land on the section you're in
+    if (best && best.closest('.th-rail')) best = $('.th-rail .th-rb.on', root) || best;
     if (best) { best.focus({ preventScroll: true }); this.reveal(best); return true; }
     return false;
   }
@@ -1300,6 +1316,20 @@ const App = {
         });
         draw(); const r = h('label', { class: 'set-row' }, h('span', {}, t('clockTz'), hint), s); return r;
       })(),
+      (() => {   // Android: open the app when the device turns on
+        const C = window.Capacitor; if (!(C && C.getPlatform && C.getPlatform() === 'android' && C.isPluginAvailable && C.isPluginAvailable('BootStart'))) return null;
+        const P = C.registerPlugin('BootStart'), hint = h('small', { class: 'muted block' }, t('bootHint'));
+        const show = st => { c.checked = !!st.on; hint.textContent = st.on && !st.overlayOk ? t('bootNeedPerm') : t('bootHint'); };
+        const c = sw(false, async on => {
+          let st = await P.set({ on }); show(st);
+          if (on && !st.overlayOk && await UI.confirm(t('bootStart'), t('bootPermAsk'))) { await P.askOverlay(); }
+        });
+        P.get().then(show).catch(() => {});
+        // coming back from the Android permission screen: show the new state
+        const vis = () => { if (!document.hidden && c.isConnected) P.get().then(show).catch(() => {}); else if (!c.isConnected) document.removeEventListener('visibilitychange', vis); };
+        document.addEventListener('visibilitychange', vis);
+        return h('label', { class: 'set-row' }, h('span', {}, t('bootStart'), hint), c);
+      })(),
       row(t('language'), sel('lang', [['auto', t('auto')], ['en', 'English'], ['ar', 'العربية']], () => { this.applyLang(); this.renderShell(); this.setData(this.data, this.dataTs); this.section = 'settings'; this.renderCats(); this.render(); })),
       row(t('theme'), h('div', { class: 'swatches' }, ...['#5b8cff', '#8b5cf6', '#ec4899', '#f97316', '#10b981', '#06b6d4', '#eab308'].map(c => h('button', { class: 'swatch' + (Settings.get('accent') === c ? ' on' : ''), style: { background: c }, 'aria-label': c, onclick: () => { Settings.set('accent', c); this.applyTheme(); this.renderSettings(); } })))),
       row(t('tvMode'), sel('tvMode', [['auto', t('auto')], ['on', t('yes')], ['off', t('no')]], () => this.applyTheme())));
@@ -1442,6 +1472,9 @@ const App = {
       if (k === 'Enter' && TvKeyboard.active() && TvKeyboard.supports(tgt) && !tgt.dataset.syskb) { e.preventDefault(); TvKeyboard.open(tgt); return; }
       if (k === 'Enter' && tgt && tgt.matches && tgt.matches('select')) { try { tgt.showPicker && tgt.showPicker(); } catch {} return; }
       if (dirs[k]) {
+        // holding an arrow: at most one move per drawn frame. Repeats that arrive while the last move is still
+        // being drawn are dropped, so nothing piles up and the focus stops the moment the key is let go.
+        if (e.repeat && SpatialNav.busy) { e.preventDefault(); return; }
         const d = dirs[k]; const a = document.activeElement;
         if (!a || a === document.body) { this.ensureFocus(); e.preventDefault(); return; }
         if (tgt.matches && tgt.matches('input[type=range]') && (d === 'left' || d === 'right')) return; // adjust slider

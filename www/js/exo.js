@@ -4,11 +4,15 @@
 'use strict';
 Object.assign(I18N.en, {
   playerEngine: 'Video player', peWeb: 'Built-in (current)', peExo: 'Android player (ExoPlayer)', playerEngineHint: 'Android player: decoding by the device itself — smoother on TV boxes, plays more file types and sound formats (MKV, AC3, EAC3)',
-  exoFallback: 'Android player could not play this — trying the built-in player'
+  exoFallback: 'Android player could not play this — trying the built-in player',
+  bootStart: 'Start when the device turns on', bootHint: 'Opens DOOM IPTV by itself after the TV / box starts', bootNeedPerm: 'Needs "Display over other apps" for DOOM IPTV to work on this device',
+  bootPermAsk: 'This Android version only lets an app open itself at start-up when it may "display over other apps". Open that setting now and turn it on for DOOM IPTV?'
 });
 Object.assign(I18N.ar, {
   playerEngine: 'مشغل الفيديو', peWeb: 'المدمج (الحالي)', peExo: 'مشغل أندرويد (ExoPlayer)', playerEngineHint: 'مشغل أندرويد: فك الفيديو بعتاد الجهاز نفسه — أنعم على أجهزة التلفزيون، ويشغّل صيغ ملفات وصوت أكثر (MKV, AC3, EAC3)',
-  exoFallback: 'مشغل أندرويد لم يستطع تشغيل هذا — جاري التجربة بالمشغل المدمج'
+  exoFallback: 'مشغل أندرويد لم يستطع تشغيل هذا — جاري التجربة بالمشغل المدمج',
+  bootStart: 'التشغيل التلقائي مع تشغيل الجهاز', bootHint: 'يفتح DOOM IPTV تلقائياً بعد تشغيل التلفزيون / الجهاز', bootNeedPerm: 'يحتاج صلاحية «الظهور فوق التطبيقات الأخرى» لـ DOOM IPTV ليعمل على هذا الجهاز',
+  bootPermAsk: 'إصدار أندرويد هذا لا يسمح للتطبيق بفتح نفسه عند التشغيل إلا بصلاحية «الظهور فوق التطبيقات الأخرى». أفتح هذا الإعداد الآن لتفعيلها لـ DOOM IPTV؟'
 });
 
 const Exo = {

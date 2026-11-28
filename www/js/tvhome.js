@@ -123,6 +123,8 @@ const TvHome = {
     document.body.appendChild(this.el);
     // the background and the hero follow the card you STOP on (not every card you pass); rows scroll sideways
     this.el.addEventListener('focusin', e => {
+      if (!e.target.closest('.th-rail')) this.lastIn = e.target;   // where to come back to from the icon menu
+      if (Trailer.fr && e.target._it !== this.cur) Trailer.stop(true);   // a playing trailer goes at once (it shares the page's processor)
       const c = e.target.closest('.th-card');
       let dy = 0;
       if (c && this.cn && this.view.mode === 'home') { const sec = c.closest('.th-sec'), rows = sec && sec.parentElement; if (rows && rows.classList.contains('th-rows') && rows.scrollTop !== sec.offsetTop) { const b0 = rows.scrollTop; rows.scrollTop = sec.offsetTop; dy = rows.scrollTop - b0; } }
@@ -395,7 +397,7 @@ const TvHome = {
     this.meta(it, info); if (info.plot) $('.th-plot', this.el).textContent = info.plot;
     if (info.backdrop && info.backdrop !== bd0) { this.bg(info.backdrop, ''); this.remember(it, info.backdrop, card); }
     // the trailer starts when you stay on the title for a moment (not while moving through a row)
-    if (info.trailer && Trailer.allowed('home') && (!this.cn || this.view.mode === 'home')) this._trT = setTimeout(() => { if (this.cur === me && this.open_ && this.view.mode !== 'detail' && !UI.top()) Trailer.play($('.th-bg', this.el), info.trailer, 'home'); }, 1500);
+    if (info.trailer && Trailer.allowed('home') && (!this.cn || this.view.mode === 'home')) this._trT = setTimeout(() => { if (this.cur === me && this.open_ && this.view.mode !== 'detail' && !UI.top() && document.activeElement && document.activeElement._it === me) Trailer.play($('.th-bg', this.el), info.trailer, 'home'); }, 2200);
   },
   meta(it, info) {
     const genre = String(info.genre || it.genre || '').split(/[,/|]/)[0].trim();
