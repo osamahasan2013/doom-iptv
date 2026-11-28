@@ -19,8 +19,6 @@ https://fast-tailor.3catdirectes.cat/v1/channel/ccma-channel2/hls.m3u8
 https://dai.google.com/linear/hls/event/JUr94WL2QAiVpGNHY5n5dA/master.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/CD3vZU6.png" group-title="Series",4ever Drama
 http://stream.mcquack.net/260/index.m3u8
-#EXTINF:-1 tvg-logo="https://cdn2-static.ntv.ru/home/promo/24740/5minut_live.jpg" group-title="Series",5 minut tishiny
-https://cdn-dvr.ntv.ru/5_minut_tishiny/index.m3u8
 #EXTINF:-1 tvg-logo="https://provider-static.plex.tv/epg/cms/production/bcfb9977-809f-49ae-acc7-430f2c6ffb26/50CentAction_Logo_1500x1000_DarkBG_-_Chris_Connors.png" group-title="Movies",50 Cent Action
 https://amg00353-amg00353c49-vizio-us-7989.playouts.now.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Series",AfroLand Drama
@@ -61,6 +59,8 @@ http://92.114.85.87:8014/play/a004/index.m3u8
 http://92.114.85.87:8014/play/a004/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/KIpSdQC.png" group-title="Series",Az Corazon
 http://200.115.120.1:8000/play/ca020/index.m3u8
+#EXTINF:-1 tvg-logo="https://cdn2-static.ntv.ru/home/promo/24740/balabol_vse.jpg" group-title="Series",Balabol
+https://cdn-dvr.ntv.ru/Balabol/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/c2esKHg.png" group-title="Series",Baywatch
 https://amg00145-buzzr-bigballs-baywatch-rokuus-qq7iy.amagi.tv/playlist/amg00145-buzzr-bigballs-baywatch-rokuus/playlist.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Series",BBC Drama
@@ -151,8 +151,6 @@ https://amg00353-lionsgatestudios-amg00353c3-vizio-us-802.playouts.now.amagi.tv/
 https://d1kgo9l74vimu0.cloudfront.net/v1/aenetworks_ae_1/samsungheadend_us/latest/main/hls/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/P5Haaln.png" group-title="Series",Homes Under The Hammer
 https://all3media-homes-under-the-hammer-1-au.samsung.wurl.tv/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/6/65/HTV3-2018.png" group-title="Series",HTV3
-https://freem3u.xyz/api/live/play.m3u8?vid=192
 #EXTINF:-1 tvg-logo="https://i.imgur.com/9EWffqx.png" group-title="Series",Impossible Quiz Show
 https://bbc-impossible-1-us.roku.wurl.tv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/wvQYWsj.png" group-title="Series",Inside Crime
@@ -202,7 +200,7 @@ https://nosey-intl-1-samsungau.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/8dUS3Ih.png" group-title="Series",Novelisima
 http://138.59.177.78:9999/play/a0gg/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/QdVa8tl.png" group-title="Series",NTV Series
-http://stream.mcquack.net/301/index.m3u8
+http://s7.merlive.am/NTVSerial/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/FfKBvz5.png" group-title="Series",NTV-Hit
 http://178.134.1.158:8081/ntvhit/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.ibb.co/Jw0J5fnW/IMG-2509.png" group-title="Series",ON Cine
@@ -214,6 +212,8 @@ http://dvrfl05.bozztv.com/vch_vchannel18/index.m3u8
 #EXTINF:-1 tvg-logo="https://provider-static.plex.tv/epg/cms/production/f162df8b-6532-43fe-9202-83a658090651/OuterSphere_1500x1000_Logo_Dark_-_Chris_Connors__1_.png" group-title="Movies",OuterSphere
 https://d3o593mz1glx8d.cloudfront.net/OuterSphere_US.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Paramount_Network.svg/960px-Paramount_Network.svg.png" group-title="Series",Paramount Network
+https://guard.sekobes.workers.dev/?url=https://vuvuu-geil-m3u8.yaskar661.workers.dev/?url=https%3A%2F%2Fgeil.to%2Flive%2Fplay%2F3390498693
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Paramount_Network.svg/960px-Paramount_Network.svg.png" group-title="Series",Paramount Network
 http://23.237.104.106:8080/USA_PARAMOUNT_NETWORK/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/U9CYaok.png" group-title="Series",PBS Antiques Roadshow
 https://amg02333-pbs-amg02333c8-firetv-us-4239.playouts.now.amagi.tv/playlist.m3u8
@@ -221,8 +221,6 @@ https://amg02333-pbs-amg02333c8-firetv-us-4239.playouts.now.amagi.tv/playlist.m3
 https://amg02333-pbs-amg02333c11-firetv-us-4242.playouts.now.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Series",Persiana Series
 https://onehls.persiana.live/hls/stream.m3u8
-#EXTINF:-1 tvg-logo="https://cdn2-static.ntv.ru/home/promo/24740/perv_otdel_llive.jpg" group-title="Series",Perviy otdel
-https://cdn-dvr.ntv.ru/Perviy_otdel/index.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Series",Pluto TV Drama
 http://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5b4e92e4694c027be6ecece1/master.m3u8?terminate=false&deviceType=web&deviceMake=web&deviceModel=web&sid=60&deviceId=5b4e92e4694c027be6ecece1&deviceVersion=DNT&appVersion=DNT&deviceDNT=0&userId=&advertisingId=&deviceLat=&deviceLon=&app_name=&appName=web&buildVersion=&appStoreUrl=&architecture=&includeExtendedEvents=false&marketingRegion=US&serverSideAds=false
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Polsat_Seriale_2021_gradient.svg/500px-Polsat_Seriale_2021_gradient.svg.png" group-title="Series",Polsat Seriale HD
@@ -243,6 +241,8 @@ https://d3mznj2vub522l.cloudfront.net/playlist.m3u8
 https://d28efmnqar6ea8.cloudfront.net/playlist.m3u8
 #EXTINF:-1 tvg-logo="" group-title="Series",Series K Legacy
 https://d2uvezlpjwbhrx.cloudfront.net/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://cdn2-static.ntv.ru/home/promo/24740/shef_llive.jpg" group-title="Series",Shef
+https://cdn-dvr.ntv.ru/Shef/index.m3u8
 #EXTINF:-1 tvg-logo="https://cdn2-static.ntv.ru/home/promo/24740/skoraya_pom_llive.jpg" group-title="Series",Skoraya pomoshch
 https://cdn-dvr.ntv.ru/Skoraja_pomosh/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/4EFh0nu.png" group-title="Series",Smotrim 100% Lyubov

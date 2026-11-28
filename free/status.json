@@ -1,9 +1,9 @@
 {
  "v": 1,
- "updated": "2026-11-27T09:54:47+00:00",
- "checked_links": 18926,
+ "updated": "2026-11-28T09:07:48+00:00",
+ "checked_links": 18959,
  "strikes_to_remove": 2,
- "duration_sec": 580,
+ "duration_sec": 584,
  "sources": [
   {
    "id": "iptv-org",
@@ -11,7 +11,7 @@
    "home": "https://github.com/iptv-org/iptv",
    "ok": true,
    "fail_days": 0,
-   "live": 12601,
+   "live": 12620,
    "movies": 0,
    "series": 0
   },
@@ -21,22 +21,22 @@
    "home": "https://github.com/Free-TV/IPTV",
    "ok": true,
    "fail_days": 0,
-   "live": 2014,
+   "live": 2007,
    "movies": 0,
    "series": 0
   }
  ],
  "counts": {
-  "live": 9695,
-  "arabic": 376,
+  "live": 9723,
+  "arabic": 372,
   "movies": 0,
   "series": 0,
   "episodes": 0
  },
- "removed_today": 112,
+ "removed_today": 111,
  "results": {
-  "ok": 10985,
-  "restricted": 1313,
-  "fail": 6628
+  "ok": 10970,
+  "restricted": 1319,
+  "fail": 6670
  }
 }

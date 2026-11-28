@@ -73,6 +73,8 @@ https://fastlive.cctvplus.com/out/v1/ca6f9297b7314a63959435028af287fc/index.m3u8
 https://cloud37.ecuatel.com/ciracutv/live/manifest.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/QzMRKWy.png" group-title="Culture",Classic Arts Showcase
 https://classicarts.akamaized.net/hls/live/1024257/CAS/master.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/dlrazec.png" group-title="Culture",Condavision
+https://5f71743aa95e4.streamlock.net:1936/Condavision/endirecto/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/N4pFVVF.png" group-title="Culture",Costa Rica Channel
 https://video0.rogohosting.com:19360/8006/8006.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/h0LxXsx.png" group-title="Culture",Cultura 24
@@ -204,7 +206,7 @@ https://viewmedia7219.bozztv.com/wmedia/viewmedia100/web_023/Stream/playlist.m3u
 #EXTINF:-1 tvg-logo="https://i.imgur.com/YR7sXaN.png" group-title="Culture",NITV
 https://i.mjh.nz/.r/sbs-5nsw.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/pUcV46F.png" group-title="Culture",NTV Mir
-https://streaming.thestream.cyou/live/213.m3u8
+http://s7.merlive.am/NTVMir/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/7kuluji.png" group-title="Culture",NYXT
 https://reflect-stream-bronxnet.cablecast.tv/live-10/live/live.m3u8
 #EXTINF:-1 tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/OTV_Odisha_TV.png" group-title="Culture",Odisha TV

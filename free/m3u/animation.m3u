@@ -52,7 +52,7 @@ http://45.132.87.69:8080/cartoon_network/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network HD
 http://103.255.250.188:5002/cs25.m3u8?channel=zhongying&gid=cs25&token=guoziyun
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network Latin America Brazil
-http://15.204.246.24:8080/CartoonNetworkHD/index.m3u8
+https://cdn-1.netplaygo.com.br/CARTOON_NETWORK/tracks-v1a1/mono.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network Latin America North Atlantic
 http://45.173.12.70:8000/play/a0fj
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/960px-Cartoon_Network_2010_logo.svg.png" group-title="Animation",Cartoon Network Latin America South Atlantic
@@ -138,7 +138,7 @@ https://d21vn5eki5qsdi.cloudfront.net/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://static.wikitide.net/indietvwiki/0/03/Placid_(2026).svg" group-title="Animation",Placid
 https://toy.vcdn.fyi/placid/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/MYc8srh.png" group-title="Animation",Plim Plim
-http://45.70.168.162:1503/play/a02a/index.m3u8
+http://200.115.120.1:8000/play/ca091/index.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/M40b4YI.png" group-title="Classic",RetroCrush
 https://linear-899.frequency.stream/dist/cineverse/899/hls/master/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/HCefxaK.png" group-title="Animation",Solnce

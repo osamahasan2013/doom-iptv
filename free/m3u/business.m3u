@@ -8,7 +8,7 @@ https://svs.itworkscdn.net/asharqradiovlive/asharqradiov/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/CNBC_Arabia_2025.svg/960px-CNBC_Arabia_2025.svg.png" group-title="Business",CNBC Arabiya
 https://cnbc-live.akamaized.net/cnbc/master.m3u8
 #EXTINF:-1 tvg-logo="https://www.qbc.news/_next/static/media/logo.0~2x9wpd284~a.svg" group-title="Business",QBC
-https://googlecdn1.alkassdigital.net/livestream/qbc4/main.m3u8
+https://live.kwikmotion.com/qbusinesslive/qbusiness.smil/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/bSXKdK5.png" group-title="News",100% News
 http://85.238.112.40:8810/hls_sec/239.33.16.32-.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/CKCtZo7.png" group-title="Business",30A Investment Pitch
@@ -83,6 +83,8 @@ https://amg01529-defiancetv-defiancemedia-glewed-tre8x.amagi.tv/playlist.m3u8
 https://stream-us-east-1.getpublica.com/playlist.m3u8?network_id=2506
 #EXTINF:-1 tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/TIMESPLAY/LIVECHANNEL/6904ba4639f3b175376a61e1/images/LOGO_HD/LOGO_HD_X3wkpp-9M_ET-swadesh1_1.png" group-title="Business",ET Now Swadesh
 https://dztlhgid9me95.cloudfront.net/live-tv/Vidgyor/etswadesh/etswadesh_master.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/r4gzSAM.png" group-title="Business",FINTECH.TV
+https://ftv247iovescdn1.fintech.tv/hls/main.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Fox_Business.svg/960px-Fox_Business.svg.png" group-title="Business",Fox Business Network
 https://247preview.foxbusiness.com/hls/live/2020026/fbnv3preview/primary.m3u8
 #EXTINF:-1 tvg-logo="https://www.tvchinese.net/uploads/tv/jxtv3.jpg" group-title="Business",Jiangxi Economy & Life Channel
@@ -107,6 +109,8 @@ https://freem3u.xyz/api/live/play.m3u8?vid=189
 https://tv-streaming.bsh.ru:21938/probusiness/probusiness.stream/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/CwhmJby.png" group-title="Business",RBK-TV
 http://176.118.197.101/RBK/index.m3u8
+#EXTINF:-1 tvg-logo="https://yt3.googleusercontent.com/Q1oCTccWVtIPxZA79uKM6Qnm4h3s0Jo1Ipx2FHldTh-u1RNGIMfQD6_VIfM8BYcAvP2We6ydRVE=s900-c-k-c0x00ffffff-no-rj" group-title="Business",Republic Business
+https://rbusiness.cdn.runn.tv/amg01218c8/hls.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/zmQnKV6.png" group-title="Business",Schwab Network
 https://content.uplynk.com/channel/f9aafa1f132e40af9b9e7238bc18d128.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/XC7i7ZL.png" group-title="Business",Telewizja Biznesowa
