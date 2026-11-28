@@ -15,12 +15,15 @@ Object.assign(I18N.ar, {
   bootPermAsk: 'إصدار أندرويد هذا لا يسمح للتطبيق بفتح نفسه عند التشغيل إلا بصلاحية «الظهور فوق التطبيقات الأخرى». أفتح هذا الإعداد الآن لتفعيلها لـ DOOM IPTV؟'
 });
 
+/* A native plugin of the app. The page has no Capacitor JS library bundled: the Android bridge itself puts
+   each plugin on Capacitor.Plugins (methods + addListener). registerPlugin only exists with that library. */
+const capPlugin = name => { const C = window.Capacitor || {}; return (C.Plugins && C.Plugins[name]) || (C.registerPlugin ? C.registerPlugin(name) : null); };
 const Exo = {
   _p: null,
   available() {
     try { const C = window.Capacitor; return !!(C && C.getPlatform && C.getPlatform() === 'android' && C.isPluginAvailable && C.isPluginAvailable('NativePlayer')); } catch { return false; }
   },
-  plugin() { if (!this._p) this._p = window.Capacitor.registerPlugin('NativePlayer'); return this._p; },
+  plugin() { if (!this._p) this._p = capPlugin('NativePlayer'); return this._p; },
   wanted() { return Settings.get('playerEngine') === 'exo' && this.available(); },
   call(m, a) { try { return this.plugin()[m](a || {}).catch(e => console.warn('exo ' + m, e)); } catch (e) { console.warn('exo ' + m, e); return Promise.resolve(); } }
 };

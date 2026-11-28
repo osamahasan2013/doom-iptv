@@ -379,7 +379,7 @@ const Player = {
     console.warn('stream failed', detail);
     this.stopEngine(true);
     // the Android player tried every address: try them all once more with the built-in player
-    if (this.v.isNative && !this._forceWeb && this.attemptIdx >= this.attempts.length - 1) { this._forceWeb = true; this.attemptIdx = 0; UI.toast(t('exoFallback')); this.startAttempt(); return; }
+    if (this.v.isNative && !this._forceWeb && this.attemptIdx >= this.attempts.length - 1) { this._forceWeb = true; this.attemptIdx = 0; UI.toast(t('exoFallback') + (detail ? ' (' + String(detail).replace(/^exo:/, '').slice(0, 60) + ')' : '')); this.startAttempt(); return; }
     if (this.attemptIdx < this.attempts.length - 1) { this.attemptIdx++; this.startAt = this.lastTime || this.startAt; this.startAttempt(); }
     else this.showError(detail);
   },

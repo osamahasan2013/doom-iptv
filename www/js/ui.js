@@ -1318,7 +1318,7 @@ const App = {
       })(),
       (() => {   // Android: open the app when the device turns on
         const C = window.Capacitor; if (!(C && C.getPlatform && C.getPlatform() === 'android' && C.isPluginAvailable && C.isPluginAvailable('BootStart'))) return null;
-        const P = C.registerPlugin('BootStart'), hint = h('small', { class: 'muted block' }, t('bootHint'));
+        const P = capPlugin('BootStart'); if (!P) return null; const hint = h('small', { class: 'muted block' }, t('bootHint'));
         const show = st => { c.checked = !!st.on; hint.textContent = st.on && !st.overlayOk ? t('bootNeedPerm') : t('bootHint'); };
         const c = sw(false, async on => {
           let st = await P.set({ on }); show(st);
